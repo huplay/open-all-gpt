@@ -1,0 +1,7 @@
+{
+  "tokenizerType": "SENTENCE_PIECE/TINY",
+  "--original repo--": "https://huggingface.co/karpathy/tinyllamas",
+  "repo": "https://huggingface.co/TinyPixel/llama-110m",
+  "branch": "refs%2Fpr%2F2",
+  "files": []
+}

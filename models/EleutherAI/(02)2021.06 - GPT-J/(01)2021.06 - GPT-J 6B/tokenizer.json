@@ -1,0 +1,6 @@
+{
+  "tokenizerType": "OPENAI_GPT_2",
+  "repo": "https://huggingface.co/EleutherAI/gpt-j-6b",
+  "branch": "refs%2Fpr%2F40",
+  "files": ["vocab.json", "merges.txt"]
+}

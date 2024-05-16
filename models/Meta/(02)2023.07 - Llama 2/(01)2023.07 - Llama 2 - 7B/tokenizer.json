@@ -1,0 +1,5 @@
+{
+  "tokenizerType": "SENTENCE_PIECE",
+  "repo": "https://huggingface.co/meta-llama/Llama-2-7b-chat-hf",
+  "files": ["tokenizer.model"]
+}

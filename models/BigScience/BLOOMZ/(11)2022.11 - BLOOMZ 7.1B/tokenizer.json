@@ -1,0 +1,5 @@
+{
+  "tokenizerType": "OPENAI_GPT_2",
+  "repo": "https://huggingface.co/bigscience/bloomz-7b1",
+  "files": ["tokenizer.json"]
+}

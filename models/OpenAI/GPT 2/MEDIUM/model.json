@@ -1,0 +1,8 @@
+{
+  "name": "OpenAI GPT-2 Medium",
+  "transformerType": "OPENAI_GPT_2",
+  "repo": "https://huggingface.co/openai-community/gpt2-medium",
+  "files": ["config.json", "model.safetensors"],
+  "decoderParameterNaming": "h.{decoderId}.{name}",
+  "memorySize": 2048
+}

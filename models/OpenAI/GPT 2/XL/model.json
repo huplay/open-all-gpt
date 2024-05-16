@@ -1,0 +1,8 @@
+{
+  "name": "OpenAI GPT-2 XL",
+  "transformerType": "OPENAI_GPT_2",
+  "repo": "https://huggingface.co/openai-community/gpt2-xl",
+  "files": ["config.json", "model.safetensors"],
+  "decoderParameterNaming": "h.{decoderId}.{name}",
+  "memorySize": 7168
+}

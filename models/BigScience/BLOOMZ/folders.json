@@ -1,0 +1,11 @@
+{
+  "order": [
+    "BLOOMZ 560M",
+    "BLOOMZ 1.1B",
+    "BLOOMZ 1.7B",
+    "BLOOMZ 3B",
+    "BLOOMZ 7.1B",
+    "BLOOMZ 176B"
+  ],
+  "disabled": ["BLOOMZ 176B"]
+}

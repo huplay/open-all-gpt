@@ -1,0 +1,8 @@
+{
+  "name": "BLOOMZ 1.7B",
+  "transformerType": "BIG_SCIENCE_BLOOM",
+  "repo": "https://huggingface.co/bigscience/bloomz-1b7",
+  "files": ["config.json", "model.safetensors"],
+  "decoderParameterNaming": "h.{decoderId}.{name}",
+  "memorySize": 9216
+}

@@ -1,0 +1,19 @@
+{
+  "name": "OpenAI GPT-1",
+  "date": "2018-06",
+  "transformerType": "OPENAI_GPT_1",
+  "repo": "https://huggingface.co/openai-community/openai-gpt",
+  "files": ["model.safetensors"],
+  "decoderParameterNaming": "h.{decoderId}.{name}",
+  "memorySize": 1024,
+  "configOverride": {
+    "hiddenSize": 768,
+    "feedForwardSize": 3072,
+    "decoderCount": 12,
+    "headCount": 12,
+    "epsilon": 1e-05,
+    "contextSize": 512,
+    "tokenCount": 40478,
+    "endOfTextToken": 0
+  }
+}

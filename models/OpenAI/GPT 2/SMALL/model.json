@@ -1,0 +1,13 @@
+{
+  "name": "OpenAI GPT-2 Small",
+  "transformerType": "OPENAI_GPT_2",
+  "repo": "https://huggingface.co/openai-community/gpt2",
+  "files": ["config.json", "model.safetensors"],
+  "decoderParameterNaming": "h.{decoderId}.{name}",
+  "memorySize": 1024,
+  "memorySizes": {
+    "MAIN": 200,
+    "ATTENTION_LAYER": 50,
+    "NEURAL_NET_LAYER": 40
+  }
+}
