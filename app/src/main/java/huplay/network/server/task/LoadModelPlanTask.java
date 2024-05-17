@@ -4,6 +4,7 @@ import huplay.config.BlockType;
 import huplay.config.Config;
 import huplay.config.ModelConfig;
 import huplay.config.TokenizerConfig;
+import huplay.file.DownloadMissingFiles;
 import huplay.file.DownloadSafetensorsHeader;
 import huplay.file.SafetensorsReader;
 import huplay.network.info.DecoderBlock;
@@ -14,12 +15,14 @@ import huplay.network.info.WorkSegmentType;
 import huplay.network.server.state.ModelState;
 import huplay.network.server.state.WorkerInfo;
 import huplay.transformer.TransformerType;
+import huplay.ui.DownloadProgressBar;
 
 import java.io.IOException;
 import java.util.*;
 
+import static huplay.AppNetworkWorker.OUT;
 import static huplay.config.BlockType.*;
-import static huplay.file.DownloadUtil.checkHeaderFiles;
+import static huplay.file.FileUtil.checkHeaderFiles;
 import static huplay.network.server.state.ServerState.getServerState;
 import static java.lang.Math.round;
 
@@ -57,8 +60,20 @@ public class LoadModelPlanTask implements Runnable
                     // Determine required memory for main/attention/neural net layers (calculate or read from config)
                     var memoryRequirements = determineRequiredMemory(modelConfig, downloadPath);
 
+                    Config config;
+                    if (modelConfig.getConfigOverride() != null)
+                    {
+                        // If the repo doesn't contain the config.json it is possible to include in the model.json
+                        // Use that if provided
+                        config = modelConfig.getConfigOverride();
+                    }
+                    else
+                    {
+                        config = Config.readConfig(null, modelConfig, null, null);
+                    }
+
                     // Split the work for workers
-                    var workSegments = splitWork(workers, memoryRequirements);
+                    var workSegments = splitWork(workers, memoryRequirements, config.getDecoderCount());
 
                     // Create the load requests and register those as pending (do not send, wait until all registered)
                     var loadRequests = createLoadRequests(modelConfig, modelState, workSegments);
@@ -107,6 +122,14 @@ public class LoadModelPlanTask implements Runnable
                 }
             }
         }
+
+        // TODO: Download the config.json if missing
+        /*
+                            var progressBar = new DownloadProgressBar(OUT);
+                    var downloader = new DownloadMissingFiles(progressBar);
+                    downloader.download(missingFiles, modelConfig, modelConfig.getDownloadPath());
+         */
+
     }
 
     private Map<BlockType, Long> determineRequiredMemory(ModelConfig modelConfig, String downloadPath)
@@ -145,16 +168,17 @@ public class LoadModelPlanTask implements Runnable
         return requirements;
     }
 
-    private List<WorkSegment> splitWork(List<WorkerInfo> workers, Map<BlockType, Long> memoryRequirements)
+    private List<WorkSegment> splitWork(List<WorkerInfo> workers, Map<BlockType, Long> memoryRequirements,
+                                        int decoderCount)
     {
         var workSegments = new ArrayList<WorkSegment>();
 
         // TODO: This isn't exact measurement, fine-grain later
         float scale = 1.2f;
 
-        long mainBlockRequirement = round(scale * memoryRequirements.get(MAIN)); // 50000 * 1024 * 4 * 2;
-        long attentionRequirement = round(scale * memoryRequirements.get(ATTENTION_LAYER)); // worker.getFreeMemory() / 3 / 12;
-        long neuralNetRequirement = round(scale * memoryRequirements.get(NEURAL_NET_LAYER)); // attentionRequirement
+        long mainBlockRequirement = round(scale * memoryRequirements.get(MAIN));
+        long attentionRequirement = round(scale * memoryRequirements.get(ATTENTION_LAYER));
+        long neuralNetRequirement = round(scale * memoryRequirements.get(NEURAL_NET_LAYER));
 
         // Order the workers by free memory
         workers.sort(Collections.reverseOrder());
@@ -166,7 +190,7 @@ public class LoadModelPlanTask implements Runnable
 
         long freeMemory = worker.getFreeMemory() - mainBlockRequirement;
 
-        for (int i = 0; i < 12; i++) // TODO: Use modelSize
+        for (int i = 0; i < decoderCount; i++)
         {
             if (freeMemory < attentionRequirement)
             {

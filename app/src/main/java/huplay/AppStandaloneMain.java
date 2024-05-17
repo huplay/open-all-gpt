@@ -11,7 +11,7 @@ import java.io.*;
 import java.util.Arrays;
 
 import static huplay.AppNetworkClient.UTIL;
-import static huplay.AppNetworkClient.checkFiles;
+import static huplay.file.FileUtil.checkFiles;
 import static huplay.ui.ConsoleUtil.getPrintStream;
 import static huplay.ui.Logo.logo;
 import static huplay.ui.TextUtil.toCenter;

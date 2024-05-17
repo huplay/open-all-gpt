@@ -1,9 +1,0 @@
-{
-  "name": "Cerebras 111M",
-  "transformerType": "OPENAI_GPT_2",
-  "repo": "https://huggingface.co/cerebras/Cerebras-GPT-111M",
-  "files": ["config.json", "model.safetensors"],
-  "parameterNaming": "transformer.{name}",
-  "decoderParameterNaming": "transformer.h.{decoderId}.{name}",
-  "memorySize": 1024
-}

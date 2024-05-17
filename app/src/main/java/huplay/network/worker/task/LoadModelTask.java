@@ -9,8 +9,8 @@ import huplay.network.message.toServer.fromWorker.ModelLoadedMessage;
 import huplay.transformer.TransformerType;
 import huplay.ui.DownloadProgressBar;
 
-import static huplay.AppNetworkClient.checkFiles;
 import static huplay.AppNetworkWorker.OUT;
+import static huplay.file.FileUtil.checkFiles;
 import static huplay.network.worker.state.WorkerState.getWorkerState;
 
 public class LoadModelTask implements Runnable

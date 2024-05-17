@@ -1,0 +1,11 @@
+{
+  "name": "Karpathy tinyLlama 42M",
+  "transformerType": "META_LLAMA",
+  "--original repo--": "https://huggingface.co/karpathy/tinyllamas",
+  "repo": "https://huggingface.co/nickypro/tinyllama-42M",
+  "branch": "refs/pr/1",
+  "files": ["config.json", "model.safetensors"],
+  "parameterNaming": "model.{name}",
+  "decoderParameterNaming": "model.layers.{decoderId}.{name}",
+  "memorySize": 1024
+}

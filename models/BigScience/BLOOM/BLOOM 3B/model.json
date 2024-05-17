@@ -1,0 +1,8 @@
+{
+  "name": "BLOOM 3B",
+  "transformerType": "BIG_SCIENCE_BLOOM",
+  "repo": "https://huggingface.co/bigscience/bloom-3b",
+  "files": ["config.json", "model.safetensors"],
+  "decoderParameterNaming": "h.{decoderId}.{name}",
+  "memorySize": 12288
+}

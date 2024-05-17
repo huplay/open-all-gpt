@@ -1,9 +1,0 @@
-{
-  "name": "tinyLlama 1.1B Alves",
-  "transformerType": "META_LLAMA",
-  "repo": "https://huggingface.co/lgaalves/tinyllama-1.1b-chat-v0.3_platypus",
-  "files": ["config.json", "model.safetensors"],
-  "parameterNaming": "model.{name}",
-  "decoderParameterNaming": "model.layers.{decoderId}.{name}",
-  "memorySize": 11264
-}

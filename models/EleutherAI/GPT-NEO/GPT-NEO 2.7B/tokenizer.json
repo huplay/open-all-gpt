@@ -1,0 +1,5 @@
+{
+  "tokenizerType": "OPENAI_GPT_2",
+  "repo": "https://huggingface.co/EleutherAI/gpt-neo-2.7B",
+  "files": ["vocab.json", "merges.txt"]
+}

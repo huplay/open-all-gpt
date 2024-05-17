@@ -59,7 +59,7 @@ Every model should have two files to configure the model itself and the tokenize
 - `date`: The release date of the model
 - `transformerType`: The type of the transformer as it is listed in TransformerType.java
 - `repo`: The url of the repo to download the model files (Currently it should be a Hugging Face repo)
-- `branch`: The branch name of the repo (Currently it should be url escaped)
+- `branch`: The branch name of the repo
 - `files`: list of necessary files. If some of these are missing it will be downloaded from the repo
 - `parameterNaming`: The format of the transformer parameters (outside of decoders). The `{name}` will be replaced by the name used in the code
 - `decoderParameterNaming`: The format of the transformer parameter at decoders. The `{decoderId}` will be replaced by the index of the decoder, the `{name}" by the name used in the code
@@ -70,7 +70,7 @@ Every model should have two files to configure the model itself and the tokenize
 `tokenizer.json` format:
 - `tokenizerType`: The type of the tokenizer as it is listed in TokenizerType.java
 - `repo`: The url of the repo to download the model files (Currently it should be a Hugging Face repo)
-- `branch`: The branch name of the repo (Currently it should be url escaped)
+- `branch`: The branch name of the repo
 - `files`: list of necessary files. If some of these are missing it will be downloaded from the repo
 
 The `tranformerType` and `tokenizerType` values are necessary, all other values are optional.

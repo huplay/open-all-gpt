@@ -21,8 +21,8 @@ public class NetworkSettings
     // The default is the "download", but it can be overridden by the OPEN_ALL_GPT_DOWNLOAD_ROOT environment variable
     private final String downloadRoot;
 
-    // The relative path of the selected model
-    private String relativePath;
+    // ModelId - the path of the selected model
+    private String modelId;
 
     private final String serverHost;
     private final int serverPort;
@@ -112,22 +112,22 @@ public class NetworkSettings
     // Getters
     public String getConfigRoot() {return configRoot;}
     public String getDownloadRoot() {return downloadRoot;}
-    public String getRelativePath() {return relativePath;}
+    public String getModelId() {return modelId;}
     public String getServerHost() {return serverHost;}
     public Integer getServerPort() {return serverPort;}
     public Address getServerAddress() {return serverAddress;}
     public Integer getSelfPort() {return selfPort;}
 
     // Setter
-    public void setRelativePath(String relativePath) {this.relativePath = relativePath;}
+    public void setModelId(String modelId) {this.modelId = modelId;}
 
     public String getConfigPath()
     {
-        return relativePath == null ? null : configRoot + "/" + relativePath;
+        return modelId == null ? null : configRoot + "/" + modelId;
     }
 
     public String getModelPath()
     {
-        return relativePath == null ? null : downloadRoot + "/" + relativePath;
+        return modelId == null ? null : downloadRoot + "/" + modelId;
     }
 }

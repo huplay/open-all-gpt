@@ -1,9 +1,0 @@
-{
-  "name": "Cerebras 2.7B",
-  "transformerType": "OPENAI_GPT_2",
-  "repo": "https://huggingface.co/cerebras/Cerebras-GPT-2.7B",
-  "files": ["config.json", "model.safetensors"],
-  "parameterNaming": "transformer.{name}",
-  "decoderParameterNaming": "transformer.h.{decoderId}.{name}",
-  "memorySize": 11264
-}

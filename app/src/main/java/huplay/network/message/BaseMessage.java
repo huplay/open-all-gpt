@@ -13,6 +13,8 @@ import huplay.network.message.toServer.fromWorker.WorkerJoinedMessage;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Acknowledge.class, name = "Acknowledge"),
+        @JsonSubTypes.Type(value = ClientJoinedRequest.class, name = "ClientJoinedRequest"),
+        @JsonSubTypes.Type(value = ClientJoinedResponse.class, name = "ClientJoinedResponse"),
         @JsonSubTypes.Type(value = WorkerJoinedMessage.class, name = "WorkerJoinedMessage"),
         @JsonSubTypes.Type(value = PollOpenModel.class, name = "OpenModelRequest"),
         @JsonSubTypes.Type(value = PollOpenModelResponse.class, name = "OpenModelResponse"),

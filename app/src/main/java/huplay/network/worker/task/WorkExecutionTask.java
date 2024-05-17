@@ -68,12 +68,12 @@ public class WorkExecutionTask implements Runnable
                 {
                     if (decoderBlock.getBlockType().equals(DecoderBlockType.ATTENTION_LAYER))
                     {
-                        var attentionLayer = transformer.getAttentionLayers().get(decoderBlock.getDecoderId());
+                        var attentionLayer = transformer.getAttentionLayers(decoderBlock.getDecoderId());
                         hiddenState = attentionLayer.process(hiddenState, isInputOnly);
                     }
                     else if (decoderBlock.getBlockType().equals(DecoderBlockType.NEURAL_NET_LAYER))
                     {
-                        var neuralNetLayer = transformer.getNeuralNetLayers().get(decoderBlock.getDecoderId());
+                        var neuralNetLayer = transformer.getNeuralNetLayers(decoderBlock.getDecoderId());
                         hiddenState = neuralNetLayer.process(hiddenState, isInputOnly);
                     }
                 }

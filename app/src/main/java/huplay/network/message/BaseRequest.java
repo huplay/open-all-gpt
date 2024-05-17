@@ -37,6 +37,7 @@ public abstract class BaseRequest<T extends BaseResponse> extends BaseMessage
         }
         else
         {
+            System.out.println("Error during sending request: " + responseCode + " " + connection.getErrorStream().toString());
             //BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
             // TODO: Handle error
             return null;
@@ -57,7 +58,9 @@ public abstract class BaseRequest<T extends BaseResponse> extends BaseMessage
         try (var writer = new OutputStreamWriter(connection.getOutputStream(), StandardCharsets.UTF_8))
         {
             writer.write(messageJson);
+            writer.flush();
         }
+
         return connection;
     }
 }

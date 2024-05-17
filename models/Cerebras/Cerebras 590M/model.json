@@ -1,0 +1,10 @@
+{
+  "name": "Cerebras 590M",
+  "transformerType": "OPENAI_GPT_2",
+  "repo": "https://huggingface.co/cerebras/Cerebras-GPT-590M",
+  "branch": "refs/pr/2",
+  "files": ["config.json", "model.safetensors"],
+  "parameterNaming": "transformer.{name}",
+  "decoderParameterNaming": "transformer.h.{decoderId}.{name}",
+  "memorySize": 3072
+}

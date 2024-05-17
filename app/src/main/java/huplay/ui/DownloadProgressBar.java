@@ -1,7 +1,7 @@
 package huplay.ui;
 
 import huplay.file.DownloadProgressHandler;
-import huplay.file.DownloadUtil;
+import huplay.file.FileUtil;
 
 import java.io.PrintStream;
 
@@ -26,7 +26,7 @@ public class DownloadProgressBar implements DownloadProgressHandler
     @Override
     public void showFile(String fileName, long size)
     {
-        OUT.println("File: " + fileName + " (size: " + DownloadUtil.formatSize(size) + ")");
+        OUT.println("File: " + fileName + " (size: " + FileUtil.formatSize(size) + ")");
     }
 
     @Override

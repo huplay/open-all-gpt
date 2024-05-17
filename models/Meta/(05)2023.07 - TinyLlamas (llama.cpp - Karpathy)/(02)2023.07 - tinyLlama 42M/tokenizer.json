@@ -1,6 +1,0 @@
-{
-  "tokenizerType": "SENTENCE_PIECE/TINY",
-  "repo": "https://huggingface.co/nickypro/tinyllama-42M",
-  "branch": "refs%2Fpr%2F1",
-  "files": []
-}

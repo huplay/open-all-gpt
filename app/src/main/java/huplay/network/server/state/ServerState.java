@@ -1,6 +1,7 @@
 package huplay.network.server.state;
 
 import huplay.network.Address;
+import huplay.network.info.Models;
 import huplay.network.info.WorkSegment;
 import huplay.tokenizer.Tokenizer;
 
@@ -15,6 +16,7 @@ public class ServerState
 
     private final String configRoot;
     private final String downloadRoot;
+    private Map<String, Models> models;
 
     private final Map<Address, WorkerInfo> workers = new HashMap<>();
 
@@ -130,9 +132,13 @@ public class ServerState
     // Getters
     public String getConfigRoot() {return configRoot;}
     public String getDownloadRoot() {return downloadRoot;}
+    public Map<String, Models> getModels() {return models;}
     public Map<Address, WorkerInfo> getWorkers() {return workers;}
     public Map<String, ModelState> getActiveModels() {return activeModels;}
     public Map<String, ModelState> getPendingModels() {return pendingModels;}
     public Map<String, QueryState> getFinishedQueries() {return finishedQueries;}
     public Map<String, QueryState> getPendingQueries() {return pendingQueries;}
+
+    // Setter
+    public void setModels(Map<String, Models> models) {this.models = models;}
 }

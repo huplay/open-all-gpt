@@ -1,0 +1,6 @@
+{
+  "tokenizerType": "SENTENCE_PIECE",
+  "repo": "https://huggingface.co/openlm-research/open_llama_3b_v2",
+  "branch": "refs/pr/16",
+  "files": ["tokenizer.model"]
+}

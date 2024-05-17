@@ -39,10 +39,9 @@ public class WorkSegment
     @Override
     public String toString()
     {
-        return "WorkSegment{" +
-                "worker=" + worker +
-                ", workSegmentType=" + workSegmentType +
-                ", decoderBlocks=" + decoderBlocks +
+        return "WorkSegment{" + worker +
+                ", " + workSegmentType +
+                ", blocks=" + decoderBlocks +
                 '}';
     }
 }

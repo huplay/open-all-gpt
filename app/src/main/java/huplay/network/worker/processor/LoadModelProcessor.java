@@ -11,7 +11,7 @@ public class LoadModelProcessor
     {
         var modelId = message.getModelId();
 
-        System.out.println("LoadModelRequest received: " + modelId + " segments: " + message.getWorkSegment());
+        System.out.println("LoadModelRequest received: " + modelId + ", " + message.getWorkSegment());
 
         var task = new LoadModelTask(message, serverAddress);
         new Thread(task).start();

@@ -1,0 +1,9 @@
+{
+  "name": "Cerebras 6.7B",
+  "transformerType": "OPENAI_GPT_2",
+  "---------- safetensors file is missing ----------repo": "https://huggingface.co/cerebras/Cerebras-GPT-6.7B",
+  "files": ["config.json", "model.safetensors"],
+  "parameterNaming": "transformer.{name}",
+  "decoderParameterNaming": "transformer.h.{decoderId}.{name}",
+  "memorySize": 30720
+}

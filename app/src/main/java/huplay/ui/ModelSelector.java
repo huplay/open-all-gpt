@@ -1,166 +1,123 @@
 package huplay.ui;
 
+import huplay.network.info.Models;
+
 import java.io.*;
 import java.util.*;
 
 public class ModelSelector
 {
-    public static String selectModel(PrintStream OUT, String configRoot) throws Exception
+    private final PrintStream OUT;
+    private final Map<String, Models> allModels;
+
+    public ModelSelector(PrintStream OUT, Map<String, Models> allModels)
     {
-        var configPath = selectModel(OUT, configRoot, configRoot);
-        return configPath.substring(configRoot.length() + 1);
+        this.OUT = OUT;
+        this.allModels = allModels;
     }
 
-    private static String selectModel(PrintStream OUT, String path, String configRoot) throws IOException
+    public String select() throws IOException
     {
-        var fileList = new File(path).listFiles();
+        return selectModel(allModels, "");
+    }
 
-        if (fileList != null)
+    private String selectModel(Map<String, Models> models, String path) throws IOException
+    {
+        // Order the models based on the order
+        var modelOrderMap = new HashMap<Integer, String>();
+        for (var model : models.entrySet())
         {
-            var files = Arrays.asList(fileList);
-            Collections.sort(files);
+            modelOrderMap.put(model.getValue().getOrder(), model.getKey());
+        }
 
-            // Find model.properties
-            for (var file : files)
+        var modelOrders = new ArrayList<>(modelOrderMap.keySet());
+        Collections.sort(modelOrders);
+
+        List<String> modelList = new ArrayList<>();
+        for (var modelOrder : modelOrders)
+        {
+            modelList.add(modelOrderMap.get(modelOrder));
+        }
+
+        // Display the list of models
+        var maxIdLength = String.valueOf(models.size()).length();
+        if (!path.isEmpty())
+        {
+            OUT.println(alignRight("0", maxIdLength) + ": ..");
+        }
+
+        int i = 1;
+        for (var model : modelList)
+        {
+            var id = alignRight("" + i, maxIdLength);
+            OUT.println(id + ": " + model);
+            i++;
+        }
+
+        // Ask user to select (repeat at incorrect selection)
+        var reader = new BufferedReader(new InputStreamReader(System.in));
+
+        int choice;
+        while (true)
+        {
+            OUT.print("\nPlease select: ");
+            var text = reader.readLine();
+            OUT.println();
+
+            try
             {
-                if (file.isFile() && file.getName().equals("model.json"))
+                if (text.equals("x") || text.equals("X"))
                 {
-                    return path;
+                    choice = -1;
+                    break;
                 }
-            }
 
-            // Find directories
-            var directories = new LinkedHashMap<Integer, String>();
-            var i = 1;
-            var j = -1;
-            var length = 1;
-            for (var file : files)
-            {
-                var name = file.getName();
-                if (file.isDirectory())
+                choice = Integer.parseInt(text);
+                if ( (choice > 0 && choice <= i) || (!path.isEmpty() && choice == 0))
                 {
-                    if (isEnabled(name))
-                    {
-                        directories.put(i, name);
-                        length = String.valueOf(i).length();
-                        i++;
-                    }
-                    else
-                    {
-                        directories.put(j, name);
-                        j--;
-                    }
+                    break;
                 }
-            }
 
-            if (directories.isEmpty())
+                throw new Exception();
+            }
+            catch (Exception e)
             {
-                // Go back a level if there's no model here and no subfolders
-                OUT.println("There is no model in the selected folder.");
-                return selectModel(OUT, getParentFolder(path), configRoot);
+                OUT.println("Incorrect choice. (Press X to exit any time.)");
+            }
+        }
+
+        if (choice == -1)
+        {
+            OUT.println("Bye!");
+            System.exit(0);
+        }
+        else if (choice == 0)
+        {
+            // Go back one level
+            var parentPath = getParentFolder(path);
+            var parentModels = getModels(allModels, parentPath);
+            return selectModel(parentModels, parentPath);
+        }
+        else
+        {
+            var modelName = modelList.get(choice - 1);
+            var selectedModel = models.get(modelName);
+
+            var newPath = path + (path.isEmpty() ? "" : "/") + modelName;
+            if (selectedModel.getFolders() == null || selectedModel.getFolders().isEmpty())
+            {
+                return newPath;
             }
             else
             {
-                if (!path.equals(configRoot))
-                {
-                    OUT.println(alignRight("0", length) + ": ..");
-                }
-
-                // Display the list of directories
-                for (Map.Entry<Integer, String> entry : directories.entrySet())
-                {
-                    var key = entry.getKey();
-                    var id = alignRight((key > 0) ? entry.getKey().toString() : "-", length);
-
-                    var displayName = getDisplayName(entry.getValue());
-
-                    OUT.println(id + ": " + displayName);
-                    i++;
-                }
-
-                // Ask user to select (repeat at incorrect selection)
-                var reader = new BufferedReader(new InputStreamReader(System.in));
-
-                int choice;
-                while (true)
-                {
-                    OUT.print("Please select: ");
-                    var text = reader.readLine();
-
-                    try
-                    {
-                        if (text.equals("x") || text.equals("X"))
-                        {
-                            choice = -1;
-                            break;
-                        }
-
-                        choice = Integer.parseInt(text);
-                        if ( (choice > 0 && choice <= directories.size()) || (!path.equals(configRoot) && choice == 0))
-                        {
-                            break;
-                        }
-
-                        OUT.println("Incorrect choice. (Press X to exit any time.)");
-                    }
-                    catch (Exception e)
-                    {
-                        OUT.println("Incorrect choice. (Press X to exit any time.)");
-                    }
-                }
-
-                var newPath = "";
-                if (choice == -1)
-                {
-                    OUT.println("Bye!");
-                    System.exit(0);
-                }
-                else if (choice == 0)
-                {
-                    newPath = getParentFolder(path);
-                }
-                else
-                {
-                    newPath = path + "/" + directories.get(choice);
-                }
-
-                OUT.println();
-                return selectModel(OUT, newPath, configRoot);
+                return selectModel(selectedModel.getFolders(), newPath);
             }
         }
 
-        OUT.println("There are no configured models.");
-        OUT.println("Bye!");
-        System.exit(0);
         return null;
     }
 
-    private static boolean isEnabled(String name)
-    {
-        if (name.startsWith("("))
-        {
-            // Remove the bracketed order from the name
-            var closing = name.indexOf(")");
-
-            return closing <= 2 || name.charAt(closing - 2) != '-' || name.charAt(closing - 1) != '-';
-        }
-
-        return true;
-    }
-
-    private static String getDisplayName(String name)
-    {
-        if (name.startsWith("("))
-        {
-            // Remove the bracketed order from the name
-            var closing = name.indexOf(")");
-            if (closing > 0) name = name.substring(closing + 1);
-        }
-
-        return name;
-    }
-
-    private static String alignRight(String text, int length)
+    private String alignRight(String text, int length)
     {
         if (text.length() >= length) return text;
 
@@ -169,9 +126,34 @@ public class ModelSelector
         return new String(pad) + text;
     }
 
-    private static String getParentFolder(String path)
+    private String getParentFolder(String path)
     {
         var lastIndex = path.lastIndexOf("/");
-        return path.substring(0, lastIndex);
+
+        if (lastIndex == -1) return "";
+        else return path.substring(0, lastIndex);
+    }
+
+    private Map<String, Models> getModels(Map<String, Models> models, String path)
+    {
+        if (path.isEmpty())
+        {
+            return models;
+        }
+        else
+        {
+            String[] splitPath = path.split("/");
+
+            if (splitPath.length == 1)
+            {
+                return models.get(path).getFolders();
+            }
+            else
+            {
+                var nextModels = models.get(splitPath[0]).getFolders();
+                var nextPath = path.substring(splitPath.length + 1);
+                return getModels(nextModels, nextPath);
+            }
+        }
     }
 }

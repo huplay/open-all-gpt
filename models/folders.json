@@ -1,7 +1,0 @@
-{
-  "OpenAI": {"order": 1},
-  "Cerebras": {"order": 2},
-  "BigScience": {"order": 3},
-  "EleutherAI": {"order": 4},
-  "Meta": {"order": 5}
-}

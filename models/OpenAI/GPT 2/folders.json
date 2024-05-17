@@ -1,6 +1,0 @@
-{
-  "SMALL": {"order": 1, "date": "2019-02", "size": "124M"},
-  "MEDIUM": {"order": 2, "date": "2019-02", "size": "335M"},
-  "LARGE": {"order": 3, "date": "2019-02", "size": "774M"},
-  "XL": {"order": 4, "date": "2019-02", "size": "1.5B"}
-}

@@ -1,8 +1,0 @@
-{
-  "name": "BLOOM 560M",
-  "transformerType": "BIG_SCIENCE_BLOOM",
-  "repo": "https://huggingface.co/bigscience/bloom-560m",
-  "files": ["config.json", "model.safetensors"],
-  "decoderParameterNaming": "h.{decoderId}.{name}",
-  "memorySize": 4096
-}

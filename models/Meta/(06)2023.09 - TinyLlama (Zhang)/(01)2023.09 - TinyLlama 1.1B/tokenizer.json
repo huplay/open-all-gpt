@@ -1,5 +1,0 @@
-{
-  "tokenizerType": "SENTENCE_PIECE",
-  "repo": "https://huggingface.co/TinyLlama/TinyLlama-1.1B-intermediate-step-1431k-3T",
-  "files": ["tokenizer.model"]
-}

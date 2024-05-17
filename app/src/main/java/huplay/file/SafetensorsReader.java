@@ -16,7 +16,8 @@ import java.nio.file.Paths;
 import java.util.*;
 
 import static huplay.AppNetworkClient.UTIL;
-import static huplay.file.DownloadUtil.checkHeaderFiles;
+import static huplay.file.FileUtil.checkHeaderFiles;
+import static huplay.file.FileUtil.readTextFile;
 
 /**
  * Reader of the trained parameters
@@ -52,7 +53,7 @@ public class SafetensorsReader
             if (file.isFile() && file.getName().endsWith("safetensors"))
             {
                 String headerFilePath = downloadFolder.getAbsolutePath() + "/header/" + file.getName() + ".header";
-                var header = readCachedHeader(headerFilePath);
+                var header = readTextFile(headerFilePath);
                 deserializeHeader(file.getAbsolutePath(), header);
             }
         }
@@ -113,27 +114,6 @@ public class SafetensorsReader
         }
 
         return new String(array, StandardCharsets.UTF_8);
-    }
-
-    public String readCachedHeader(String fileName)
-    {
-        try
-        {
-            Scanner scanner = new Scanner(new FileReader(fileName));
-
-            StringBuilder stringBuilder = new StringBuilder();
-            while(scanner.hasNext())
-            {
-                stringBuilder.append(scanner.next());
-            }
-            scanner.close();
-
-            return stringBuilder.toString();
-        }
-        catch (Exception e)
-        {
-            throw new IdentifiedException("Parameter file read error reading cached header. (" + fileName + ")", e);
-        }
     }
 
     private long readHeaderSize(String fileName)

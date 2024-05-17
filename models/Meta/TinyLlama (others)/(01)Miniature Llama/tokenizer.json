@@ -1,0 +1,5 @@
+{
+  "tokenizerType": "SENTENCE_PIECE/TINY",
+  "repo": "https://huggingface.co/noamwies/llama-test-gqa-with-better-transformer",
+  "files": ["tokenizer.json"]
+}

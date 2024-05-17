@@ -1,0 +1,6 @@
+{
+  "tokenizerType": "OPENAI_GPT_2",
+  "repo": "https://huggingface.co/xhyi/PT_GPTNEO350_ATG",
+  "branch": "refs/pr/1",
+  "files": ["vocab.json", "merges.txt"]
+}

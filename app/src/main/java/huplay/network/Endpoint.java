@@ -2,8 +2,8 @@ package huplay.network;
 
 public enum Endpoint
 {
-    SERVER("/openAllGPT/server"),
-    WORKER("/openAllGPT/worker");
+    SERVER("/open-all-gpt/server"),
+    WORKER("/open-all-gpt/worker");
 
     private final String context;
 

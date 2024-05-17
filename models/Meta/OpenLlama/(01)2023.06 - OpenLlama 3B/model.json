@@ -1,0 +1,10 @@
+{
+  "name": "OpenLlama 3B",
+  "transformerType": "META_LLAMA",
+  "repo": "https://huggingface.co/openlm-research/open_llama_3b",
+  "branch": "refs/pr/10",
+  "files": ["config.json", "model.safetensors"],
+  "parameterNaming": "model.{name}",
+  "decoderParameterNaming": "model.layers.{decoderId}.{name}",
+  "memorySize": 14336
+}

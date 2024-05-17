@@ -1,6 +1,7 @@
 package huplay;
 
 import com.sun.net.httpserver.HttpServer;
+import huplay.network.Endpoint;
 import huplay.network.server.ServerListener;
 
 import java.io.IOException;
@@ -55,7 +56,7 @@ public class AppNetworkServer
         }
 
         var server = HttpServer.create(new InetSocketAddress(port), 0);
-        server.createContext("/open-all-gpt/server", new ServerListener());
+        server.createContext(Endpoint.SERVER.getContext(), new ServerListener());
         server.setExecutor(null); // creates a default executor
         server.start();
 

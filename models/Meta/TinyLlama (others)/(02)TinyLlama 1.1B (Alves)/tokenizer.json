@@ -1,0 +1,5 @@
+{
+  "tokenizerType": "SENTENCE_PIECE",
+  "repo": "https://huggingface.co/lgaalves/tinyllama-1.1b-chat-v0.3_platypus",
+  "files": ["tokenizer.json"]
+}

@@ -1,0 +1,125 @@
+{
+  "OpenAI": {"order": 1,
+    "folders": {
+      "GPT 1": {"order": 1},
+      "GPT 2": {"order": 2,
+        "folders": {
+          "SMALL": {"order": 1},
+          "MEDIUM": {"order": 2},
+          "LARGE": {"order": 3},
+          "XL": {"order": 4}
+        }
+      }
+    }
+  },
+  "Cerebras": {"order": 2,
+    "folders": {
+      "Cerebras 111M": {"order": 1},
+      "Cerebras 256M": {"order": 2},
+      "Cerebras 590M": {"order": 3},
+      "Cerebras 1.3B": {"order": 4},
+      "Cerebras 2.7B": {"order": 5},
+      "Cerebras 6.7B": {"order": 6},
+      "Cerebras 13B": {"order": 7}
+    }
+  },
+  "BigScience": {"order": 3,
+    "folders": {
+      "BLOOM": {"order": 1,
+        "folders": {
+          "BLOOM 560M": {"order": 1},
+          "BLOOM 1.1B": {"order": 2},
+          "BLOOM 1.7B": {"order": 3},
+          "BLOOM 3B": {"order": 4},
+          "BLOOM 7.1B": {"order": 5},
+          "BLOOM 176B": {"order": 6}
+        }
+      },
+      "BLOOMZ": {"order": 2,
+        "folders": {
+          "BLOOMZ 560M": {"order": 1},
+          "BLOOMZ 1.1B": {"order": 2},
+          "BLOOMZ 1.7B": {"order": 3},
+          "BLOOMZ 3B": {"order": 4},
+          "BLOOMZ 7.1B": {"order": 5},
+          "BLOOMZ 176B": {"order": 6}
+        }
+      }
+    }
+  },
+  "EleutherAI": {"order": 4,
+    "folders": {
+      "GPT-NEO": {"order": 1,
+        "folders": {
+          "GPT-NEO 125M": {"order": 1},
+          "GPT-NEO 350M": {"order": 2},
+          "GPT-NEO 1.3B": {"order": 3},
+          "GPT-NEO 2.7B": {"order": 4}
+        }
+      },
+      "GPT-J": {"order": 2,
+        "folders": {
+          "GPT-J 6B": {"order": 1}
+        }
+      },
+      "GPT-NEOX": {"order": 3,
+        "folders": {
+          "GPT-NEOX 20B": {"order": 1}
+        }
+      }
+    }
+  },
+  "Meta": {"order": 5,
+    "folders": {
+      "Llama 1": {"order": 1,
+        "folders": {
+          "Llama 7B": {"order": 1},
+          "Llama 13B": {"order": 2},
+          "Llama 33B": {"order": 3},
+          "Llama 65B": {"order": 4}
+        }
+      },
+      "Llama 2": {"order": 2,
+        "folders": {
+          "Llama 2 - 7B": {"order": 1},
+          "Llama 2 - 7B-chat": {"order": 2},
+          "Llama 2 - 13B": {"order": 3},
+          "Llama 2 - 13B-chat": {"order": 4},
+          "Llama 2 - 70B": {"order": 5},
+          "Llama 2 - 70B-chat": {"order": 6}
+        }
+      },
+      "Llama 3": {"order": 3,
+        "folders": {
+          "Llama 3 - 8B": {"order": 1},
+          "Llama 3 - 8B-Instruct": {"order": 2},
+          "Llama 3 - 70B": {"order": 3},
+          "Llama 3 - 70B-Instruct": {"order": 4}
+        }
+      }
+    ,
+      "OpenLlama": {"order": 4,
+        "folders": {
+          "OpenLlama 3B": {"order": 1},
+          "OpenLlama 3B v2": {"order": 2},
+          "OpenLlama 7B": {"order": 3},
+          "OpenLlama 13B": {"order": 4},
+          "OpenLlama 65B": {"order": 5}
+        }
+      },
+      "TinyLlamas (llama.cpp - Karpathy)": {"order": 5,
+        "folders": {
+          "TinyLlama 15M": {"order": 1},
+          "TinyLlama 42M": {"order": 2},
+          "TinyLlama 110M": {"order": 3}
+        }
+      },
+      "TinyLlama (Zhang)": {"order": 6,
+        "folders": {
+          "TinyLlama 1.1B": {"order": 1},
+          "TinyLlama 1.1B Chat1.0": {"order": 2}
+        }
+      }
+    }
+  }
+}

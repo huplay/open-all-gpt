@@ -1,0 +1,10 @@
+{
+  "name": "EleutherAI GPT-NEO MEDIUM (350M)",
+  "transformerType": "ELEUTHERAI_GPT_NEO",
+  "repo": "https://huggingface.co/xhyi/PT_GPTNEO350_ATG",
+  "branch": "refs/pr/1",
+  "files": ["config.json", "model.safetensors"],
+  "parameterNaming": "transformer.{name}",
+  "decoderParameterNaming": "transformer.h.{decoderId}.{name}",
+  "memorySize": 2048
+}

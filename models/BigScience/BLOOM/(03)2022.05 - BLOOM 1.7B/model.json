@@ -1,8 +1,0 @@
-{
-  "name": "BLOOM 1.7B",
-  "transformerType": "BIG_SCIENCE_BLOOM",
-  "repo": "https://huggingface.co/bigscience/bloom-1b7",
-  "files": ["config.json", "model.safetensors"],
-  "decoderParameterNaming": "h.{decoderId}.{name}",
-  "memorySize": 9216
-}

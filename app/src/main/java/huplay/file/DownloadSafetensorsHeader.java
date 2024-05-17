@@ -12,7 +12,7 @@ import java.nio.channels.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import static huplay.file.DownloadUtil.determineDownloadUrl;
+import static huplay.file.FileUtil.determineDownloadUrl;
 
 public class DownloadSafetensorsHeader
 {
@@ -26,6 +26,7 @@ public class DownloadSafetensorsHeader
 
             // Determine the download url
             var url = new URL(determineDownloadUrl(repoConfig, fileName)); // TODO: Deprecated
+            System.out.println("URL: " + url);
 
             // Download the header
             downloadHeader(url, downloadPath + "/" + fileName + ".header");

@@ -1,20 +1,15 @@
 package huplay;
 
-import huplay.config.RepoConfig;
-import huplay.network.message.toServer.fromClient.PollQueryResult;
-import huplay.network.message.toServer.fromClient.PollOpenModel;
-import huplay.network.message.toServer.fromClient.QueryRequest;
-import huplay.network.message.toServer.fromClient.StartSessionRequest;
+import huplay.network.message.toServer.fromClient.*;
 import huplay.network.NetworkSettings;
+import huplay.ui.ModelSelector;
 import huplay.util.Util;
 
 import java.io.*;
-import java.util.*;
 
 import static huplay.ui.ConsoleUtil.getPrintStream;
 import static huplay.ui.ConsoleUtil.input;
 import static huplay.ui.Logo.logo;
-import static huplay.ui.ModelSelector.selectModel;
 import static huplay.ui.TextUtil.toCenter;
 
 public class AppNetworkClient
@@ -43,13 +38,14 @@ public class AppNetworkClient
         var settings = NetworkSettings.read(OUT, args, false);
         var server = settings.getServerAddress();
 
-        // TODO: Potentially server can send the configuration
-        // (Then it is enough to refresh the server, and there won't be any differences between configs)
-        // ClientJoined message
+        // Send ClientJoined message and get back the tree of models
+        var clientJoinedResponse = new ClientJoinedRequest().send(server);
+        var models = clientJoinedResponse.getModels();
 
         // Select model
-        var modelId = selectModel(OUT, settings.getConfigRoot());
-        settings.setRelativePath(modelId);
+        var modelSelector = new ModelSelector(OUT, models);
+        var modelId = modelSelector.select();
+        settings.setModelId(modelId);
 
         OUT.print("Connecting to server to open model... ");
         // TODO: Display progress using ProgressHandler
@@ -85,23 +81,5 @@ public class AppNetworkClient
 
             OUT.println(result.getText());
         }
-    }
-
-    public static List<String> checkFiles(RepoConfig tokenizerConfig, String modelPath)
-    {
-        var missingFiles = new ArrayList<String>();
-
-        for (var fileName : tokenizerConfig.getFiles())
-        {
-            var path = modelPath + "/" + fileName;
-
-            var file = new File(path);
-            if (!file.exists())
-            {
-                missingFiles.add(fileName);
-            }
-        }
-
-        return missingFiles;
     }
 }

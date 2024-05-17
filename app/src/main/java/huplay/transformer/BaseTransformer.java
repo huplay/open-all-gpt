@@ -5,8 +5,9 @@ import huplay.network.info.DecoderBlockType;
 import huplay.util.IndexedValue;
 import huplay.util.Vector;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static huplay.AppNetworkClient.UTIL;
 import static huplay.transformer.TransformerUtil.weightedRandomPick;
@@ -21,8 +22,8 @@ public abstract class BaseTransformer extends ParameterStore
     protected int contextSize;
     protected float epsilon;
 
-    protected final List<BaseAttentionLayer> attentionLayers = new ArrayList<>();
-    protected final List<BaseNeuralNetLayer> neuralNetLayers = new ArrayList<>();
+    protected final Map<Integer, BaseAttentionLayer> attentionLayers = new HashMap<>();
+    protected final Map<Integer, BaseNeuralNetLayer> neuralNetLayers = new HashMap<>();
 
     public abstract void loadParameters();
 
@@ -61,13 +62,13 @@ public abstract class BaseTransformer extends ParameterStore
             {
                 var attentionLayer = TransformerType.getAttentionLayer(config.getTransformerType());
                 attentionLayer.init(config, decoderId);
-                attentionLayers.add(attentionLayer);
+                attentionLayers.put(decoderId, attentionLayer);
             }
             case NEURAL_NET_LAYER ->
             {
                 var neuralNetLayer = TransformerType.getNeuralNetLayer(config.getTransformerType());
                 neuralNetLayer.init(config, decoderId);
-                neuralNetLayers.add(neuralNetLayer);
+                neuralNetLayers.put(decoderId, neuralNetLayer);
             }
         }
     }
@@ -129,7 +130,7 @@ public abstract class BaseTransformer extends ParameterStore
      */
     public void clear()
     {
-        for (BaseAttentionLayer attentionLayer : attentionLayers)
+        for (BaseAttentionLayer attentionLayer : attentionLayers.values())
         {
             attentionLayer.clear();
         }
@@ -160,12 +161,12 @@ public abstract class BaseTransformer extends ParameterStore
     {
         var parameterSize = super.getParameterSize();
 
-        for (BaseAttentionLayer attentionLayer : attentionLayers)
+        for (BaseAttentionLayer attentionLayer : attentionLayers.values())
         {
             parameterSize += attentionLayer.getParameterSize();
         }
 
-        for (BaseNeuralNetLayer neuralNetLayer : neuralNetLayers)
+        for (BaseNeuralNetLayer neuralNetLayer : neuralNetLayers.values())
         {
             parameterSize += neuralNetLayer.getParameterSize();
         }
@@ -178,12 +179,12 @@ public abstract class BaseTransformer extends ParameterStore
     {
         var parameterByteSize = super.getParameterByteSize();
 
-        for (BaseAttentionLayer attentionLayer : attentionLayers)
+        for (BaseAttentionLayer attentionLayer : attentionLayers.values())
         {
             parameterByteSize += attentionLayer.getParameterByteSize();
         }
 
-        for (BaseNeuralNetLayer neuralNetLayer : neuralNetLayers)
+        for (BaseNeuralNetLayer neuralNetLayer : neuralNetLayers.values())
         {
             parameterByteSize += neuralNetLayer.getParameterByteSize();
         }
@@ -191,7 +192,13 @@ public abstract class BaseTransformer extends ParameterStore
         return parameterByteSize;
     }
 
-    // Getters
-    public List<BaseAttentionLayer> getAttentionLayers() {return attentionLayers;}
-    public List<BaseNeuralNetLayer> getNeuralNetLayers() {return neuralNetLayers;}
+    public BaseAttentionLayer getAttentionLayers(int decoderId)
+    {
+        return attentionLayers.get(decoderId);
+    }
+
+    public BaseNeuralNetLayer getNeuralNetLayers(int decoderId)
+    {
+        return neuralNetLayers.get(decoderId);
+    }
 }

@@ -1,8 +1,0 @@
-{
-  "order": [
-    "GPT-NEO",
-    "GPT-J",
-    "GPT-NEOX"
-  ],
-  "disabled": ["GPT-NEOX"]
-}

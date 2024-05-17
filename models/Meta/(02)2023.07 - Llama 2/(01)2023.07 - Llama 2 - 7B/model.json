@@ -1,9 +1,0 @@
-{
-  "name": "Meta Llama2 7B",
-  "transformerType": "META_LLAMA",
-  "repo": "https://huggingface.co/meta-llama/Llama-2-7b-chat-hf",
-  "files": ["config.json", "model-00001-of-00002.safetensors", "model-00002-of-00002.safetensors"],
-  "parameterNaming": "model.{name}",
-  "decoderParameterNaming": "model.layers.{decoderId}.{name}",
-  "memorySize": 11264
-}

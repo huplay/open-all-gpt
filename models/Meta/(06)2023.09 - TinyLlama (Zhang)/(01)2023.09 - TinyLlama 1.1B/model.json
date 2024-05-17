@@ -1,9 +1,0 @@
-{
-  "name": "Zhang TinyLlama 1.1B",
-  "transformerType": "META_LLAMA",
-  "repo": "https://huggingface.co/TinyLlama/TinyLlama-1.1B-intermediate-step-1431k-3T",
-  "files": ["config.json", "model.safetensors"],
-  "parameterNaming": "model.{name}",
-  "decoderParameterNaming": "model.layers.{decoderId}.{name}",
-  "memorySize": 11264
-}

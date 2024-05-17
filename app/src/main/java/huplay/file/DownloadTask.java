@@ -9,7 +9,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 
-import static huplay.file.DownloadUtil.determineDownloadUrl;
+import static huplay.file.FileUtil.determineDownloadUrl;
 
 public class DownloadTask implements Runnable
 {

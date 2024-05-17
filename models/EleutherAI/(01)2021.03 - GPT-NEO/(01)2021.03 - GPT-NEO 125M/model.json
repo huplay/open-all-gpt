@@ -1,9 +1,0 @@
-{
-  "name": "EleutherAI GPT-NEO SMALL (125M)",
-  "transformerType": "ELEUTHERAI_GPT_NEO",
-  "repo": "https://huggingface.co/EleutherAI/gpt-neo-125m",
-  "files": ["config.json", "model.safetensors"],
-  "parameterNaming": "transformer.{name}",
-  "decoderParameterNaming": "transformer.h.{decoderId}.{name}",
-  "memorySize": 1024
-}

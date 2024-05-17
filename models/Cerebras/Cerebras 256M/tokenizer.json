@@ -1,0 +1,5 @@
+{
+  "tokenizerType": "OPENAI_GPT_2",
+  "repo": "https://huggingface.co/cerebras/Cerebras-GPT-256M",
+  "files": ["vocab.json", "merges.txt"]
+}

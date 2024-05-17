@@ -1,8 +1,0 @@
-{
-  "name": "Miniature Llama",
-  "transformerType": "META_LLAMA",
-  "repo": "https://huggingface.co/noamwies/llama-test-gqa-with-better-transformer",
-  "files": ["config.json", "model.safetensors"],
-  "parameterNaming": "model.{name}",
-  "decoderParameterNaming": "model.layers.{decoderId}.{name}"
-}

@@ -1,5 +1,0 @@
-{
-  "tokenizerType": "SENTENCE_PIECE/TINY",
-  "repo": "https://huggingface.co/nickypro/tinyllama-15M",
-  "files": []
-}

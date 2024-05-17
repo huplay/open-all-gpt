@@ -23,6 +23,7 @@ public class Config
     private ModelConfig modelConfig;
     private TokenizerConfig tokenizerConfig;
     private SafetensorsReader reader;
+    private boolean isCalculationOnly;
 
     @JsonAlias({"n_embd", "hidden_size", "n_embed"})
     private int hiddenSize;
@@ -69,6 +70,11 @@ public class Config
             config.modelConfig = modelConfig;
             config.tokenizerConfig = tokenizerConfig;
             config.reader = reader;
+
+            if (arguments != null)
+            {
+                config.isCalculationOnly = arguments.isCalculationOnly();
+            }
 
             // If the feed forward size isn't configured set it as 4 times of the hidden size
             if (config.feedForwardSize == null) config.feedForwardSize = 4 * config.hiddenSize;
@@ -150,8 +156,8 @@ public class Config
     public String getModelPath() {return arguments.getModelPath();}
     public int getLengthLimit() {return arguments.getLengthLimit();}
     public int getTopK() {return arguments.getTopK();}
-    public boolean isCalculationOnly() {return arguments != null && arguments.isCalculationOnly();}
-    public void setCalculationOnly(boolean calculationOnly) {arguments.setCalculationOnly(calculationOnly);}
+    public boolean isCalculationOnly() {return isCalculationOnly;}
+    public void setCalculationOnly(boolean isCalculationOnly) {this.isCalculationOnly = isCalculationOnly;}
     public Integer getRequestedMemorySize() {return arguments.getRequestedMemorySize();}
 
     // Getters to ModelConfig

@@ -6,8 +6,8 @@ import huplay.network.server.state.ServerState;
 import huplay.tokenizer.TokenizerType;
 import huplay.ui.DownloadProgressBar;
 
-import static huplay.AppNetworkClient.checkFiles;
 import static huplay.AppNetworkWorker.OUT;
+import static huplay.file.FileUtil.checkFiles;
 import static huplay.network.server.state.ServerState.getServerState;
 
 public class LoadTokenizerTask implements Runnable

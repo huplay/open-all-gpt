@@ -1,5 +1,0 @@
-{
-  "tokenizerType": "SENTENCE_PIECE",
-  "repo": "https://huggingface.co/TinyLlama/TinyLlama-1.1B-Chat-v0.4",
-  "files": ["tokenizer.model", "model.safetensors"]
-}

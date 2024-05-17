@@ -23,6 +23,6 @@ public class DecoderBlock
     @Override
     public String toString()
     {
-        return "DecoderBlock{" + blockType + "/" + decoderId + "}";
+        return blockType + "/" + decoderId;
     }
 }
