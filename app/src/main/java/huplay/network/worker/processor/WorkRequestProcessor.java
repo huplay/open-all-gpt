@@ -2,12 +2,12 @@ package huplay.network.worker.processor;
 
 import huplay.network.Address;
 import huplay.network.message.Acknowledge;
-import huplay.network.message.toWorker.WorkRequest;
+import huplay.network.message.toWorker.WorkMessage;
 import huplay.network.worker.task.WorkExecutionTask;
 
 public class WorkRequestProcessor
 {
-    public static Acknowledge process(WorkRequest message, Address serverAddress)
+    public static Acknowledge process(WorkMessage message, Address serverAddress)
     {
         String modelId = message.getModelId();
         System.out.println("WorkRequest received: " + modelId + ", workSegment: " + message.getWorkSegment());

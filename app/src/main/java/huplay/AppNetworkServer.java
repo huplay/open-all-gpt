@@ -56,10 +56,11 @@ public class AppNetworkServer
         }
 
         var server = HttpServer.create(new InetSocketAddress(port), 0);
-        server.createContext(Endpoint.SERVER.getContext(), new ServerListener());
+        server.createContext(Endpoint.SERVER.getDomain(), new ServerListener());
         server.setExecutor(null); // creates a default executor
         server.start();
 
         OUT.println(toCenter(InetAddress.getLocalHost().getHostAddress() + " listening on port: " + port + "\n", 60));
+        OUT.println(toCenter(InetAddress.getLocalHost().getHostName() + " listening on port: " + port + "\n", 60));
     }
 }

@@ -7,6 +7,9 @@ import huplay.network.message.toWorker.WorkResultMessage;
 import huplay.network.message.toServer.fromWorker.ModelLoadedMessage;
 import huplay.network.message.toServer.fromWorker.WorkerJoinedMessage;
 import huplay.network.server.processor.*;
+import huplay.network.server.servlet.ErrorServlet;
+import huplay.network.server.servlet.MainServlet;
+
 
 public class ServerListener extends BaseHttpServer
 {
@@ -17,10 +20,10 @@ public class ServerListener extends BaseHttpServer
         {
             // From client:
             case ClientJoinedRequest ignored    -> ClientJoinedProcessor.process();
-            case PollOpenModel message          -> PollOpenModelProcessor.process(message);
+            case PollOpenModelRequest message          -> PollOpenModelProcessor.process(message);
             case StartSessionRequest ignored    -> StartSessionProcessor.process();
             case QueryRequest message           -> QueryRequestProcessor.process(message);
-            case PollQueryResult message        -> PollQueryResultProcessor.process(message);
+            case PollQueryResultRequest message        -> PollQueryResultProcessor.process(message);
 
             // From worker:
             case WorkerJoinedMessage message    -> WorkerJoinedProcessor.process(message);
@@ -33,8 +36,13 @@ public class ServerListener extends BaseHttpServer
     }
 
     @Override
-    protected String handleGetMessage(String message)
+    protected String handleGetMessage(String context, String path, String query)
     {
-        return "<html><body>Open All GPT</body></html>";
+        return switch (context)
+        {
+            case "/"            -> MainServlet.get(path, query);
+
+            default -> ErrorServlet.get(path);
+        };
     }
 }

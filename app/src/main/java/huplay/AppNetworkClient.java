@@ -49,7 +49,7 @@ public class AppNetworkClient
 
         OUT.print("Connecting to server to open model... ");
         // TODO: Display progress using ProgressHandler
-        var openModel = new PollOpenModel(modelId);
+        var openModel = new PollOpenModelRequest(modelId);
         openModel.poll(server);
         OUT.println("DONE");
 
@@ -76,7 +76,7 @@ public class AppNetworkClient
             }
             OUT.println("\033[0m");
 
-            var queryResult = new PollQueryResult(modelId, queryUUID);
+            var queryResult = new PollQueryResultRequest(modelId, queryUUID);
             var result = queryResult.poll(server); // TODO: Add ProgressHelper
 
             OUT.println(result.getText());

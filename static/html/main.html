@@ -1,0 +1,77 @@
+<html lang="en">
+    <head>
+        <title>Open All GPT</title>
+        <link rel="stylesheet" href="/open-all-gpt/static/css/main.css" />
+        <script type="text/javascript" src="/open-all-gpt/static/js/main.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+    <body onload="init();">
+        <table class="main">
+            <tr>
+                <td>
+                    <table class="header">
+                        <tr>
+                            <td class="headerLeft"></td>
+                            <td class="headerMiddle">Open All GPT</td>
+                            <td class="headerRight">
+                                <img src="/open-all-gpt/static/image/settings.png" class="settingsImage" alt="Settings"/>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr class="body">
+                <td>
+                    <div class="bodyDiv" id="bodyDiv">
+                        <table class="bodyTable" id="bodyTable">
+                            <thead>
+                                <tr>
+                                    <th class="bodyIconColumn"></th>
+                                    <th class="bodyColumn"></th>
+                                    <th class="bodyTableOverlap"></th>
+                                    <th class="bodyColumn"></th>
+                                    <th class="bodyIconColumn"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="content">
+                                <!-- This is the place of the conversation -->
+                            </tbody>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+            <tr class="footer">
+                <td>
+                    <div>
+                        <table class="bodyTable">
+                            <thead>
+                            <tr>
+                                <th class="bodyIconColumn"></th>
+                                <th class="bodyColumn"></th>
+                                <th class="bodyTableOverlap"></th>
+                                <th class="bodyColumn"></th>
+                                <th class="bodyIconColumn"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="2"></td>
+                                    <td class="input" colspan="2">
+                                        <input id="inputField" type="text" class="inputField"
+                                               placeholder="Message here..."
+                                               onInput="checkInput(event);"/>
+                                    </td>
+                                    <td class="sendImage">
+                                        <img src="/open-all-gpt/static/image/send.jpeg"
+                                             id="sendImage" class="sendImage" alt="Send"
+                                             onclick="send();"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>

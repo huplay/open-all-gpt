@@ -9,7 +9,7 @@ import huplay.network.info.output.EmptyOutput;
 import huplay.network.info.output.HiddenStateOutput;
 import huplay.network.info.output.Output;
 import huplay.network.info.output.TokenOutput;
-import huplay.network.message.toWorker.WorkRequest;
+import huplay.network.message.toWorker.WorkMessage;
 import huplay.network.message.toWorker.WorkResultMessage;
 import huplay.util.FloatType;
 import huplay.util.Vector;
@@ -18,12 +18,12 @@ import static huplay.network.worker.state.WorkerState.getWorkerState;
 
 public class WorkExecutionTask implements Runnable
 {
-    private final WorkRequest workRequest;
+    private final WorkMessage workMessage;
     private final Address server;
 
-    public WorkExecutionTask(WorkRequest workRequest, Address server)
+    public WorkExecutionTask(WorkMessage workMessage, Address server)
     {
-        this.workRequest = workRequest;
+        this.workMessage = workMessage;
         this.server = server;
     }
 
@@ -32,16 +32,16 @@ public class WorkExecutionTask implements Runnable
     {
         try
         {
-            Input input = workRequest.getInput();
+            Input input = workMessage.getInput();
 
-            var workSegment = workRequest.getWorkSegment();
+            var workSegment = workMessage.getWorkSegment();
             var segmentType = workSegment.getWorkSegmentType();
 
             // TODO: Validate the input to the input of the segment Type
 
-            boolean isInputOnly = workRequest.getInputOnly();
+            boolean isInputOnly = workMessage.getInputOnly();
 
-            var transformer = getWorkerState().getActiveModel(workRequest.getModelId());
+            var transformer = getWorkerState().getActiveModel(workMessage.getModelId());
 
             Integer token = null;
             Integer pos = null;
@@ -81,7 +81,7 @@ public class WorkExecutionTask implements Runnable
 
             if (!isInputOnly && segmentType.hasTail())
             {
-                token = transformer.generateToken(hiddenState, workRequest.getTopK());
+                token = transformer.generateToken(hiddenState, workMessage.getTopK());
             }
 
             // Determine which value should be the output
@@ -102,7 +102,7 @@ public class WorkExecutionTask implements Runnable
 
             }
 
-            WorkResultMessage result = new WorkResultMessage(workRequest.getWorkUUID(), workSegment, output);
+            WorkResultMessage result = new WorkResultMessage(workMessage.getWorkUUID(), workSegment, output);
             result.send(server);
         }
         catch (Exception e)

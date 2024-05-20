@@ -1,6 +1,6 @@
 package huplay.network.server.processor;
 
-import huplay.network.message.toServer.fromClient.PollOpenModel;
+import huplay.network.message.toServer.fromClient.PollOpenModelRequest;
 import huplay.network.message.toServer.fromClient.PollOpenModelResponse;
 import huplay.network.server.task.LoadModelPlanTask;
 
@@ -8,7 +8,7 @@ import static huplay.network.server.state.ServerState.getServerState;
 
 public class PollOpenModelProcessor
 {
-    public static PollOpenModelResponse process(PollOpenModel message)
+    public static PollOpenModelResponse process(PollOpenModelRequest message)
     {
         var modelId = message.getModelId();
         if (message.getAttempt() == 0) System.out.println("PollOpenModel received for " + modelId);

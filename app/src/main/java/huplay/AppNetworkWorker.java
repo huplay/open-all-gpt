@@ -39,7 +39,7 @@ public class AppNetworkWorker
 
             // Start Worker
             var httpServer = HttpServer.create(new InetSocketAddress(arguments.getSelfPort()), 0);
-            httpServer.createContext(Endpoint.WORKER.getContext(), new WorkerListener(server));
+            httpServer.createContext(Endpoint.WORKER.getDomain(), new WorkerListener(server));
             httpServer.setExecutor(null); // creates a default executor
             httpServer.start();
 

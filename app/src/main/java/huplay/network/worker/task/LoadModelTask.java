@@ -4,7 +4,7 @@ import huplay.config.Config;
 import huplay.file.DownloadMissingFiles;
 import huplay.file.SafetensorsReader;
 import huplay.network.Address;
-import huplay.network.message.toWorker.LoadModelRequest;
+import huplay.network.message.toWorker.LoadModelMessage;
 import huplay.network.message.toServer.fromWorker.ModelLoadedMessage;
 import huplay.transformer.TransformerType;
 import huplay.ui.DownloadProgressBar;
@@ -15,10 +15,10 @@ import static huplay.network.worker.state.WorkerState.getWorkerState;
 
 public class LoadModelTask implements Runnable
 {
-    private final LoadModelRequest request;
+    private final LoadModelMessage request;
     private final Address server;
 
-    public LoadModelTask(LoadModelRequest request, Address server)
+    public LoadModelTask(LoadModelMessage request, Address server)
     {
         this.request = request;
         this.server = server;

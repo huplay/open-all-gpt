@@ -7,7 +7,7 @@ import huplay.network.info.output.HiddenStateOutput;
 import huplay.network.info.output.Output;
 import huplay.network.info.output.TokenOutput;
 import huplay.network.message.Acknowledge;
-import huplay.network.message.toWorker.WorkRequest;
+import huplay.network.message.toWorker.WorkMessage;
 import huplay.network.message.toWorker.WorkResultMessage;
 import huplay.network.server.state.QueryState;
 import huplay.tokenizer.Token;
@@ -102,7 +102,7 @@ public class WorkResultProcessor
         var workUUID = UUID.randomUUID().toString();
         getServerState().addPendingWork(workUUID, queryState);
 
-        var workRequest = new WorkRequest(workUUID, queryState, input, workSegment);
+        var workRequest = new WorkMessage(workUUID, queryState, input, workSegment);
 
         try
         {
@@ -141,7 +141,7 @@ public class WorkResultProcessor
 
         var pos = queryState.getPos();
         var tokenInput = new TokenInput(pos, nextToken);
-        var workRequest = new WorkRequest(workUUID, queryState, tokenInput, workSegment);
+        var workRequest = new WorkMessage(workUUID, queryState, tokenInput, workSegment);
 
         try
         {

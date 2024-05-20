@@ -41,7 +41,7 @@ public class PollQueryResultResponse extends BasePollResponse
                 "queryUUID='" + queryUUID + '\'' +
                 ", tokens=" + tokens +
                 ", text='" + text + '\'' +
-                ", isReady=" + ready +
+                ", ready=" + ready +
                 '}';
     }
 }

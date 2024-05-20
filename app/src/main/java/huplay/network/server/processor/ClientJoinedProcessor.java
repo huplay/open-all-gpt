@@ -15,6 +15,7 @@ public class ClientJoinedProcessor
 {
     public static ClientJoinedResponse process()
     {
+        System.out.println("ClientJoinedResponse received");
         var serverState = getServerState();
         var models = serverState.getModels();
 

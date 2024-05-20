@@ -2,12 +2,12 @@ package huplay.network.worker.processor;
 
 import huplay.network.Address;
 import huplay.network.message.Acknowledge;
-import huplay.network.message.toWorker.LoadModelRequest;
+import huplay.network.message.toWorker.LoadModelMessage;
 import huplay.network.worker.task.LoadModelTask;
 
 public class LoadModelProcessor
 {
-    public static Acknowledge process(LoadModelRequest message, Address serverAddress)
+    public static Acknowledge process(LoadModelMessage message, Address serverAddress)
     {
         var modelId = message.getModelId();
 

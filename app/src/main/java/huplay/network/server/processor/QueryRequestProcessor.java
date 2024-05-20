@@ -3,7 +3,7 @@ package huplay.network.server.processor;
 import huplay.network.info.input.TokenInput;
 import huplay.network.message.toServer.fromClient.QueryRequest;
 import huplay.network.message.toServer.fromClient.QueryResponse;
-import huplay.network.message.toWorker.WorkRequest;
+import huplay.network.message.toWorker.WorkMessage;
 import huplay.network.server.state.QueryState;
 import huplay.tokenizer.Token;
 
@@ -56,7 +56,7 @@ public class QueryRequestProcessor
         var inputToken = inputTokens.getFirst().getId();
         var tokenInput = new TokenInput(0, inputToken);
         var workSegment = queryState.getActualWorkSegment();
-        var workRequest = new WorkRequest(workUUID, queryState, tokenInput, workSegment);
+        var workRequest = new WorkMessage(workUUID, queryState, tokenInput, workSegment);
 
         try
         {

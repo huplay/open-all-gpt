@@ -4,23 +4,20 @@ import huplay.config.BlockType;
 import huplay.config.Config;
 import huplay.config.ModelConfig;
 import huplay.config.TokenizerConfig;
-import huplay.file.DownloadMissingFiles;
 import huplay.file.DownloadSafetensorsHeader;
 import huplay.file.SafetensorsReader;
 import huplay.network.info.DecoderBlock;
 import huplay.network.info.DecoderBlockType;
-import huplay.network.message.toWorker.LoadModelRequest;
+import huplay.network.message.toWorker.LoadModelMessage;
 import huplay.network.info.WorkSegment;
 import huplay.network.info.WorkSegmentType;
 import huplay.network.server.state.ModelState;
 import huplay.network.server.state.WorkerInfo;
 import huplay.transformer.TransformerType;
-import huplay.ui.DownloadProgressBar;
 
 import java.io.IOException;
 import java.util.*;
 
-import static huplay.AppNetworkWorker.OUT;
 import static huplay.config.BlockType.*;
 import static huplay.file.FileUtil.checkHeaderFiles;
 import static huplay.network.server.state.ServerState.getServerState;
@@ -263,12 +260,12 @@ public class LoadModelPlanTask implements Runnable
         }
     }
 
-    private List<LoadModelRequest> createLoadRequests(ModelConfig modelConfig, ModelState modelState, List<WorkSegment> workSegments)
+    private List<LoadModelMessage> createLoadRequests(ModelConfig modelConfig, ModelState modelState, List<WorkSegment> workSegments)
     {
         // Collect the load requests to the workers
         // We will send the request later, after all tasks are added as pending task,
         // to make sure none of it will finish before another is registered.
-        var loadRequests = new ArrayList<LoadModelRequest>();
+        var loadRequests = new ArrayList<LoadModelMessage>();
 
         for (WorkSegment workSegment : workSegments)
         {
@@ -276,7 +273,7 @@ public class LoadModelPlanTask implements Runnable
             var loadTaskUUID = UUID.randomUUID().toString();
             modelState.getPendingTasks().put(loadTaskUUID, "LOAD request" + workSegment.getWorker());
 
-            loadRequests.add(new LoadModelRequest(loadTaskUUID, modelId, modelConfig, workSegment));
+            loadRequests.add(new LoadModelMessage(loadTaskUUID, modelId, modelConfig, workSegment));
         }
 
         return loadRequests;

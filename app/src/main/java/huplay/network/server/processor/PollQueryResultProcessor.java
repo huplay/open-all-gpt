@@ -1,13 +1,13 @@
 package huplay.network.server.processor;
 
-import huplay.network.message.toServer.fromClient.PollQueryResult;
+import huplay.network.message.toServer.fromClient.PollQueryResultRequest;
 import huplay.network.message.toServer.fromClient.PollQueryResultResponse;
 
 import static huplay.network.server.state.ServerState.getServerState;
 
 public class PollQueryResultProcessor
 {
-    public static PollQueryResultResponse process(PollQueryResult message)
+    public static PollQueryResultResponse process(PollQueryResultRequest message)
     {
         var modelId = message.getModelId();
         if (message.getAttempt() == 0) System.out.println("GetQueryResultRequest received for: " + modelId);

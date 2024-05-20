@@ -2,18 +2,18 @@ package huplay.network;
 
 public enum Endpoint
 {
-    SERVER("/open-all-gpt/server"),
-    WORKER("/open-all-gpt/worker");
+    SERVER("/open-all-gpt"),
+    WORKER("/open-all-gpt");
 
-    private final String context;
+    private final String domain;
 
-    Endpoint(String context)
+    Endpoint(String domain)
     {
-        this.context = context;
+        this.domain = domain;
     }
 
-    public String getContext()
+    public String getDomain()
     {
-        return context;
+        return domain;
     }
 }

@@ -27,7 +27,7 @@ public class Address
     @JsonIgnore
     public String getURL()
     {
-        return "http://" + host + ":" + port + endpoint.getContext();
+        return "http://" + host + ":" + port + endpoint.getDomain();
     }
 
     @Override
