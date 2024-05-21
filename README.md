@@ -4,13 +4,17 @@ This is a demo application which implements different large language models in J
 
 The main goal is to demonstrate the different decoder-only transformer architectures (without training), not to create an optimized application.
 
-The second goal was to be able to execute as many models as possible. But it is limited by the operative memory, so I created a network framework which can split the task to multiple computers.
+The second goal was to be able to execute as many models as possible. But it is limited by the operative memory, so I created a network framework which can split the task for multiple computers.
 
-There's no parallel execution, so it is only a demonstration (and test) the used algorithm is correct for larger models.
+There's no parallel execution, so it is only a demonstration (and test) whether the used algorithm is correct for larger models.
 
-The work is in progress, but the main parts are already there.
+The core transformer architecture is implemented multiple times for different models. The differences are mostly small, so it would be possible to make a single, more general implementation, but then handling the differences would occupy most of the code, so the separate implementations are more clear. Additionally, you can easily compare these, and at the beginning of the code I listed the differences in comments. 
 
-The core mathematical utility is implemented in three versions, you can select which one to use.
+The models use different data types (float32, float16, bfloat16). In Java there's only 32 (and 64) bit size float type, so currently all values are stored and calculated as 32 bit float values. But I wrapped these into a custom Vector class, so with tricks there's a chance to deal with the different data types. (Achieving less memory usage but more computation because of the conversions.) 
+
+The core mathematical utility is implemented in three versions. There's a `standard` variant, which calculates everything using the simplest way. But I added an `ND4J` and a `Vector-API` implementation also, which can help a little bit to make the inference faster.
+
+There's a standalone version, which has a text-only user interface (in console). But there's a network framework which consists of a server, one or more workers, and a client. The client has a text-only and a web based variant. So it is possible to try the inference from a browser, or even using a mobile phone.
 
 <img src="static/screenshot.png" height="300"/>
 
@@ -40,7 +44,11 @@ To use the network feature you have to start the `Server` app one or more `Worke
 
 When the `Server` (`server.bat`) and `Worker` (`worker.bat`) nodes are running you can launch the `Client` (`client.bat`) which connects to the `Server`.
 
-There's a `netrun.bat` to start a server, two workers and the client. But for a real use you should use one worker per machine, configured to use as many heap memory as available.
+There's a `netrun.bat` to start a server, workers and the client. But for a real use you should use one worker per machine, configured to use as many heap memory as available.
+
+You can use a browser instead of the text-based client, just target the server ip and port, using an url like this: 
+
+   `http://serverhost:port/open-all-gpt`
 
 ## Trained parameters ##
 

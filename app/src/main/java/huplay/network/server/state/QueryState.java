@@ -90,14 +90,9 @@ public class QueryState
     public String getGeneratedText() {return generatedText;}
     public void setGeneratedText(String generatedText) {this.generatedText = generatedText;}
 
-    public List<Integer> getAllTokens()
+    public List<Integer> getGeneratedTokenIds()
     {
         List<Integer> tokens = new ArrayList<>();
-
-        for (Token token : inputTokens)
-        {
-            tokens.add(token.getId());
-        }
 
         for (Token token : generatedTokens)
         {

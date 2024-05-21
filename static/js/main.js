@@ -14,7 +14,7 @@ function displayModelSelector(models)
     //alert("TODO: displayModelSelector" + JSON.stringify(models));
 
     // TODO: Display model selector, send openModelRequest and poll until it is successful.
-    modelId = "Cerebras/Cerebras 256M";
+    modelId = "OpenAI/GPT 2/SMALL";
 
     // TODO: It should be triggered by the model selector widget
     const message = {"type": "PollOpenModelRequest",
@@ -92,7 +92,7 @@ function send()
                          "modelId": modelId,
                          "sessionUUID": sessionUUID,
                          "topK": 40,
-                         "maxLength": 5,
+                         "maxLength": 30,
                          "text": text};
 
         sendPostRequest(message).then((json) => pollQueryRequest(json));

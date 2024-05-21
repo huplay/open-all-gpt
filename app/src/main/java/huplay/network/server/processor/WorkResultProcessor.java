@@ -120,7 +120,7 @@ public class WorkResultProcessor
         var tokenizer = getServerState().getTokenizer(queryState.getModelId());
         var tokenText = tokenizer.decode(List.of(token));
         queryState.getGeneratedTokens().add(new Token(token, tokenText));
-        queryState.setGeneratedText(tokenizer.decode(queryState.getAllTokens()));
+        queryState.setGeneratedText(tokenizer.decode(queryState.getGeneratedTokenIds()));
 
         // Determine should we continue the generation
         var EOS = tokenizer.getEndOfTextToken().getId();
