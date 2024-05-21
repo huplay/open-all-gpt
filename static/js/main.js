@@ -53,10 +53,11 @@ function setSendStatus(isEnabled)
 
 function checkInput(event)
 {
-    if (/*isSendEnabled && */event.code === "Enter")
+    if (isSendEnabled && event.code === "Enter")
     {
         send();
     }
+    return true;
 }
 
 function send()

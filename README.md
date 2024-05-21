@@ -16,7 +16,7 @@ The core mathematical utility is implemented in three versions. There's a `stand
 
 There's a standalone version, which has a text-only user interface (in console). But there's a network framework which consists of a server, one or more workers, and a client. The client has a text-only and a web based variant. So it is possible to try the inference from a browser, or even using a mobile phone.
 
-<img src="static/screenshot.png" height="300"/>
+<p align="center"><img src="static/screenshot.png" height="300"/></p>
 
 ## Install ##
 
@@ -104,6 +104,45 @@ The following transformer architectures are implemented:
 - `BIG_SCIENCE_BLOOM`: Created by an open community organised by Hugging Face to create a similar model to GPT-3. Released in March-July 2022. The main difference to GPT-2/GPT-3 is the Alibi position embedding.
 - `META_LLAMA`: Created by Meta (Facebook), released in Feb 2023. Currently only the original architecture is supported, but the latest models use Grouped Query Attention. Changes to GPT-2: Rotary position embedding, 3 layered MLP block, Swiglu activation function, RSM normalisation.
 
+## Transformer implementation ##
+
+The transformer architecture is implemented multiple times. All variant placed in a separate package within the `transformer` package as you can see highlighted in the image below:
+
+<p align="center"><img src="static/transformer-packages.png" height="300"/></p>
+
+(Every package name contains the release date and the company as well.) On the screenshot the GPT2 package was opened, but all others contain three Java classes:
+
+- Main class (`GPT.java`)
+- Attention layer class (First block of a decoder, `GPT2AttentionLayer.java`)
+- Neural net layer class (Second block of a decoder, `GPT2NeuralNetLayer.java`)
+
+The transformer architecture has a frame, and within that a series of decoders. The frame is implemented in the Main class, the decoder is in two classes, because every decoder has two blocks, an attention and a neural net (MLP) block.
+
+Methods:
+
+Main:
+  - `loadParameters()`: Loads the main parameters into memory. This is called once, before the inference.
+  - `preProcessToken()`: This is the beginning of the execution. Accepts a token and executes the pre process steps, like position embedding and normalization
+  - //// The stack of decoders are called between the preProcessToken() and generateToken() ////
+  - `generateToken()`: This is the end of the execution. Accepts the result of the decoder stack and generates a token.
+
+Attention layer:
+   - `loadParameters()`: Loads the parameters for this block into memory. This is called once, before the inference.
+   - `process()`: The frame of the attention block. Contains normalization, residual connection and calls the attention implementation.
+   - `attention()`: The implementation of the attention mechanism.
+
+Neural net layer:
+   - `loadParameters()`: Loads the parameters for this block into memory. This is called once, before the inference.
+   - `process()`: The frame of the neural net (MLP) block. Contains normalization, residual connection and calls the core neural net implementation.
+   - `neuralNet()`: The implementation of the core neural net layers.
+
+If you take a look you can see all methods are very simple, only the attention mechanism is more complicated. Although, these uses some inherited methods from the parent (base) classes, and utility methods implementing the core mathematical algorithms, but those are also very simple codes, and everything is included in this repo.
+
+<img src="static/java-main.png" height="300"/>
+<img src="static/java-attention1.png" height="300"/>
+<img src="static/java-attention2.png" height="300"/>
+<img src="static/java-neural-net.png" height="300"/>
+
 ## For developers ##
 
 Steps is you want to modify and rebuild the app:
@@ -141,7 +180,7 @@ Or on any systems:```java -jar target/open-all-gpt.jar <model-name>```
 If you want to use the Vector API version (in the case you installed that variant) you have to use the ``runv <model-name>`` command.
 This is necessary because the Vector API isn't ready (as of Java 20), added only as an incubator module, so we have to execute the Java Virtual Machine telling we want to use this incubator feature. 
   
-## Additional command line parameters ##
+## Additional command line parameters (Standalone version) ##
 
 - `-max` - Maximum number of generated tokens (default: 25)
 - `-topK` - Number of possibilities to chose from as next token (default: 40)
@@ -151,7 +190,7 @@ Example:
 
 `run GPT2/XL -max=1024 -topk=100`
 
-## Usage ##
+## Usage (Standalone version) ##
 
 Actually there are two applications. The launcher app implements the model selection, which opens the main app in a separate window.
 
