@@ -138,9 +138,16 @@ Neural net layer:
 
 If you take a look you can see all methods are very simple, only the attention mechanism is more complicated. Although, these uses some inherited methods from the parent (base) classes, and utility methods implementing the core mathematical algorithms, but those are also very simple codes, and everything is included in this repo.
 
+Code of the main class:
 <img src="static/java-main.png" height="300"/>
+
+Code of the attention block (first part):
 <img src="static/java-attention1.png" height="300"/>
+
+Code of the attention block (attention method):
 <img src="static/java-attention2.png" height="300"/>
+
+Code of the neural net block:
 <img src="static/java-neural-net.png" height="300"/>
 
 ## For developers ##
