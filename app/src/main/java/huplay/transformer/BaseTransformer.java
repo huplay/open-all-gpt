@@ -3,7 +3,7 @@ package huplay.transformer;
 import huplay.config.Config;
 import huplay.network.info.DecoderBlockType;
 import huplay.util.IndexedValue;
-import huplay.util.Vector;
+import huplay.dataType.vector.Vector;
 
 import java.util.HashMap;
 import java.util.List;
@@ -110,7 +110,7 @@ public abstract class BaseTransformer extends ParameterStore
     {
         // Multiply (dot product) the output with all token embeddings.
         // It will give a higher value if the output is more similar to the token embedding
-        float[] logits = UTIL.mulVectorByTransposedMatrix(hiddenState, matrix(TOKEN_EMBEDDINGS)).getFloat32Values();
+        float[] logits = UTIL.mulVectorByTransposedMatrix(hiddenState, matrix(TOKEN_EMBEDDINGS)).getValues();
 
         // Sort (higher to lower) the result of the dot products, retaining the order (index) of the related token
         List<IndexedValue> orderedLogits = UTIL.reverseAndFilter(logits, topK);

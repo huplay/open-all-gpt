@@ -1,5 +1,7 @@
 package huplay.util;
 
+import huplay.dataType.vector.Vector;
+
 import java.util.List;
 
 public interface Utility

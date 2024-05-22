@@ -2,7 +2,7 @@ package huplay.transformer._2021_06_eleuther_gptj;
 
 import huplay.transformer.TransformerUtil;
 import huplay.transformer.BaseNeuralNetLayer;
-import huplay.util.Vector;
+import huplay.dataType.vector.Vector;
 
 import static huplay.AppNetworkClient.UTIL;
 import static huplay.config.ParameterType.*;

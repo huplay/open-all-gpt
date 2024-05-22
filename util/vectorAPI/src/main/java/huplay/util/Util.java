@@ -1,7 +1,7 @@
 package huplay.util;
 
+import huplay.dataType.vector.Vector;
 import jdk.incubator.vector.FloatVector;
-import jdk.incubator.vector.VectorMask;
 import jdk.incubator.vector.VectorOperators;
 import jdk.incubator.vector.VectorSpecies;
 
@@ -23,12 +23,12 @@ public class Util extends AbstractUtil
         for (var i = 0; i < vector1.size(); i += SPECIES.length())
         {
             var mask = SPECIES.indexInRange(i, vector1.size());
-            var first = FloatVector.fromArray(SPECIES, vector1.getFloat32Values(), i, mask);
-            var second = FloatVector.fromArray(SPECIES, vector2.getFloat32Values(), i, mask);
+            var first = FloatVector.fromArray(SPECIES, vector1.getValues(), i, mask);
+            var second = FloatVector.fromArray(SPECIES, vector2.getValues(), i, mask);
             first.add(second).intoArray(result, i, mask);
         }
 
-        return new Vector(vector1.getFloatType(), result);
+        return Vector.of(vector1.getFloatType(), result);
     }
 
     @Override
@@ -40,8 +40,8 @@ public class Util extends AbstractUtil
         var i = 0;
         for (; i < upperBound; i += SPECIES.length())
         {
-            var va = FloatVector.fromArray(SPECIES, vector1.getFloat32Values(), i);
-            var vb = FloatVector.fromArray(SPECIES, vector2.getFloat32Values(), i);
+            var va = FloatVector.fromArray(SPECIES, vector1.getValues(), i);
+            var vb = FloatVector.fromArray(SPECIES, vector2.getValues(), i);
             sum = va.fma(vb, sum);
         }
 
@@ -64,18 +64,18 @@ public class Util extends AbstractUtil
         for (var i = 0; i < vector.size(); i += SPECIES.length())
         {
             var mask = SPECIES.indexInRange(i, vector.size());
-            var floatVector = FloatVector.fromArray(SPECIES, vector.getFloat32Values(), i, mask);
+            var floatVector = FloatVector.fromArray(SPECIES, vector.getValues(), i, mask);
             floatVector.mul(scalar).intoArray(result, i, mask);
         }
 
-        return new Vector(vector.getFloatType(), result);
+        return Vector.of(vector.getFloatType(), result);
     }
 
     @Override
     // TODO: Vector-api isn't used
     public Vector mulVectorByMatrix(Vector vector, Vector[] matrix)
     {
-        var ret = new Vector(vector.getFloatType(), matrix[0].size());
+        var ret = Vector.of(vector.getFloatType(), matrix[0].size());
 
         for (var col = 0; col < matrix[0].size(); col++)
         {
@@ -95,7 +95,7 @@ public class Util extends AbstractUtil
     @Override
     public Vector mulVectorByTransposedMatrix(Vector vector, Vector[] matrix)
     {
-        var ret = new Vector(vector.getFloatType(), matrix.length);
+        var ret = Vector.of(vector.getFloatType(), matrix.length);
 
         for (var col = 0; col < matrix.length; col++)
         {
@@ -134,7 +134,7 @@ public class Util extends AbstractUtil
     // TODO: Vector-api isn't used
     public Vector flattenMatrix(Vector[] matrix)
     {
-        var ret = new Vector(matrix[0].getFloatType(), matrix.length * matrix[0].size());
+        var ret = Vector.of(matrix[0].getFloatType(), matrix.length * matrix[0].size());
 
         var i = 0;
 
@@ -155,7 +155,7 @@ public class Util extends AbstractUtil
     // TODO: Vector-api isn't used
     public float average(Vector vector)
     {
-        var sum = 0;
+        float sum = 0;
 
         for (var i = 0; i < vector.size(); i++)
         {
@@ -163,6 +163,6 @@ public class Util extends AbstractUtil
             sum = sum + value;
         }
 
-        return (float) sum / vector.size();
+        return sum / vector.size();
     }
 }

@@ -1,7 +1,7 @@
 package huplay.transformer._2018_01_google_transformer;
 
 import huplay.transformer.BaseTransformer;
-import huplay.util.Vector;
+import huplay.dataType.vector.Vector;
 
 import static huplay.config.ParameterType.*;
 

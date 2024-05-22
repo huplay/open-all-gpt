@@ -8,12 +8,12 @@ public class SafetensorsHeader
     private final String id;
     private final long dataOffset;
     private final String format;
-    private final DataType dataType;
+    private final SafetensorsDataType dataType;
     private final List<Integer> shape;
     private final long startOffset;
     private final long endOffset;
 
-    public SafetensorsHeader(String fileName, String id, long dataOffset, String format, DataType dataType,
+    public SafetensorsHeader(String fileName, String id, long dataOffset, String format, SafetensorsDataType dataType,
                              List<Integer> shape, long startOffset, long endOffset)
     {
         this.fileName = fileName;
@@ -35,7 +35,7 @@ public class SafetensorsHeader
     public String getId() {return id;}
     public long getDataOffset() {return dataOffset;}
     public String getFormat() {return format;}
-    public DataType getDataType() {return dataType;}
+    public SafetensorsDataType getDataType() {return dataType;}
     public List<Integer> getShape() {return shape;}
     public long getStartOffset() {return startOffset;}
     public long getEndOffset() {return endOffset;}

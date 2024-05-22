@@ -1,7 +1,7 @@
 package huplay.transformer._2023_02_meta_llama;
 
 import huplay.transformer.BaseTransformer;
-import huplay.util.Vector;
+import huplay.dataType.vector.Vector;
 
 import static huplay.transformer.TransformerUtil.RMSLayerNorm;
 import static huplay.config.ParameterType.*;
@@ -17,6 +17,7 @@ import static huplay.config.ParameterType.*;
     - RMS normalisation
     - No biases, only weights
     - Query, key and value matrices are stored separately
+    - 16 bit parameters (FLOAT16)
 
  * @author Hunor Szegi
  */

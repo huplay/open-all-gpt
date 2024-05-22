@@ -10,8 +10,6 @@ There's no parallel execution, so it is only a demonstration (and test) whether 
 
 The core transformer architecture is implemented multiple times for different models. The differences are mostly small, so it would be possible to make a single, more general implementation, but then handling the differences would occupy most of the code, so the separate implementations are more clear. Additionally, you can easily compare these, and at the beginning of the code I listed the differences in comments. 
 
-The models use different data types (float32, float16, bfloat16). In Java there's only 32 (and 64) bit size float type, so currently all values are stored and calculated as 32 bit float values. But I wrapped these into a custom Vector class, so with tricks there's a chance to deal with the different data types. (Achieving less memory usage but more computation because of the conversions.) 
-
 The core mathematical utility is implemented in three versions. There's a `standard` variant, which calculates everything using the simplest way. But I added an `ND4J` and a `Vector-API` implementation also, which can help a little bit to make the inference faster.
 
 There's a standalone version, which has a text-only user interface (in console). But there's a network framework which consists of a server, one or more workers, and a client. The client has a text-only and a web based variant. So it is possible to try the inference from a browser, or even using a mobile phone.
@@ -52,7 +50,9 @@ You can use a browser instead of the text-based client, just target the server i
 
 ## Trained parameters ##
 
-The parameter files should be provided in `safetensors` file format, but the app can download these from the configured repository.
+The parameter files should be in `safetensors` format. The app can download these from the configured repository.
+
+Above the 32-bit float (which is the same as the standard Java float), 16-bit float values are also supported. (FLOAT16 and BFLOAT16). There's no 16-bit float data type in Java, so those parameters are converted to Java short, which is an integer data type in theory, but with a conversion trick it can be used. This conversion needs extra computation, but at least it doesn't occupy more memory than necessary. (At calculation, we always use 32-bit float arithmetic.)
 
 ## Configuration ##
 

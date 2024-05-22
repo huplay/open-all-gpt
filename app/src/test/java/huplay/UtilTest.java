@@ -1,7 +1,7 @@
 package huplay;
 
 import huplay.util.Util;
-import huplay.util.Vector;
+import huplay.dataType.vector.Vector;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

@@ -1,6 +1,6 @@
 package huplay.file;
 
-public enum DataType
+public enum SafetensorsDataType
 {
     // Boolean
     BOOL(1),
@@ -43,7 +43,7 @@ public enum DataType
 
     private final int bits;
 
-    DataType(int bits)
+    SafetensorsDataType(int bits)
     {
         this.bits = bits;
     }

@@ -1,0 +1,25 @@
+{
+  "name": "Meta Llama 7B",
+  "transformerType": "META_LLAMA",
+  "repo": "https://huggingface.co/huggyllama/llama-65b",
+  "files": [
+    "config.json",
+    "model-00001-of-00014.safetensors",
+    "model-00002-of-00014.safetensors",
+    "model-00003-of-00014.safetensors",
+    "model-00004-of-00014.safetensors",
+    "model-00005-of-00014.safetensors",
+    "model-00006-of-00014.safetensors",
+    "model-00007-of-00014.safetensors",
+    "model-00008-of-00014.safetensors",
+    "model-00009-of-00014.safetensors",
+    "model-00010-of-00014.safetensors",
+    "model-00011-of-00014.safetensors",
+    "model-00012-of-00014.safetensors",
+    "model-00013-of-00014.safetensors",
+    "model-00014-of-00014.safetensors"
+  ],
+  "parameterNaming": "model.{name}",
+  "decoderParameterNaming": "model.layers.{decoderId}.{name}",
+  "memorySize": 11264
+}

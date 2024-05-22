@@ -1,7 +1,7 @@
 package huplay.transformer._2018_06_openai_gpt1;
 
 import huplay.transformer.BaseTransformer;
-import huplay.util.Vector;
+import huplay.dataType.vector.Vector;
 
 import static huplay.AppNetworkClient.UTIL;
 import static huplay.config.ParameterType.*;

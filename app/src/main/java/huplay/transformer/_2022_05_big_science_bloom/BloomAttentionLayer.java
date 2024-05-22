@@ -1,7 +1,7 @@
 package huplay.transformer._2022_05_big_science_bloom;
 
 import huplay.transformer.BaseAttentionLayer;
-import huplay.util.Vector;
+import huplay.dataType.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.List;
 import static huplay.AppNetworkClient.UTIL;
 import static huplay.transformer.TransformerUtil.*;
 import static huplay.config.ParameterType.*;
-import static huplay.util.Vector.newVectorArray;
+import static huplay.dataType.vector.Vector.newVectorArray;
 
 /**
  * BLOOM decoder implementation
@@ -98,7 +98,7 @@ public class BloomAttentionLayer extends BaseAttentionLayer
             int storedSize = storedKeys.get(head).size();
 
             // Calculate the scores
-            Vector scores = new Vector(hiddenState.getFloatType(), storedSize);
+            Vector scores = Vector.of(hiddenState.getFloatType(), storedSize);
 
             for (int pos = 0; pos < storedSize; pos++)
             {

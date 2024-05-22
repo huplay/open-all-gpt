@@ -2,7 +2,7 @@ package huplay.transformer._2022_05_big_science_bloom;
 
 import huplay.transformer.TransformerUtil;
 import huplay.transformer.BaseNeuralNetLayer;
-import huplay.util.Vector;
+import huplay.dataType.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.List;

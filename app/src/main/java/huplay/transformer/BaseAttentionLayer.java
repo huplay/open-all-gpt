@@ -1,7 +1,7 @@
 package huplay.transformer;
 
 import huplay.config.Config;
-import huplay.util.Vector;
+import huplay.dataType.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.List;

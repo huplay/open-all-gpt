@@ -1,5 +1,7 @@
 package huplay.util;
 
+import huplay.dataType.vector.Vector;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
@@ -45,7 +47,7 @@ public abstract class AbstractUtil implements Utility
         var average = average(vector);
         var averageDiff = averageDiff(vector, average, epsilon);
 
-        var norm = new Vector(vector.getFloatType(), vector.size());
+        var norm = Vector.of(vector.getFloatType(), vector.size());
 
         for (var i = 0; i < vector.size(); i++)
         {
@@ -58,7 +60,7 @@ public abstract class AbstractUtil implements Utility
     @Override
     public float averageDiff(Vector values, float average, float epsilon)
     {
-        var squareDiff = new Vector(values.getFloatType(), values.size());
+        var squareDiff = Vector.of(values.getFloatType(), values.size());
 
         for (var i = 0; i < values.size(); i++)
         {
@@ -77,7 +79,7 @@ public abstract class AbstractUtil implements Utility
      */
     public List<IndexedValue> reverseAndFilter(float[] values, int count)
     {
-        var indexedValues = new TreeSet<IndexedValue>(new IndexedValue.ReverseComparator());
+        var indexedValues = new TreeSet<>(new IndexedValue.ReverseComparator());
         for (var i = 0; i < values.length; i++)
         {
             indexedValues.add(new IndexedValue(values[i], i));

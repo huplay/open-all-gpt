@@ -4,8 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import huplay.IdentifiedException;
-import huplay.util.FloatType;
-import huplay.util.Vector;
+import huplay.dataType.vector.BrainFloat16Vector;
+import huplay.dataType.vector.Float16Vector;
+import huplay.dataType.vector.Float32Vector;
+import huplay.dataType.vector.Vector;
 
 import java.io.*;
 import java.nio.*;
@@ -159,7 +161,7 @@ public class SafetensorsReader
 
             var tensor = entry.getValue();
 
-            var dataType = DataType.valueOf(tensor.getDataType());
+            var dataType = SafetensorsDataType.valueOf(tensor.getDataType());
             var shape = tensor.getShape();
             var offsets = tensor.getDataOffsets();
 
@@ -182,24 +184,13 @@ public class SafetensorsReader
         return read(file, size, false);
     }
 
-    public Vector readVectorOptional(String file, int size)
-    {
-        return read(file, size, true);
-    }
-
     public Vector[] readMatrix(String file, int rows, int cols)
     {
         var vector = read(file, rows * cols, false);
         return vector == null ? null : UTIL.splitVector(vector, rows);
     }
 
-    public Vector[] readMatrixOptional(String file, int rows, int cols)
-    {
-        var vector = read(file, rows * cols, true);
-        return vector == null ? null : UTIL.splitVector(vector, rows);
-    }
-
-    public DataType getDataType(String file)
+    public SafetensorsDataType getDataType(String file)
     {
         return parameterHeaders.get(file).getDataType();
     }
@@ -259,7 +250,7 @@ public class SafetensorsReader
         buffer.order(ByteOrder.LITTLE_ENDIAN);
         buffer.asFloatBuffer().get(array, 0, size);
 
-        return new Vector(FloatType.FLOAT32, array);
+        return new Float32Vector(array);
     }
 
     private Vector readFloat16(FileInputStream stream, int size, long offset) throws IOException
@@ -270,14 +261,7 @@ public class SafetensorsReader
         buffer.order(ByteOrder.LITTLE_ENDIAN);
         buffer.asShortBuffer().get(array, 0, size);
 
-        var ret = new float[size]; // TODO
-
-        for (var i = 0; i < size; i++)
-        {
-            ret[i] = toFloat32(array[i]);
-        }
-
-        return new Vector(FloatType.FLOAT16, array);
+        return new Float16Vector(array);
     }
 
     private Vector readBrainFloat16(FileInputStream stream, int size, long offset) throws IOException
@@ -288,60 +272,6 @@ public class SafetensorsReader
         buffer.order(ByteOrder.LITTLE_ENDIAN);
         buffer.asShortBuffer().get(array, 0, size);
 
-        var ret = new float[size];
-
-        for (var i = 0; i < size; i++)
-        {
-            ret[i] = toFloat32(array[i]);
-        }
-
-        return new Vector(FloatType.BFLOAT16, array);
-    }
-
-    private float toFloat32(short value)
-    {
-        var signFlag = value & 0b1000_0000_0000_0000; // Extract sign (1st bit)
-        var exponent = value & 0b0111_1100_0000_0000; // Extract exponent (5 bits after exponent
-        var mantissa = value & 0b0000_0011_1111_1111; // Extract mantissa (last 10 bits)
-
-        if (exponent == 0b0111_1100_0000_0000)
-        {
-            // Infinity or NaN
-            if (mantissa == 0)
-            {
-                if (signFlag == 0) return Float.POSITIVE_INFINITY;
-                else return Float.NEGATIVE_INFINITY;
-            }
-            else return Float.NaN;
-        }
-        else if (exponent == 0)
-        {
-            // Zero or subnormal value
-            if (mantissa != 0)
-            {
-                exponent = 0x1c400;
-                do
-                {
-                    mantissa <<= 1;
-                    exponent -= 0b0000_0100_0000_0000;
-                }
-                while ((mantissa & 0b0000_0100_0000_0000) == 0);
-
-                mantissa &= 0b0000_0011_1111_1111;
-            }
-
-            return Float.intBitsToFloat(signFlag << 16 | (exponent | mantissa) << 13);
-        }
-        else
-        {
-            // Normal value
-            exponent += 0x1c000;
-            if (mantissa == 0 && exponent > 0x1c400)
-            {
-                return Float.intBitsToFloat(signFlag << 16 | exponent << 13 | 0b0000_0011_1111_1111);
-            }
-
-            return Float.intBitsToFloat(signFlag << 16 | (exponent | mantissa) << 13);
-        }
+        return new BrainFloat16Vector(array);
     }
 }

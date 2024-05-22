@@ -1,7 +1,7 @@
 package huplay.transformer._2021_06_eleuther_gptj;
 
 import huplay.transformer.BaseTransformer;
-import huplay.util.Vector;
+import huplay.dataType.vector.Vector;
 
 import static huplay.transformer.TransformerUtil.layerNorm;
 import static huplay.config.ParameterType.*;

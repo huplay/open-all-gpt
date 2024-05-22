@@ -2,7 +2,7 @@ package huplay.transformer._2023_02_meta_llama;
 
 import huplay.transformer.TransformerUtil;
 import huplay.transformer.BaseNeuralNetLayer;
-import huplay.util.Vector;
+import huplay.dataType.vector.Vector;
 
 import static huplay.AppNetworkClient.UTIL;
 import static huplay.transformer.TransformerUtil.*;

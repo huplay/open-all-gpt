@@ -1,22 +1,27 @@
 package huplay.network.info.output;
 
+import huplay.dataType.FloatType;
+
 public class HiddenStateOutput implements Output
 {
+    private FloatType floatType;
     private float[] hiddenState;
 
     public HiddenStateOutput() {} // Empty constructor for deserialization
 
-    public HiddenStateOutput(float[] hiddenState)
+    public HiddenStateOutput(FloatType floatType, float[] hiddenState)
     {
+        this.floatType = floatType;
         this.hiddenState = hiddenState;
     }
 
-    // Getter
+    // Getters
+    public FloatType getFloatType() {return floatType;}
     public float[] getHiddenState() {return hiddenState;}
 
     @Override
     public String toString()
     {
-        return "HiddenStateOutput{" + hiddenState.length + "}";
+        return "HiddenStateOutput{" + floatType.name() + ", " + hiddenState.length + "}";
     }
 }

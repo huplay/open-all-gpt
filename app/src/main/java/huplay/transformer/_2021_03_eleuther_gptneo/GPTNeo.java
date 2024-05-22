@@ -1,7 +1,7 @@
 package huplay.transformer._2021_03_eleuther_gptneo;
 
 import huplay.transformer.BaseTransformer;
-import huplay.util.Vector;
+import huplay.dataType.vector.Vector;
 
 import static huplay.AppNetworkClient.UTIL;
 import static huplay.transformer.TransformerUtil.layerNorm;

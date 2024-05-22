@@ -1,7 +1,7 @@
 package huplay.transformer._2022_05_big_science_bloom;
 
 import huplay.transformer.BaseTransformer;
-import huplay.util.Vector;
+import huplay.dataType.vector.Vector;
 
 import static huplay.transformer.TransformerUtil.layerNorm;
 import static huplay.config.ParameterType.*;

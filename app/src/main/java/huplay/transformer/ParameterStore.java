@@ -3,7 +3,7 @@ package huplay.transformer;
 import huplay.config.Config;
 import huplay.file.SafetensorsReader;
 import huplay.config.ParameterType;
-import huplay.util.Vector;
+import huplay.dataType.vector.Vector;
 
 import java.util.HashMap;
 import java.util.Map;

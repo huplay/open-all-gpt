@@ -1,5 +1,7 @@
 package huplay.util;
 
+import huplay.dataType.vector.Vector;
+
 public class Util extends AbstractUtil
 {
     @Override
@@ -11,7 +13,7 @@ public class Util extends AbstractUtil
     @Override
     public Vector addVectors(Vector vector1, Vector vector2)
     {
-        Vector ret = new Vector(vector1.getFloatType(), vector1.size());
+        Vector ret = Vector.of(vector1.getFloatType(), vector1.size());
 
         for (int i = 0; i < vector1.size(); i++)
         {
@@ -37,7 +39,7 @@ public class Util extends AbstractUtil
     @Override
     public Vector mulVectorByScalar(Vector vector, float scalar)
     {
-        Vector ret = new Vector(vector.getFloatType(), vector.size());
+        Vector ret = Vector.of(vector.getFloatType(), vector.size());
 
         for (int i = 0; i < vector.size(); i++)
         {
@@ -50,7 +52,7 @@ public class Util extends AbstractUtil
     @Override
     public Vector mulVectorByMatrix(Vector vector, Vector[] matrix)
     {
-        Vector ret = new Vector(vector.getFloatType(), matrix[0].size());
+        Vector ret = Vector.of(vector.getFloatType(), matrix[0].size());
 
         for (int col = 0; col < matrix[0].size(); col++)
         {
@@ -70,7 +72,7 @@ public class Util extends AbstractUtil
     @Override
     public Vector mulVectorByTransposedMatrix(Vector vector, Vector[] matrix)
     {
-        Vector ret = new Vector(vector.getFloatType(), matrix.length);
+        Vector ret = Vector.of(vector.getFloatType(), matrix.length);
 
         for (int i = 0; i < matrix.length; i++)
         {
@@ -107,7 +109,7 @@ public class Util extends AbstractUtil
     @Override
     public Vector flattenMatrix(Vector[] matrix)
     {
-        Vector ret = new Vector(matrix[0].getFloatType(), matrix.length * matrix[0].size());
+        Vector ret = Vector.of(matrix[0].getFloatType(), matrix.length * matrix[0].size());
 
         int i = 0;
 

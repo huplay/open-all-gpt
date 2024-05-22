@@ -1,12 +1,12 @@
 package huplay.transformer._2021_06_eleuther_gptj;
 
 import huplay.transformer.BaseAttentionLayer;
-import huplay.util.Vector;
+import huplay.dataType.vector.Vector;
 
 import static huplay.AppNetworkClient.UTIL;
 import static huplay.transformer.TransformerUtil.*;
 import static huplay.config.ParameterType.*;
-import static huplay.util.Vector.newVectorArray;
+import static huplay.dataType.vector.Vector.newVectorArray;
 
 /**
  * EleutherAI GPT-J decoder implementation
@@ -83,7 +83,7 @@ public class GPTJAttentionLayer extends BaseAttentionLayer
         {
             // Calculate the scores
             Vector actualQuery = queryByHead[head];
-            Vector scores = new Vector(actualQuery.getFloatType(), storedSize);
+            Vector scores = Vector.of(actualQuery.getFloatType(), storedSize);
 
             for (int pos = 0; pos < storedSize; pos++)
             {

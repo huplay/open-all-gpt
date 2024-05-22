@@ -93,8 +93,8 @@ public class WorkResultProcessor
     private static void requestNextWorkSegmentProcess(QueryState queryState, WorkResultMessage message)
     {
         // If we have a next workSegment, it is certain the previous output was a hiddenState
-        var hiddenStateOutput = (HiddenStateOutput) message.getResult();
-        var input = new HiddenStateInput(hiddenStateOutput.getHiddenState());
+        var output = (HiddenStateOutput) message.getResult();
+        var input = new HiddenStateInput(output.getFloatType(), output.getHiddenState());
 
         var workSegment = queryState.nextWorkSegment();
 

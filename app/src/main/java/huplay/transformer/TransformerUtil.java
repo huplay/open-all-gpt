@@ -1,7 +1,7 @@
 package huplay.transformer;
 
 import huplay.util.IndexedValue;
-import huplay.util.Vector;
+import huplay.dataType.vector.Vector;
 
 import java.util.List;
 
@@ -66,7 +66,7 @@ public class TransformerUtil
         sum = 1f / sqrt(sum / size + epsilon);
 
         //  Normalize and scale
-        Vector result = new Vector(vector.getFloatType(), size);
+        Vector result = Vector.of(vector.getFloatType(), size);
 
         for (var i = 0; i < size; i++)
         {
@@ -92,7 +92,7 @@ public class TransformerUtil
             total = total + exp;
         }
 
-        Vector ret = new Vector(vector.getFloatType(), vector.size());
+        Vector ret = Vector.of(vector.getFloatType(), vector.size());
 
         for (var i = 0; i < vector.size(); i++)
         {

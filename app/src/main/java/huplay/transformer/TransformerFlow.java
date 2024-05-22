@@ -3,7 +3,7 @@ package huplay.transformer;
 import huplay.Flow;
 import huplay.config.Config;
 import huplay.tokenizer.Tokenizer;
-import huplay.util.Vector;
+import huplay.dataType.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.Collections;

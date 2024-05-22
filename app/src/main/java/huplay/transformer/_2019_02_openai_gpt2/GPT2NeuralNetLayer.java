@@ -2,7 +2,7 @@ package huplay.transformer._2019_02_openai_gpt2;
 
 import huplay.transformer.TransformerUtil;
 import huplay.transformer.BaseNeuralNetLayer;
-import huplay.util.Vector;
+import huplay.dataType.vector.Vector;
 
 import static huplay.AppNetworkClient.UTIL;
 import static huplay.transformer.TransformerUtil.*;

@@ -1,6 +1,6 @@
 package huplay.util;
 
-import org.nd4j.linalg.api.ndarray.INDArray;
+import huplay.dataType.vector.Vector;
 import org.nd4j.linalg.factory.Nd4j;
 
 public class Util extends AbstractUtil
@@ -14,18 +14,18 @@ public class Util extends AbstractUtil
     @Override
     public Vector addVectors(Vector vector1, Vector vector2)
     {
-        try (var array1 = Nd4j.create(vector1.getFloat32Values());
-             var array2 = Nd4j.create(vector2.getFloat32Values()))
+        try (var array1 = Nd4j.create(vector1.getValues());
+             var array2 = Nd4j.create(vector2.getValues()))
         {
-            return new Vector(vector1.getFloatType(), array1.add(array2).toFloatVector());
+            return Vector.of(vector1.getFloatType(), array1.add(array2).toFloatVector());
         }
     }
 
     @Override
     public float dotProduct(Vector vector1, Vector vector2)
     {
-        try (var array1 = Nd4j.create(vector1.getFloat32Values());
-             var array2 = Nd4j.create(vector2.getFloat32Values()))
+        try (var array1 = Nd4j.create(vector1.getValues());
+             var array2 = Nd4j.create(vector2.getValues()))
         {
             return array1.mmul(array2).getFloat(0);
         }
@@ -34,27 +34,27 @@ public class Util extends AbstractUtil
     @Override
     public Vector mulVectorByScalar(Vector vector, float scalar)
     {
-        try (var array = Nd4j.create(vector.getFloat32Values()))
+        try (var array = Nd4j.create(vector.getValues()))
         {
-            return new Vector(vector.getFloatType(), array.mul(scalar).toFloatVector());
+            return Vector.of(vector.getFloatType(), array.mul(scalar).toFloatVector());
         }
     }
 
     // TODO: It seems not too effective. We convert the vector to matrix and do a matrix-matrix multiplication
     public Vector mulVectorByMatrix(Vector vector, Vector[] matrix)
     {
-        var floatVector = new float[][] {vector.getFloat32Values()};
+        var floatVector = new float[][] {vector.getValues()};
 
         var floatMatrix = new float[matrix.length][];
         for (var i = 0; i < matrix.length; i++)
         {
-            floatMatrix[i] = matrix[i].getFloat32Values();
+            floatMatrix[i] = matrix[i].getValues();
         }
 
         try (var array1 = Nd4j.create(floatVector);
              var array2 = Nd4j.create(floatMatrix))
         {
-            return new Vector(vector.getFloatType(), array1.mmul(array2).toFloatVector());
+            return Vector.of(vector.getFloatType(), array1.mmul(array2).toFloatVector());
         }
     }
 
@@ -62,32 +62,32 @@ public class Util extends AbstractUtil
     public Vector mulVectorByTransposedMatrix(Vector vector, Vector[] matrix)
     {
         var array = new float[1][vector.size()];
-        array[0] = vector.getFloat32Values();
+        array[0] = vector.getValues();
 
         var floatMatrix = new float[matrix.length][];
         for (var i = 0; i < matrix.length; i++)
         {
-            floatMatrix[i] = matrix[i].getFloat32Values();
+            floatMatrix[i] = matrix[i].getValues();
         }
 
         try (var array1 = Nd4j.create(array);
              var array2 = Nd4j.create(floatMatrix))
         {
-            return new Vector(vector.getFloatType(), array1.mmul(array2.transpose()).toFloatVector());
+            return Vector.of(vector.getFloatType(), array1.mmul(array2.transpose()).toFloatVector());
         }
     }
 
     @Override
     public Vector[] splitVector(Vector vector, int count)
     {
-        try (var array = Nd4j.create(vector.getFloat32Values()))
+        try (var array = Nd4j.create(vector.getValues()))
         {
             var matrix = array.reshape(count, vector.size() / count).toFloatMatrix();
 
             var result = new Vector[matrix.length];
             for (var i = 0; i < matrix.length; i++)
             {
-                result[i] = new Vector(vector.getFloatType(), matrix[i]);
+                result[i] = Vector.of(vector.getFloatType(), matrix[i]);
             }
 
             return result;
@@ -102,19 +102,19 @@ public class Util extends AbstractUtil
         var floatMatrix = new float[matrix.length][];
         for (var i = 0; i < matrix.length; i++)
         {
-            floatMatrix[i] = matrix[i].getFloat32Values();
+            floatMatrix[i] = matrix[i].getValues();
         }
 
         try (var array = Nd4j.create(floatMatrix))
         {
-            return new Vector(matrix[0].getFloatType(), array.reshape(size).toFloatVector());
+            return Vector.of(matrix[0].getFloatType(), array.reshape(size).toFloatVector());
         }
     }
 
     @Override
     public float average(Vector vector)
     {
-        try (var array = Nd4j.create(vector.getFloat32Values()))
+        try (var array = Nd4j.create(vector.getValues()))
         {
             return array.meanNumber().floatValue();
         }

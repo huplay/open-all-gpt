@@ -1,7 +1,7 @@
 package huplay;
 
-import huplay.util.FloatType;
-import huplay.util.Vector;
+import huplay.dataType.FloatType;
+import huplay.dataType.vector.Vector;
 
 import static org.junit.Assert.*;
 
@@ -9,7 +9,7 @@ public class BaseTest
 {
     protected Vector createVector(float... values)
     {
-        var vector = new Vector(FloatType.FLOAT32, values.length);
+        var vector = Vector.of(FloatType.FLOAT_32, values.length);
 
         for (var i = 0; i < values.length; i ++)
         {

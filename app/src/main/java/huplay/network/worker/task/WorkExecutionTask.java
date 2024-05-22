@@ -11,8 +11,7 @@ import huplay.network.info.output.Output;
 import huplay.network.info.output.TokenOutput;
 import huplay.network.message.toWorker.WorkMessage;
 import huplay.network.message.toWorker.WorkResultMessage;
-import huplay.util.FloatType;
-import huplay.util.Vector;
+import huplay.dataType.vector.Vector;
 
 import static huplay.network.worker.state.WorkerState.getWorkerState;
 
@@ -54,7 +53,7 @@ public class WorkExecutionTask implements Runnable
             }
             else if (input instanceof HiddenStateInput hiddenStateInput)
             {
-                hiddenState = new Vector(FloatType.FLOAT32, hiddenStateInput.getHiddenState());
+                hiddenState = Vector.of(hiddenStateInput.getFloatType(), hiddenStateInput.getHiddenState());
             }
 
             if (segmentType.hasHead())
@@ -98,7 +97,7 @@ public class WorkExecutionTask implements Runnable
                 if (hiddenState == null)
                     output = new EmptyOutput();
                 else
-                    output = new HiddenStateOutput(hiddenState.getFloat32Values());
+                    output = new HiddenStateOutput(hiddenState.getFloatType(), hiddenState.getValues());
 
             }
 
