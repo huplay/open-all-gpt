@@ -1,9 +1,11 @@
 package huplay.transformer._2018_01_google_transformer;
 
+import huplay.dataType.matrix.Matrix;
 import huplay.transformer.BaseTransformer;
 import huplay.dataType.vector.Vector;
 
 import static huplay.config.ParameterType.*;
+import static huplay.transformer.TransformerUtil.exp;
 
 /**
   Google Brain, the original decoder-only Transformer
@@ -33,7 +35,7 @@ import static huplay.config.ParameterType.*;
  */
 public class GoogleTransformer extends BaseTransformer
 {
-    private float[][] positionMatrix;
+    private Matrix positionMatrix;
 
     public void loadParameters()
     {
@@ -51,7 +53,7 @@ public class GoogleTransformer extends BaseTransformer
         // Position embedding
         for (int i = 0; i < hiddenState.size(); i++)
         {
-            hiddenState.set(i, hiddenState.get(i) * positionMatrix[pos][i]);
+            hiddenState.set(i, hiddenState.get(i) * positionMatrix.getValue(pos, i));
         }
 
         return hiddenState;
@@ -62,20 +64,20 @@ public class GoogleTransformer extends BaseTransformer
         return determineOutputToken(hiddenState, topK);
     }
 
-    private float[][] calculatePositionMatrix()
+    private Matrix calculatePositionMatrix()
     {
-        float[][] positionMatrix = new float[contextSize][hiddenSize];
+        Matrix positionMatrix = emptyMatrix(contextSize, hiddenSize);
 
-        float[] positions = new float[contextSize];
+        Vector positions = emptyVector(contextSize);
         for (int i = 0; i < contextSize; i++)
         {
-            positions[i] = i;
+            positions.set(i, i);
         }
 
-        float[] progression = new float[contextSize / 2];
+        Vector progression = emptyVector(contextSize / 2);
         for (int i = 0; i < contextSize / 2; i++)
         {
-            progression[i] = (float) Math.exp(-i * Math.log(10000) / contextSize);
+            progression.set(i, exp(-i * Math.log(10000) / contextSize));
         }
 
         for (int pos = 0; pos < contextSize; pos++)
@@ -83,8 +85,8 @@ public class GoogleTransformer extends BaseTransformer
             for (int k = 0; k < hiddenSize / 2; k++)
             {
                 int i = 2 * k;
-                positionMatrix[pos][i] = (float) Math.sin(positions[i] * progression[k]);
-                positionMatrix[pos][i + 1] = (float) Math.sin(positions[i + 1] * progression[k]);
+                positionMatrix.setValue(pos, i, (float) Math.sin(positions.get(i) * progression.get(k)));
+                positionMatrix.setValue(pos, i + 1, (float) Math.sin(positions.get(i + 1) * progression.get(k)));
             }
         }
 

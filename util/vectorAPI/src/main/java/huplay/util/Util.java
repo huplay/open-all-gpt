@@ -114,7 +114,7 @@ public class Util extends AbstractUtil
     public Matrix splitVector(Vector vector, int rows)
     {
         var cols = vector.size() / rows;
-        var matrix = emptyMatrix(rows, cols);
+        var matrix = emptyMatrix(vector.getFloatType(), rows, cols);
 
         var segment = 0;
         var col = 0;

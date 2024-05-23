@@ -13,7 +13,7 @@ public abstract class BaseDecoderLayer extends ParameterStore
 
     public void init(Config config, int decoderId)
     {
-        this.config = config;
+        super.init(config);
         this.reader = config.getReader();
         this.decoderId = decoderId;
         this.hiddenSize = config.getHiddenSize();

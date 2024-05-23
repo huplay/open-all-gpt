@@ -88,7 +88,7 @@ public class Util extends AbstractUtil
         {
             var matrix = array.reshape(count, cols).toFloatMatrix();
 
-            var result = emptyMatrix(matrix.length, cols);
+            var result = emptyMatrix(vector.getFloatType(), matrix.length, cols);
             for (var i = 0; i < matrix.length; i++)
             {
                 result.setVector(i, Vector.of(vector.getFloatType(), matrix[i]));

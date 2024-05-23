@@ -1,9 +1,9 @@
 package huplay.util;
 
-import huplay.dataType.FloatType;
 import huplay.dataType.matrix.Matrix;
 import huplay.dataType.vector.Vector;
 
+import static huplay.dataType.matrix.Matrix.emptyMatrix;
 import static huplay.dataType.vector.Vector.emptyVector;
 
 public class Util extends AbstractUtil
@@ -56,7 +56,7 @@ public class Util extends AbstractUtil
     @Override
     public Vector mulVectorByMatrix(Vector vector, Matrix matrix)
     {
-        Vector ret = emptyVector(FloatType.FLOAT_32, matrix.getVector(0).size());
+        Vector ret = emptyVector(vector.getFloatType(), matrix.getVector(0).size());
 
         for (int col = 0; col < matrix.getColCount(); col++)
         {
@@ -76,7 +76,7 @@ public class Util extends AbstractUtil
     @Override
     public Vector mulVectorByTransposedMatrix(Vector vector, Matrix matrix)
     {
-        Vector ret = emptyVector(FloatType.FLOAT_32, matrix.getRowCount());
+        Vector ret = emptyVector(vector.getFloatType(), matrix.getRowCount());
 
         for (int i = 0; i < matrix.getRowCount(); i++)
         {
@@ -90,7 +90,7 @@ public class Util extends AbstractUtil
     public Matrix splitVector(Vector vector, int rows)
     {
         int cols = vector.size() / rows;
-        var matrix = Matrix.emptyMatrix(rows, cols);
+        var matrix = emptyMatrix(vector.getFloatType(), rows, cols);
 
         int segment = 0;
         int col = 0;
@@ -113,7 +113,7 @@ public class Util extends AbstractUtil
     @Override
     public Vector flattenMatrix(Matrix matrix)
     {
-        Vector ret = emptyVector(FloatType.FLOAT_32, matrix.getRowCount() * matrix.getColCount());
+        Vector ret = emptyVector(matrix.getInternalFloatType(), matrix.getRowCount() * matrix.getColCount());
 
         int i = 0;
 

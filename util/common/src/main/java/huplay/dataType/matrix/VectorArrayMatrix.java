@@ -6,22 +6,17 @@ import huplay.dataType.vector.Vector;
 public class VectorArrayMatrix implements Matrix
 {
     private final Vector[] vectorArray;
+    private final FloatType internalFloatType;
 
     public VectorArrayMatrix(FloatType floatType, int rows, int cols)
     {
         this.vectorArray = new Vector[rows];
+        this.internalFloatType = floatType;
 
         for (var i = 0; i < rows; i++)
         {
             vectorArray[i] = Vector.emptyVector(floatType, cols);
         }
-    }
-
-    public VectorArrayMatrix(FloatType floatType, Vector[] vectorArray)
-    {
-        this.vectorArray = vectorArray;
-        // TODO: Handle the case if the floatType is different to float type of the provided vectorArray
-        // Raise error or make conversion ???
     }
 
     @Override
@@ -64,5 +59,11 @@ public class VectorArrayMatrix implements Matrix
     public int getColCount()
     {
         return vectorArray[0].size();
+    }
+
+    @Override
+    public FloatType getInternalFloatType()
+    {
+        return internalFloatType;
     }
 }

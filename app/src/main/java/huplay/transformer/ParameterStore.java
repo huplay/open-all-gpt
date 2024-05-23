@@ -1,6 +1,7 @@
 package huplay.transformer;
 
 import huplay.config.Config;
+import huplay.dataType.FloatType;
 import huplay.dataType.matrix.Matrix;
 import huplay.file.SafetensorsReader;
 import huplay.config.ParameterType;
@@ -14,6 +15,7 @@ public abstract class ParameterStore
     public Config config;
     private long parameterSize;
     private long parameterByteSize;
+    private FloatType internalFloatType;
 
     public SafetensorsReader reader;
 
@@ -24,6 +26,17 @@ public abstract class ParameterStore
     {
         this.config = config;
         this.reader = config.getReader();
+        this.internalFloatType = config.getInternalFloatType();
+    }
+
+    protected Vector emptyVector(int size)
+    {
+        return Vector.emptyVector(internalFloatType, size);
+    }
+
+    protected Matrix emptyMatrix(int rows, int cols)
+    {
+        return Matrix.emptyMatrix(internalFloatType, rows, cols);
     }
 
     protected abstract String formatName(String file);

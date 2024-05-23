@@ -33,8 +33,7 @@ public abstract class BaseTransformer extends ParameterStore
 
     public void init(Config config)
     {
-        this.config = config;
-        this.reader = config.getReader();
+        super.init(config);
         this.decoderCount = config.getDecoderCount();
         this.hiddenSize = config.getHiddenSize();
         this.tokenCount = config.getTokenCount();

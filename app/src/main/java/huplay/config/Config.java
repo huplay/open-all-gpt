@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import huplay.IdentifiedException;
+import huplay.dataType.FloatType;
 import huplay.file.SafetensorsReader;
 
 import java.io.IOException;
@@ -24,6 +25,7 @@ public class Config
     private TokenizerConfig tokenizerConfig;
     private SafetensorsReader reader;
     private boolean isCalculationOnly;
+    private FloatType internalFloatType;
 
     @JsonAlias({"n_embd", "hidden_size", "n_embed"})
     private int hiddenSize;
@@ -84,6 +86,8 @@ public class Config
 
             var typeRef = new TypeReference<Map<String, Object>>() {};
             config.allEntries = objectMapper.readValue(configFile, typeRef);
+
+            if (config.internalFloatType == null) config.internalFloatType = FloatType.FLOAT_32;
 
             return config;
         }
@@ -159,6 +163,7 @@ public class Config
     public boolean isCalculationOnly() {return isCalculationOnly;}
     public void setCalculationOnly(boolean isCalculationOnly) {this.isCalculationOnly = isCalculationOnly;}
     public Integer getRequestedMemorySize() {return arguments.getRequestedMemorySize();}
+    public FloatType getInternalFloatType() {return internalFloatType;}
 
     // Getters to ModelConfig
     public String getName() {return modelConfig.getName();}

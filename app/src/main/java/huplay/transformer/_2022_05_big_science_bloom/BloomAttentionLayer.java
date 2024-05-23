@@ -7,7 +7,6 @@ import huplay.dataType.vector.Vector;
 import java.util.ArrayList;
 import java.util.List;
 
-import static huplay.dataType.matrix.Matrix.emptyMatrix;
 import static huplay.transformer.TransformerUtil.*;
 import static huplay.config.ParameterType.*;
 
@@ -77,10 +76,10 @@ public class BloomAttentionLayer extends BaseAttentionLayer
         // Split the query, key and value vectors into pieces for all heads
         Matrix queryKeyValuesByHead = UTIL.splitVector(queryKeyValue, headCount);
 
-        // Declaration of the variable for collecting the attention results for all heads
+        // Matrix for collecting the attention results for all heads
         Matrix valueAggregate = emptyMatrix(headCount, headSize);
 
-        // Scoring the previous tokens (including the actual), separately for all heads
+        // Score the previous tokens (including the actual), separately for all heads
         for (int head = 0; head < headCount; head++)
         {
             Vector queryKeyValueByHead = queryKeyValuesByHead.getVector(head);
@@ -113,7 +112,7 @@ public class BloomAttentionLayer extends BaseAttentionLayer
                 scores.set(pos, score / attentionDividend);
             }
 
-            // Rescaling the scores to values between 0 and 1
+            // Scale the scores to values between 0 and 1
             scores = softmax(scores);
 
             // Multiply the value matrices with the scores, and sum up

@@ -162,6 +162,11 @@ public class TransformerUtil
         return (float)(Math.pow(a, b));
     }
 
+    public static float exp(double value)
+    {
+        return (float)(Math.exp(value));
+    }
+
     public static float sqrt(float value)
     {
         return (float)(Math.sqrt(value));

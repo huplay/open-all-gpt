@@ -1,5 +1,6 @@
 package huplay.dataType.matrix;
 
+import huplay.dataType.FloatType;
 import huplay.dataType.vector.Vector;
 
 import static huplay.dataType.FloatType.*;
@@ -20,9 +21,21 @@ public interface Matrix
 
     int getColCount();
 
-    static Matrix emptyMatrix(int rows, int cols)
+    FloatType getInternalFloatType();
+
+    static MatrixType getInternalMatrixType(FloatType floatType)
     {
-        return emptyMatrix(MatrixType.VECTOR_ARRAY_FLOAT_32, rows, cols);
+        return switch (floatType)
+        {
+            case FLOAT_32           -> MatrixType.VECTOR_ARRAY_FLOAT_32;
+            case FLOAT_16           -> MatrixType.VECTOR_ARRAY_FLOAT_16;
+            case BRAIN_FLOAT_16     -> MatrixType.VECTOR_ARRAY_BRAIN_FLOAT_16;
+        };
+    }
+
+    static Matrix emptyMatrix(FloatType floatType, int rows, int cols)
+    {
+        return emptyMatrix(getInternalMatrixType(floatType), rows, cols);
     }
 
     static Matrix emptyMatrix(MatrixType matrixType, int rows, int cols)
@@ -32,23 +45,6 @@ public interface Matrix
             case VECTOR_ARRAY_FLOAT_32          -> new VectorArrayMatrix(FLOAT_32, rows, cols);
             case VECTOR_ARRAY_FLOAT_16          -> new VectorArrayMatrix(FLOAT_16, rows, cols);
             case VECTOR_ARRAY_BRAIN_FLOAT_16    -> new VectorArrayMatrix(BRAIN_FLOAT_16, rows, cols);
-            case QLoRA_NORMAL_FLOAT_4           -> null;
-            case QLoRA_NORMAL_FLOAT_4_DOUBLE    -> null;
-        };
-    }
-
-    static Matrix of(Vector[] values)
-    {
-        return of(MatrixType.VECTOR_ARRAY_FLOAT_32, values);
-    }
-
-    static Matrix of(MatrixType matrixType, Vector[] values)
-    {
-        return switch (matrixType)
-        {
-            case VECTOR_ARRAY_FLOAT_32          -> new VectorArrayMatrix(FLOAT_32, values);
-            case VECTOR_ARRAY_FLOAT_16          -> new VectorArrayMatrix(FLOAT_16, values);
-            case VECTOR_ARRAY_BRAIN_FLOAT_16    -> new VectorArrayMatrix(BRAIN_FLOAT_16, values);
             case QLoRA_NORMAL_FLOAT_4           -> null;
             case QLoRA_NORMAL_FLOAT_4_DOUBLE    -> null;
         };
