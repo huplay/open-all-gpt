@@ -7,8 +7,14 @@ package huplay.dataType;
  */
 public class Float16
 {
-    public static final short POSITIVE_INFINITY = (short) 0b0_11111_0000000000;
-    public static final short NEGATIVE_INFINITY = (short) 0b1_11111_0000000000;
+    public static final int EXPONENT_BITS = 5;
+    public static final int MANTISSA_BITS = 10;
+
+    public static final int EXPONENT_OFFSET = 15;
+
+    public static final short POSITIVE_INFINITY = (short) Float.intBitsToFloat(0b0_11111_0000000000);
+    public static final short NEGATIVE_INFINITY = (short) Float.intBitsToFloat(0b1_11111_0000000000);
+    public static final short NaN               = (short) Float.intBitsToFloat(0b0_11111_1000000000);
 
     private final short value;
 
@@ -104,35 +110,40 @@ public class Float16
      */
     public static float toFloat32Readable(short value)
     {
-        var signFlag = value & 0b1000_0000_0000_0000; // Extract the sign bit (1st bit)
-        var exponent = value & 0b0111_1100_0000_0000; // Extract the exponent (5 bits after sign)
-        var mantissa = value & 0b0000_0011_1111_1111; // Extract the mantissa (last 10 bits)
+        // The 1st bit is the sign. If it is zero, the number is positive.
+        boolean isPositive = (value & 0b1000_0000_0000_0000) == 0;
 
-        if (exponent == 0b0111_1100_0000_0000)
+        // Extract the exponent (5 bits after the sign bit), and remove the EXPONENT_OFFSET
+        int exponent = ( (value & 0b0111_1100_0000_0000) >> 10 ) - EXPONENT_OFFSET;
+
+        // Extract the mantissa (last 10 bits)
+        int mantissa = value & 0b0000_0011_1111_1111;
+
+        if (exponent == 16)
         {
-            // Infinity or NaN
             if (mantissa == 0)
             {
-                if (signFlag == 0)
-                {
-                    return Float.POSITIVE_INFINITY;
-                }
-                else
-                {
-                    return Float.NEGATIVE_INFINITY;
-                }
+                // Infinity
+                return isPositive ? Float.POSITIVE_INFINITY : Float.NEGATIVE_INFINITY;
             }
-            else return Float.NaN; // Interestingly, there are 2048 different FLOAT16 NaN values
+            else
+            {
+                // Not a Number (NaN)
+                // Every ?111_11??_????_???? is a NaN (except ?111_1100_0000_0000), so there are 2047 NaN values
+                return Float.NaN; // We will convert all of these to a single NaN value (the NaN payload is lost)
+            }
         }
-        else if (exponent == 0)
+        else if (exponent == -15)
         {
             // Zero or subnormal values
-            if (mantissa != 0)
+            return (isPositive ? 1 : -1) * 0x1p-24f * mantissa;
+
+            /*if (mantissa != 0)
             {
                 exponent = 0x1c400; // 0001_1100_0100_0000_0000
                 do
                 {
-                    mantissa = mantissa << 1;
+                    mantissa <<= 1; // Shift left the mantissa (same as multiplied by 2)
                     exponent -= 0b0000_0100_0000_0000; // 1024
                 }
                 while ((mantissa & 0b0000_0100_0000_0000) == 0);
@@ -140,18 +151,23 @@ public class Float16
                 mantissa &= 0b0000_0011_1111_1111;
             }
 
-            return Float.intBitsToFloat(signFlag << 16 | (exponent | mantissa) << 13);
+            return Float.intBitsToFloat(signFlag << 16 | (exponent | mantissa) << 13);*/
         }
         else
         {
             // Normal values
-            exponent += 0x1c000;
-            if (mantissa == 0 && exponent > 0x1c400)
-            {
-                return Float.intBitsToFloat(signFlag << 16 | exponent << 13 | 0b0000_0011_1111_1111);
-            }
 
-            return Float.intBitsToFloat(signFlag << 16 | (exponent | mantissa) << 13);
+            // Set the first bit to 1 if negative
+            int float32Sign = isPositive ? 0 : (1 << 31);
+
+            // Add the Float32 exponent offset to the exponent and shift it to the right place (before the mantissa)
+            int float32Exponent = (exponent + Float32.EXPONENT_OFFSET) << Float32.MANTISSA_BITS;
+
+            // Shift the mantissa to the beginning of the mantissa bits (the remaining values will be zero)
+            int float32Mantissa = mantissa << (Float32.MANTISSA_BITS - MANTISSA_BITS);
+
+            // Build the float 32 value from the bits
+            return Float.intBitsToFloat(float32Sign | float32Exponent | float32Mantissa);
         }
     }
 }

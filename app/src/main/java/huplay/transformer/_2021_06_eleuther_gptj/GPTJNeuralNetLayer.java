@@ -4,8 +4,8 @@ import huplay.transformer.TransformerUtil;
 import huplay.transformer.BaseNeuralNetLayer;
 import huplay.dataType.vector.Vector;
 
-import static huplay.AppNetworkClient.UTIL;
 import static huplay.config.ParameterType.*;
+import static huplay.transformer.TransformerUtil.UTIL;
 
 /**
  * EleutherAI GPT-J decoder implementation

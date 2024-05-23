@@ -1,5 +1,6 @@
 package huplay.util;
 
+import huplay.dataType.matrix.Matrix;
 import huplay.dataType.vector.Vector;
 
 import java.util.List;
@@ -26,22 +27,22 @@ public interface Utility
     /**
      * Multiply vector by matrix
      */
-    Vector mulVectorByMatrix(Vector vector, Vector[] matrix);
+    Vector mulVectorByMatrix(Vector vector, Matrix matrix);
 
     /**
      * Multiply vector by transposed matrix
      */
-    Vector mulVectorByTransposedMatrix(Vector vector, Vector[] matrix);
+    Vector mulVectorByTransposedMatrix(Vector vector, Matrix matrix);
 
     /**
      * Split a vector to a matrix
      */
-    Vector[] splitVector(Vector vector, int count);
+    Matrix splitVector(Vector vector, int rows);
 
     /**
      * Merge the rows of a matrix to a single vector
      */
-    Vector flattenMatrix(Vector[] matrix);
+    Vector flattenMatrix(Matrix matrix);
 
     /**
      * Finds the maximum value in the vector

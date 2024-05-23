@@ -1,6 +1,10 @@
 package huplay.util;
 
+import huplay.dataType.FloatType;
+import huplay.dataType.matrix.Matrix;
 import huplay.dataType.vector.Vector;
+
+import static huplay.dataType.vector.Vector.emptyVector;
 
 public class Util extends AbstractUtil
 {
@@ -13,7 +17,7 @@ public class Util extends AbstractUtil
     @Override
     public Vector addVectors(Vector vector1, Vector vector2)
     {
-        Vector ret = Vector.of(vector1.getFloatType(), vector1.size());
+        Vector ret = emptyVector(vector1.getFloatType(), vector1.size());
 
         for (int i = 0; i < vector1.size(); i++)
         {
@@ -39,7 +43,7 @@ public class Util extends AbstractUtil
     @Override
     public Vector mulVectorByScalar(Vector vector, float scalar)
     {
-        Vector ret = Vector.of(vector.getFloatType(), vector.size());
+        Vector ret = emptyVector(vector.getFloatType(), vector.size());
 
         for (int i = 0; i < vector.size(); i++)
         {
@@ -50,17 +54,17 @@ public class Util extends AbstractUtil
     }
 
     @Override
-    public Vector mulVectorByMatrix(Vector vector, Vector[] matrix)
+    public Vector mulVectorByMatrix(Vector vector, Matrix matrix)
     {
-        Vector ret = Vector.of(vector.getFloatType(), matrix[0].size());
+        Vector ret = emptyVector(FloatType.FLOAT_32, matrix.getVector(0).size());
 
-        for (int col = 0; col < matrix[0].size(); col++)
+        for (int col = 0; col < matrix.getColCount(); col++)
         {
             float sum = 0;
 
             for (int i = 0; i < vector.size(); i++)
             {
-                sum = sum + vector.get(i) * matrix[i].get(col);
+                sum = sum + vector.get(i) * matrix.getValue(i, col);
             }
 
             ret.set(col, sum);
@@ -70,32 +74,32 @@ public class Util extends AbstractUtil
     }
 
     @Override
-    public Vector mulVectorByTransposedMatrix(Vector vector, Vector[] matrix)
+    public Vector mulVectorByTransposedMatrix(Vector vector, Matrix matrix)
     {
-        Vector ret = Vector.of(vector.getFloatType(), matrix.length);
+        Vector ret = emptyVector(FloatType.FLOAT_32, matrix.getRowCount());
 
-        for (int i = 0; i < matrix.length; i++)
+        for (int i = 0; i < matrix.getRowCount(); i++)
         {
-            ret.set(i, dotProduct(vector, matrix[i]));
+            ret.set(i, dotProduct(vector, matrix.getVector(i)));
         }
 
         return ret;
     }
 
     @Override
-    public Vector[] splitVector(Vector vector, int count)
+    public Matrix splitVector(Vector vector, int rows)
     {
-        int size = vector.size() / count;
-        Vector[] ret = Vector.newVectorArray(vector.getFloatType(), count, size);
+        int cols = vector.size() / rows;
+        var matrix = Matrix.emptyMatrix(rows, cols);
 
         int segment = 0;
         int col = 0;
         for (int i = 0; i < vector.size(); i++)
         {
             float value = vector.get(i);
-            ret[segment].set(col, value);
+            matrix.setValue(segment, col, value);
 
-            if (col == size - 1)
+            if (col == cols - 1)
             {
                 col = 0;
                 segment++;
@@ -103,17 +107,17 @@ public class Util extends AbstractUtil
             else col++;
         }
 
-        return ret;
+        return matrix;
     }
 
     @Override
-    public Vector flattenMatrix(Vector[] matrix)
+    public Vector flattenMatrix(Matrix matrix)
     {
-        Vector ret = Vector.of(matrix[0].getFloatType(), matrix.length * matrix[0].size());
+        Vector ret = emptyVector(FloatType.FLOAT_32, matrix.getRowCount() * matrix.getColCount());
 
         int i = 0;
 
-        for (Vector row : matrix)
+        for (Vector row : matrix.getVectorArray())
         {
             for (int j = 0; j < row.size(); j++)
             {

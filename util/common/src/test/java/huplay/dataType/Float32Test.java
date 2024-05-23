@@ -7,7 +7,15 @@ import static org.junit.Assert.assertEquals;
 public class Float32Test
 {
     @Test
-    public void float32_example()
+    public void testConstants()
+    {
+        assertEquals(Float.POSITIVE_INFINITY, Float32.POSITIVE_INFINITY, 0);
+        assertEquals(Float.NEGATIVE_INFINITY, Float32.NEGATIVE_INFINITY, 0);
+        assertEquals(Float.NaN, Float32.NaN, 0);
+    }
+
+    @Test
+    public void testExample()
     {
         // How the 0.375 (decimal) is stored?
         // https://en.wikipedia.org/wiki/Single-precision_floating-point_format#Converting_decimal_to_binary32

@@ -8,7 +8,7 @@ import static org.junit.Assert.assertEquals;
 public class BrainFloat16Test
 {
     @Test
-    public void brain_float16_example1()
+    public void testExample()
     {
         // How the 3.140625 (decimal) is stored? (Nearest value to PI)
         // https://en.wikipedia.org/wiki/Bfloat16_floating-point_format#Examples

@@ -7,7 +7,6 @@ import huplay.dataType.vector.Vector;
 import java.util.ArrayList;
 import java.util.List;
 
-import static huplay.AppNetworkClient.UTIL;
 import static huplay.transformer.TransformerUtil.*;
 import static huplay.config.ParameterType.*;
 

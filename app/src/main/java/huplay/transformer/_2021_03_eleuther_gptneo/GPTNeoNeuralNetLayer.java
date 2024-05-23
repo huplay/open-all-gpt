@@ -4,8 +4,7 @@ import huplay.transformer.TransformerUtil;
 import huplay.transformer.BaseNeuralNetLayer;
 import huplay.dataType.vector.Vector;
 
-import static huplay.AppNetworkClient.UTIL;
-import static huplay.transformer.TransformerUtil.layerNorm;
+import static huplay.transformer.TransformerUtil.*;
 import static huplay.config.ParameterType.*;
 
 /**

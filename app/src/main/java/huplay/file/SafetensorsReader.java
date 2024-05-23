@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import huplay.IdentifiedException;
+import huplay.dataType.matrix.Matrix;
 import huplay.dataType.vector.BrainFloat16Vector;
 import huplay.dataType.vector.Float16Vector;
 import huplay.dataType.vector.Float32Vector;
@@ -17,9 +18,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
-import static huplay.AppNetworkClient.UTIL;
 import static huplay.file.FileUtil.checkHeaderFiles;
 import static huplay.file.FileUtil.readTextFile;
+import static huplay.transformer.TransformerUtil.UTIL;
 
 /**
  * Reader of the trained parameters
@@ -181,12 +182,14 @@ public class SafetensorsReader
 
     public Vector readVector(String file, int size)
     {
-        return read(file, size, false);
+        return read(file, size);
     }
 
-    public Vector[] readMatrix(String file, int rows, int cols)
+    public Matrix readMatrix(String file, int rows, int cols)
     {
-        var vector = read(file, rows * cols, false);
+        // TODO: Read quantized matrix
+
+        var vector = read(file, rows * cols);
         return vector == null ? null : UTIL.splitVector(vector, rows);
     }
 
@@ -205,19 +208,12 @@ public class SafetensorsReader
         }
     }
 
-    private Vector read(String id, int size, boolean isOptional)
+    private Vector read(String id, int size)
     {
         var header = parameterHeaders.get(id);
         if (header == null)
         {
-            if (isOptional)
-            {
-                return null;
-            }
-            else
-            {
-                throw new IdentifiedException("Header not found for key: " + id);
-            }
+            throw new IdentifiedException("Header not found for key: " + id);
         }
 
         checkSize(header, size);

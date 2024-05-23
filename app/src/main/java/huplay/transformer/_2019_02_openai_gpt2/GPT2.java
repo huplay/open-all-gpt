@@ -3,8 +3,7 @@ package huplay.transformer._2019_02_openai_gpt2;
 import huplay.transformer.BaseTransformer;
 import huplay.dataType.vector.Vector;
 
-import static huplay.AppNetworkClient.UTIL;
-import static huplay.transformer.TransformerUtil.layerNorm;
+import static huplay.transformer.TransformerUtil.*;
 import static huplay.config.ParameterType.*;
 
 /**
@@ -31,10 +30,10 @@ public class GPT2 extends BaseTransformer
     public Vector preProcessToken(int pos, int token)
     {
         // Find the embeddings of the token
-        Vector hiddenState = matrix(TOKEN_EMBEDDINGS)[token];
+        Vector hiddenState = matrix(TOKEN_EMBEDDINGS).getVector(token);
 
         // Add the position embedding to hidden state
-        return UTIL.addVectors(hiddenState, matrix(POSITION_EMBEDDINGS)[pos]);
+        return UTIL.addVectors(hiddenState, matrix(POSITION_EMBEDDINGS).getVector(pos));
     }
 
     public int generateToken(Vector hiddenState, int topK)

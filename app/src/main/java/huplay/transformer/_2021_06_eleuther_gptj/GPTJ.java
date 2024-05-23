@@ -41,7 +41,7 @@ public class GPTJ extends BaseTransformer
     public Vector preProcessToken(int pos, int token)
     {
         // Find the embeddings of the token
-        return matrix(TOKEN_EMBEDDINGS)[token];
+        return matrix(TOKEN_EMBEDDINGS).getVector(token);
         //hiddenState = UTIL.addVectors(hiddenState, vector(TOKEN_EMBEDDING_BIAS));
     }
 

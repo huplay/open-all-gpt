@@ -7,9 +7,14 @@ package huplay.dataType;
  */
 public class BrainFloat16
 {
-    public static final short POSITIVE_INFINITY = (short) 0b0_11111111_0000000;
-    public static final short NEGATIVE_INFINITY = (short) 0b1_11111111_0000000;
-    public static final short NaN               = (short) 0b0_11111111_0000001;
+    public static final int EXPONENT_BITS = 8;
+    public static final int MANTISSA_BITS = 7;
+
+    public static final int EXPONENT_OFFSET = 127;
+
+    public static final short POSITIVE_INFINITY = (short) Float.intBitsToFloat(0b0_11111111_0000000);
+    public static final short NEGATIVE_INFINITY = (short) Float.intBitsToFloat(0b1_11111111_0000000);
+    public static final short NaN               = (short) Float.intBitsToFloat(0b0_11111111_1000000);
 
     private final short value;
 
@@ -34,29 +39,24 @@ public class BrainFloat16
     }
 
     /**
-     * Conversion from 32-bit float:        1 sign bit + 8 exponent bits + 23 fraction bits
-     *            to 16-bit brain float:    1 sign bit + 8 exponent bits + 7 fraction bits
+     * Conversion from 32-bit float:        1 sign bit + 8 exponent bits + 23 mantissa bits
+     *            to 16-bit brain float:    1 sign bit + 8 exponent bits + 7 mantissa bits
 
-     * The sign bit and the exponent part will be the same, just the fraction will be longer:
-     * The first 16 bits of the fraction will be filled with zeroes.
+     * The sign bit and the exponent part will be the same, the mantissa should be rounded from 23 bits to 7
      */
     public static short toShort(float value)
     {
         int intBits = Float.floatToRawIntBits(value);
 
-        //int signFlag = intValue & 0b1000_0000_0000_0000_0000_0000_0000_0000; // Extract the sign bit (1st bit)
-        //int exponent = intValue & 0b0111_1111_1000_0000_0000_0000_0000_0000; // Extract the exponent (8 bits after sign)
-        //int mantissa = intValue & 0b0000_0000_0111_1111_1111_1111_1111_1111; // Extract the mantissa (last 23 bits)
+        int signFlag = (intBits >>> 16) & 0b1_00000000_0000000;
+        int exponent = (intBits >>> 16) & 0b0_11111111_0000000;
+        int mantissa = (intBits & 0b0_00000000_11111111111111111111111);
 
-        var signFlag = (intBits >>> 16) & 0x8000;
-        var exponent = (intBits >>> 16) & 0x7f80;
-        var mantissa = (intBits & 0x7fffff);
-
-        if (exponent == 0x7f80)
+        if (exponent == 0b0_11111111_0000000)
         {
             if (mantissa != 0)
             {
-                return NaN;
+                return (short) 0b0_11111111_1000000;
             }
             else
             {
@@ -65,29 +65,25 @@ public class BrainFloat16
         }
         else
         {
-            var m1 = round(mantissa, 16);
-            var e1 = exponent + m1;
-            return (short) (signFlag | e1);
+            var roundedMantissa = roundMantissa(mantissa);
+            return (short) (signFlag | (exponent + roundedMantissa));
         }
     }
 
-    private static int round(int value, int shifts)
+    private static int roundMantissa(int value)
     {
-        var mid = 1 << (shifts - 1);
-        var mask = (1 << shifts) - 1;
-        var mshift = value >> shifts;
-        var masked = value & mask;
-        var cmp = masked - mid;
+        var shiftedValue = value >> 16;
+        var cmp = (value & 0b1111_1111_1111_1111) - 0b1000_0000_0000_0000;
 
         // we are losing more than 1/2
         if (cmp > 0)
         {
-            return mshift + 1;
+            return shiftedValue + 1;
         }
         else if (cmp < 0)
         {
             // we are losing < 1/2
-            return mshift;
+            return shiftedValue;
         }
         else
         {
@@ -95,14 +91,13 @@ public class BrainFloat16
             // we round to the nearest even
             // 2.5 => 2, 3.5 => 4, 4.5 => 4
             // -2.5 => -2, -3.5 => -4, -4.5 => -4
-            var isOdd = (mshift & 1) != 0;
-            if (isOdd)
+            if ((shiftedValue & 1) != 0)
             {
-                return mshift + 1;
+                return shiftedValue + 1;
             }
             else
             {
-                return mshift;
+                return shiftedValue;
             }
         }
     }

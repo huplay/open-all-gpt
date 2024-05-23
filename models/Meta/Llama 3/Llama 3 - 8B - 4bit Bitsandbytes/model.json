@@ -1,0 +1,23 @@
+{
+  "name": "Meta Llama 3 - 8B - 4bit Bitsandbytes",
+  "transformerType": "META_LLAMA",
+  "repo": "https://huggingface.co/unsloth/llama-3-8b-bnb-4bit",
+  "files": ["config.json", "model.safetensors"],
+  "parameterNaming": "model.{name}",
+  "decoderParameterNaming": "model.layers.{decoderId}.{name}",
+  "memorySize": 11264,
+  "quantization":
+  {
+    "parameters": {
+      "model.layers.{decoderId}.mlp.down_proj.weight":  "bitsandbytes/nf4"
+    },
+    "naming":
+    {
+      "nestedAbsMax": "{name}.nested_absmax",
+      "nestedQuantMap": "{name}.nested_quant_map",
+      "quantMap": "{name}.quant_map",
+      "absMax": "{name}.absmax",
+      "quantState": "quant_state.bitsandbytes__nf4"
+    }
+  }
+}

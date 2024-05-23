@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static huplay.AppNetworkClient.UTIL;
+import static huplay.transformer.TransformerUtil.UTIL;
 import static huplay.transformer.TransformerUtil.weightedRandomPick;
 import static huplay.config.ParameterType.TOKEN_EMBEDDINGS;
 

@@ -163,7 +163,7 @@ public class GenerateTestSafetensors
                 {
                     // Write a matrix
                     var values = reader.readMatrix(entry.getKey(), shape[0], shape[1]);
-                    for (var row : values)
+                    for (var row : values.getVectorArray())
                     {
                         for (var i = 0; i < row.size(); i++)
                         {

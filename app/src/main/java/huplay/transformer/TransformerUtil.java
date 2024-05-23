@@ -2,14 +2,17 @@ package huplay.transformer;
 
 import huplay.util.IndexedValue;
 import huplay.dataType.vector.Vector;
+import huplay.util.Util;
 
 import java.util.List;
 
-import static huplay.AppNetworkClient.UTIL;
+import static huplay.dataType.vector.Vector.emptyVector;
 import static java.lang.Math.*;
 
 public class TransformerUtil
 {
+    public static final Util UTIL = new Util();
+
     /**
      * Gaussian Error Linear Unit (GELU) cumulative distribution activation function (approximate implementation)
      * Original paper: <a href="https://paperswithcode.com/method/gelu" />
@@ -66,7 +69,7 @@ public class TransformerUtil
         sum = 1f / sqrt(sum / size + epsilon);
 
         //  Normalize and scale
-        Vector result = Vector.of(vector.getFloatType(), size);
+        Vector result = emptyVector(vector.getFloatType(), size);
 
         for (var i = 0; i < size; i++)
         {
@@ -92,7 +95,7 @@ public class TransformerUtil
             total = total + exp;
         }
 
-        Vector ret = Vector.of(vector.getFloatType(), vector.size());
+        Vector ret = emptyVector(vector.getFloatType(), vector.size());
 
         for (var i = 0; i < vector.size(); i++)
         {

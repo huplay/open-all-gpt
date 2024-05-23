@@ -9,7 +9,6 @@ import huplay.network.info.Models;
 import huplay.transformer.TransformerType;
 import huplay.ui.DownloadProgressBar;
 import huplay.ui.ModelSelector;
-import huplay.util.Util;
 
 import java.io.*;
 import java.util.Map;
@@ -17,6 +16,7 @@ import java.util.Map;
 import static huplay.AppStandaloneMain.*;
 import static huplay.file.FileUtil.checkFiles;
 import static huplay.file.FileUtil.readTextFile;
+import static huplay.transformer.TransformerUtil.UTIL;
 import static huplay.ui.ConsoleUtil.getPrintStream;
 import static huplay.ui.Logo.logo;
 import static huplay.ui.TextUtil.toCenter;
@@ -25,7 +25,6 @@ import static java.lang.Math.round;
 public class AppStandaloneLauncher
 {
     public static final PrintStream OUT = getPrintStream();
-    public static final Util UTIL = new Util();
 
     public static void main(String... args)
     {

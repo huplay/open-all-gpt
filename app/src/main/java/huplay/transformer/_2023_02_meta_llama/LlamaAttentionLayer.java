@@ -1,12 +1,12 @@
 package huplay.transformer._2023_02_meta_llama;
 
+import huplay.dataType.matrix.Matrix;
 import huplay.transformer.BaseAttentionLayer;
 import huplay.dataType.vector.Vector;
 
-import static huplay.AppNetworkClient.UTIL;
+import static huplay.dataType.matrix.Matrix.emptyMatrix;
 import static huplay.transformer.TransformerUtil.*;
 import static huplay.config.ParameterType.*;
-import static huplay.dataType.vector.Vector.newVectorArray;
 
 /**
  * Meta Llama decoder implementation
@@ -70,9 +70,9 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
         Vector value = UTIL.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_VALUE_WEIGHT));
 
         // Split the query, key and value vectors into pieces for all heads
-        Vector[] queryByHead = UTIL.splitVector(query, headCount);
-        Vector[] keyByHead = UTIL.splitVector(key, headCount);
-        Vector[] valueByHead = UTIL.splitVector(value, headCount);
+        Matrix queryByHead = UTIL.splitVector(query, headCount);
+        Matrix keyByHead = UTIL.splitVector(key, headCount);
+        Matrix valueByHead = UTIL.splitVector(value, headCount);
 
         // Position embedding (RoPE)
         applyPosition(query, key);
@@ -83,19 +83,19 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
         int storedSize = storedKeys.size();
 
         // Declaration of the variable for collecting the attention results for all heads
-        Vector[] valueAggregate = newVectorArray(hiddenState.getFloatType(), headCount, headSize);
+        Matrix valueAggregate = emptyMatrix(headCount, headSize);
 
         // Scoring the previous tokens (including the actual), separately for all heads
         for (int head = 0; head < headCount; head++)
         {
             // Calculate the scores
-            Vector actualQuery = queryByHead[head];
-            Vector scores = Vector.of(actualQuery.getFloatType(), storedSize);
+            Vector actualQuery = queryByHead.getVector(head);
+            Vector scores = Vector.emptyVector(actualQuery.getFloatType(), storedSize);
 
             for (int pos = 0; pos < storedSize; pos++)
             {
                 // The score is calculated multiplying the "actual" query vector and the "related" key vector
-                Vector relatedKey = storedKeys.get(pos)[head];
+                Vector relatedKey = storedKeys.get(pos).getVector(head);
                 float score = UTIL.dotProduct(actualQuery, relatedKey);
 
                 // Divide the score by the attention dividend
@@ -108,9 +108,9 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
             // Multiply the value matrices with the scores, and sum up
             for (int pos = 0; pos < storedSize; pos++)
             {
-                Vector relatedValue = storedValues.get(pos)[head];
+                Vector relatedValue = storedValues.get(pos).getVector(head);
                 Vector multipliedValue = UTIL.mulVectorByScalar(relatedValue, scores.get(pos));
-                valueAggregate[head] = UTIL.addVectors(valueAggregate[head], multipliedValue);
+                valueAggregate.setVector(head, UTIL.addVectors(valueAggregate.getVector(head), multipliedValue));
             }
         }
 
@@ -156,9 +156,9 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
         Vector value = UTIL.mulVectorByMatrix(hiddenState, matrix(ATT_VALUE_WEIGHT));
 
         // Split the query, key and value vectors into pieces for all heads
-        Vector[] queryByHead = UTIL.splitVector(query, headCount);
-        Vector[] keyByGroup = UTIL.splitVector(key, headCount / kvHeadSize);
-        Vector[] valueByGroup = UTIL.splitVector(value, headCount / kvHeadSize);
+        Matrix queryByHead = UTIL.splitVector(query, headCount);
+        Matrix keyByGroup = UTIL.splitVector(key, headCount / kvHeadSize);
+        Matrix valueByGroup = UTIL.splitVector(value, headCount / kvHeadSize);
 
         // Position embedding (RoPE)
         applyGroupedPosition(query, key);
@@ -169,7 +169,7 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
         int storedSize = storedKeys.size();
 
         // Declaration of the variable for collecting the attention results for all heads
-        Vector[] valueAggregate = new Vector[headCount];
+        Matrix valueAggregate = emptyMatrix(headCount, headSize);
 
         // Scoring the previous tokens (including the actual), separately for all heads
         for (int head = 0; head < headCount; head++)
@@ -177,13 +177,13 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
             int group = head % kvHeadCount;
 
             // Calculate the scores
-            Vector actualQuery = queryByHead[head];
-            Vector scores = Vector.of(actualQuery.getFloatType(), storedSize);
+            Vector actualQuery = queryByHead.getVector(head);
+            Vector scores = Vector.emptyVector(actualQuery.getFloatType(), storedSize);
 
             for (int pos = 0; pos < storedSize; pos++)
             {
                 // The score is calculated multiplying the "actual" query vector and the "related" key vector
-                Vector relatedKey = storedKeys.get(pos)[group];
+                Vector relatedKey = storedKeys.get(pos).getVector(group);
                 float score = UTIL.dotProduct(actualQuery, relatedKey);
 
                 // Divide the score by the attention dividend
@@ -196,9 +196,9 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
             // Multiply the value matrices with the scores, and sum up
             for (int pos = 0; pos < storedSize; pos++)
             {
-                Vector relatedValue = storedValues.get(pos)[group];
+                Vector relatedValue = storedValues.get(pos).getVector(group);
                 Vector multipliedValue = UTIL.mulVectorByScalar(relatedValue, scores.get(pos));
-                valueAggregate[head] = UTIL.addVectors(valueAggregate[head], multipliedValue);
+                valueAggregate.setVector(head, UTIL.addVectors(valueAggregate.getVector(head), multipliedValue));
             }
         }
 

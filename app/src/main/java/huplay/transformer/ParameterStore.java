@@ -1,6 +1,7 @@
 package huplay.transformer;
 
 import huplay.config.Config;
+import huplay.dataType.matrix.Matrix;
 import huplay.file.SafetensorsReader;
 import huplay.config.ParameterType;
 import huplay.dataType.vector.Vector;
@@ -17,7 +18,7 @@ public abstract class ParameterStore
     public SafetensorsReader reader;
 
     public final Map<ParameterType, Vector> vectorParams = new HashMap<>();
-    public final Map<ParameterType, Vector[]> matrixParams = new HashMap<>();
+    public final Map<ParameterType, Matrix> matrixParams = new HashMap<>();
 
     public void init(Config config)
     {
@@ -62,7 +63,7 @@ public abstract class ParameterStore
         return vectorParams.get(parameterType);
     }
 
-    public Vector[] matrix(ParameterType parameterType)
+    public Matrix matrix(ParameterType parameterType)
     {
         return matrixParams.get(parameterType);
     }

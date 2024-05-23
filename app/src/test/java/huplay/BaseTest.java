@@ -1,15 +1,17 @@
 package huplay;
 
 import huplay.dataType.FloatType;
+import huplay.dataType.matrix.Matrix;
 import huplay.dataType.vector.Vector;
 
+import static huplay.dataType.vector.Vector.emptyVector;
 import static org.junit.Assert.*;
 
 public class BaseTest
 {
     protected Vector createVector(float... values)
     {
-        var vector = Vector.of(FloatType.FLOAT_32, values.length);
+        var vector = emptyVector(FloatType.FLOAT_32, values.length);
 
         for (var i = 0; i < values.length; i ++)
         {
@@ -38,7 +40,7 @@ public class BaseTest
         }
     }
 
-    protected void assertMatrixEquals(float[][] expected, Vector[] actual, float delta)
+    protected void assertMatrixEquals(float[][] expected, Matrix actual, float delta)
     {
         if (expected == null)
         {
@@ -48,11 +50,11 @@ public class BaseTest
         {
             assertNotNull(actual);
 
-            assertEquals(expected.length, actual.length);
+            assertEquals(expected.length, actual.getRowCount());
 
             for (var i = 0; i < expected.length; i++)
             {
-                assertVectorEquals(expected[i], actual[i], delta);
+                assertVectorEquals(expected[i], actual.getVector(i), delta);
             }
         }
     }

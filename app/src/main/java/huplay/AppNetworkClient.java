@@ -15,7 +15,6 @@ import static huplay.ui.TextUtil.toCenter;
 public class AppNetworkClient
 {
     public static final PrintStream OUT = getPrintStream();
-    public static final Util UTIL = new Util();
 
     public static void main(String... args)
     {

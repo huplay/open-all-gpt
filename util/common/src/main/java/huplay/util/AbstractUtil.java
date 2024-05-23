@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
+import static huplay.dataType.vector.Vector.emptyVector;
+
 public abstract class AbstractUtil implements Utility
 {
     @Override
@@ -47,7 +49,7 @@ public abstract class AbstractUtil implements Utility
         var average = average(vector);
         var averageDiff = averageDiff(vector, average, epsilon);
 
-        var norm = Vector.of(vector.getFloatType(), vector.size());
+        var norm = emptyVector(vector.getFloatType(), vector.size());
 
         for (var i = 0; i < vector.size(); i++)
         {
@@ -60,7 +62,7 @@ public abstract class AbstractUtil implements Utility
     @Override
     public float averageDiff(Vector values, float average, float epsilon)
     {
-        var squareDiff = Vector.of(values.getFloatType(), values.size());
+        var squareDiff = emptyVector(values.getFloatType(), values.size());
 
         for (var i = 0; i < values.size(); i++)
         {

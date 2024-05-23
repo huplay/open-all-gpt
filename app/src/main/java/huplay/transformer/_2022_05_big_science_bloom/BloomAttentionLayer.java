@@ -1,15 +1,15 @@
 package huplay.transformer._2022_05_big_science_bloom;
 
+import huplay.dataType.matrix.Matrix;
 import huplay.transformer.BaseAttentionLayer;
 import huplay.dataType.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static huplay.AppNetworkClient.UTIL;
+import static huplay.dataType.matrix.Matrix.emptyMatrix;
 import static huplay.transformer.TransformerUtil.*;
 import static huplay.config.ParameterType.*;
-import static huplay.dataType.vector.Vector.newVectorArray;
 
 /**
  * BLOOM decoder implementation
@@ -75,21 +75,21 @@ public class BloomAttentionLayer extends BaseAttentionLayer
         queryKeyValue = UTIL.addVectors(queryKeyValue, vector(ATT_QUERY_KEY_VALUE_BIAS));
 
         // Split the query, key and value vectors into pieces for all heads
-        Vector[] queryKeyValuesByHead = UTIL.splitVector(queryKeyValue, headCount);
+        Matrix queryKeyValuesByHead = UTIL.splitVector(queryKeyValue, headCount);
 
         // Declaration of the variable for collecting the attention results for all heads
-        Vector[] valueAggregate = newVectorArray(hiddenState.getFloatType(), headCount, headSize);
+        Matrix valueAggregate = emptyMatrix(headCount, headSize);
 
         // Scoring the previous tokens (including the actual), separately for all heads
         for (int head = 0; head < headCount; head++)
         {
-            Vector queryKeyValueByHead = queryKeyValuesByHead[head];
+            Vector queryKeyValueByHead = queryKeyValuesByHead.getVector(head);
 
             // Split the query/key/value
-            Vector[] split = UTIL.splitVector(queryKeyValueByHead, 3);
-            Vector queryByHead = split[0];
-            Vector keyByHead = split[1];
-            Vector valueByHead = split[2];
+            Matrix split = UTIL.splitVector(queryKeyValueByHead, 3);
+            Vector queryByHead = split.getVector(0);
+            Vector keyByHead = split.getVector(1);
+            Vector valueByHead = split.getVector(2);
 
             storedKeys.get(head).add(keyByHead);
             storedValues.get(head).add(valueByHead);
@@ -98,7 +98,7 @@ public class BloomAttentionLayer extends BaseAttentionLayer
             int storedSize = storedKeys.get(head).size();
 
             // Calculate the scores
-            Vector scores = Vector.of(hiddenState.getFloatType(), storedSize);
+            Vector scores = Vector.emptyVector(hiddenState.getFloatType(), storedSize);
 
             for (int pos = 0; pos < storedSize; pos++)
             {
@@ -121,7 +121,7 @@ public class BloomAttentionLayer extends BaseAttentionLayer
             {
                 Vector relatedValue = storedValues.get(head).get(pos);
                 Vector multipliedValue = UTIL.mulVectorByScalar(relatedValue, scores.get(pos));
-                valueAggregate[head] = UTIL.addVectors(valueAggregate[head], multipliedValue);
+                valueAggregate.setVector(head, UTIL.addVectors(valueAggregate.getVector(head), multipliedValue));
             }
         }
 

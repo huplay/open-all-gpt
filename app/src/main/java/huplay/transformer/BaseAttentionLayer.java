@@ -1,6 +1,7 @@
 package huplay.transformer;
 
 import huplay.config.Config;
+import huplay.dataType.matrix.Matrix;
 import huplay.dataType.vector.Vector;
 
 import java.util.ArrayList;
@@ -10,8 +11,8 @@ public abstract class BaseAttentionLayer extends BaseDecoderLayer
 {
     protected float attentionDividend;
 
-    protected final List<Vector[]> storedKeys = new ArrayList<>();
-    protected final List<Vector[]> storedValues = new ArrayList<>();
+    protected final List<Matrix> storedKeys = new ArrayList<>();
+    protected final List<Matrix> storedValues = new ArrayList<>();
 
     public abstract void loadParameters();
 

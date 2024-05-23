@@ -8,7 +8,7 @@ import static org.junit.Assert.assertEquals;
 public class Float16Test
 {
     @Test
-    public void float16_example()
+    public void testExample()
     {
         // How the 0.33325195 (decimal) is stored? (Nearest value to 1/3)
         // https://en.wikipedia.org/wiki/Half-precision_floating-point_format#Half_precision_examples

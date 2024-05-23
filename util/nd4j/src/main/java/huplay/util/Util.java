@@ -1,7 +1,10 @@
 package huplay.util;
 
+import huplay.dataType.matrix.Matrix;
 import huplay.dataType.vector.Vector;
 import org.nd4j.linalg.factory.Nd4j;
+
+import static huplay.dataType.matrix.Matrix.emptyMatrix;
 
 public class Util extends AbstractUtil
 {
@@ -41,14 +44,14 @@ public class Util extends AbstractUtil
     }
 
     // TODO: It seems not too effective. We convert the vector to matrix and do a matrix-matrix multiplication
-    public Vector mulVectorByMatrix(Vector vector, Vector[] matrix)
+    public Vector mulVectorByMatrix(Vector vector, Matrix matrix)
     {
         var floatVector = new float[][] {vector.getValues()};
 
-        var floatMatrix = new float[matrix.length][];
-        for (var i = 0; i < matrix.length; i++)
+        var floatMatrix = new float[matrix.getRowCount()][];
+        for (var i = 0; i < matrix.getRowCount(); i++)
         {
-            floatMatrix[i] = matrix[i].getValues();
+            floatMatrix[i] = matrix.getVector(i).getValues();
         }
 
         try (var array1 = Nd4j.create(floatVector);
@@ -59,15 +62,15 @@ public class Util extends AbstractUtil
     }
 
     @Override
-    public Vector mulVectorByTransposedMatrix(Vector vector, Vector[] matrix)
+    public Vector mulVectorByTransposedMatrix(Vector vector, Matrix matrix)
     {
         var array = new float[1][vector.size()];
         array[0] = vector.getValues();
 
-        var floatMatrix = new float[matrix.length][];
-        for (var i = 0; i < matrix.length; i++)
+        var floatMatrix = new float[matrix.getRowCount()][];
+        for (var i = 0; i < matrix.getRowCount(); i++)
         {
-            floatMatrix[i] = matrix[i].getValues();
+            floatMatrix[i] = matrix.getVector(i).getValues();
         }
 
         try (var array1 = Nd4j.create(array);
@@ -78,16 +81,17 @@ public class Util extends AbstractUtil
     }
 
     @Override
-    public Vector[] splitVector(Vector vector, int count)
+    public Matrix splitVector(Vector vector, int count)
     {
+        var cols = vector.size() / count;
         try (var array = Nd4j.create(vector.getValues()))
         {
-            var matrix = array.reshape(count, vector.size() / count).toFloatMatrix();
+            var matrix = array.reshape(count, cols).toFloatMatrix();
 
-            var result = new Vector[matrix.length];
+            var result = emptyMatrix(matrix.length, cols);
             for (var i = 0; i < matrix.length; i++)
             {
-                result[i] = Vector.of(vector.getFloatType(), matrix[i]);
+                result.setVector(i, Vector.of(vector.getFloatType(), matrix[i]));
             }
 
             return result;
@@ -95,19 +99,19 @@ public class Util extends AbstractUtil
     }
 
     @Override
-    public Vector flattenMatrix(Vector[] matrix)
+    public Vector flattenMatrix(Matrix matrix)
     {
-        var size = (long) matrix.length * matrix[0].size();
+        var size = (long) matrix.getRowCount() * matrix.getColCount();
 
-        var floatMatrix = new float[matrix.length][];
-        for (var i = 0; i < matrix.length; i++)
+        var floatMatrix = new float[matrix.getRowCount()][];
+        for (var i = 0; i < matrix.getRowCount(); i++)
         {
-            floatMatrix[i] = matrix[i].getValues();
+            floatMatrix[i] = matrix.getVector(i).getValues();
         }
 
         try (var array = Nd4j.create(floatMatrix))
         {
-            return Vector.of(matrix[0].getFloatType(), array.reshape(size).toFloatVector());
+            return Vector.of(matrix.getVector(0).getFloatType(), array.reshape(size).toFloatVector());
         }
     }
 

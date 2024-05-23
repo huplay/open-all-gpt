@@ -1,9 +1,13 @@
 package huplay.util;
 
+import huplay.dataType.matrix.Matrix;
 import huplay.dataType.vector.Vector;
 import jdk.incubator.vector.FloatVector;
 import jdk.incubator.vector.VectorOperators;
 import jdk.incubator.vector.VectorSpecies;
+
+import static huplay.dataType.matrix.Matrix.emptyMatrix;
+import static huplay.dataType.vector.Vector.emptyVector;
 
 public class Util extends AbstractUtil
 {
@@ -73,17 +77,17 @@ public class Util extends AbstractUtil
 
     @Override
     // TODO: Vector-api isn't used
-    public Vector mulVectorByMatrix(Vector vector, Vector[] matrix)
+    public Vector mulVectorByMatrix(Vector vector, Matrix matrix)
     {
-        var ret = Vector.of(vector.getFloatType(), matrix[0].size());
+        var ret = emptyVector(matrix.getRowCount());
 
-        for (var col = 0; col < matrix[0].size(); col++)
+        for (var col = 0; col < matrix.getColCount(); col++)
         {
             float sum = 0;
 
             for (var i = 0; i < vector.size(); i++)
             {
-                sum = sum + vector.get(i) * matrix[i].get(col);
+                sum = sum + vector.get(i) * matrix.getValue(i, col);
             }
 
             ret.set(col, sum);
@@ -93,13 +97,13 @@ public class Util extends AbstractUtil
     }
 
     @Override
-    public Vector mulVectorByTransposedMatrix(Vector vector, Vector[] matrix)
+    public Vector mulVectorByTransposedMatrix(Vector vector, Matrix matrix)
     {
-        var ret = Vector.of(vector.getFloatType(), matrix.length);
+        var ret = emptyVector(matrix.getRowCount());
 
-        for (var col = 0; col < matrix.length; col++)
+        for (var col = 0; col < matrix.getRowCount(); col++)
         {
-            ret.set(col, dotProduct(vector, matrix[col]));
+            ret.set(col, dotProduct(vector, matrix.getVector(col)));
         }
 
         return ret;
@@ -107,19 +111,19 @@ public class Util extends AbstractUtil
 
     @Override
     // TODO: Vector-api isn't used
-    public Vector[] splitVector(Vector vector, int count)
+    public Matrix splitVector(Vector vector, int rows)
     {
-        var size = vector.size() / count;
-        var ret = Vector.newVectorArray(vector.getFloatType(), count, size);
+        var cols = vector.size() / rows;
+        var matrix = emptyMatrix(rows, cols);
 
         var segment = 0;
         var col = 0;
         for (var i = 0; i < vector.size(); i++)
         {
             var value = vector.get(i);
-            ret[segment].set(col, value);
+            matrix.setValue(segment, col, value);
 
-            if (col == size - 1)
+            if (col == cols - 1)
             {
                 col = 0;
                 segment++;
@@ -127,18 +131,18 @@ public class Util extends AbstractUtil
             else col++;
         }
 
-        return ret;
+        return matrix;
     }
 
     @Override
     // TODO: Vector-api isn't used
-    public Vector flattenMatrix(Vector[] matrix)
+    public Vector flattenMatrix(Matrix matrix)
     {
-        var ret = Vector.of(matrix[0].getFloatType(), matrix.length * matrix[0].size());
+        var ret = emptyVector(matrix.getRowCount() * matrix.getColCount());
 
         var i = 0;
 
-        for (var row : matrix)
+        for (var row : matrix.getVectorArray())
         {
             for (var j = 0; j < row.size(); j++)
             {
