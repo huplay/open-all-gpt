@@ -3,7 +3,7 @@ package huplay.transformer._2021_03_eleuther_gptneo;
 import huplay.transformer.BaseTransformer;
 import huplay.dataType.vector.Vector;
 
-import static huplay.transformer.TransformerUtil.*;
+import static huplay.MathUtilProvider.*;
 import static huplay.config.ParameterType.*;
 
 /**
@@ -34,13 +34,13 @@ public class GPTNeo extends BaseTransformer
         Vector hiddenState = matrix(TOKEN_EMBEDDINGS).getVector(token);
 
         // Position embedding
-        return UTIL.addVectors(hiddenState, matrix(POSITION_EMBEDDINGS).getVector(pos));
+        return MATH.addVectors(hiddenState, matrix(POSITION_EMBEDDINGS).getVector(pos));
     }
 
     public int generateToken(Vector hiddenState, int topK)
     {
         // Final normalization
-        hiddenState = layerNorm(hiddenState, vector(OUTPUT_NORM_WEIGHT), vector(OUTPUT_NORM_BIAS), epsilon);
+        hiddenState = MATH.layerNorm(hiddenState, vector(OUTPUT_NORM_WEIGHT), vector(OUTPUT_NORM_BIAS), epsilon);
 
         return determineOutputToken(hiddenState, topK);
     }

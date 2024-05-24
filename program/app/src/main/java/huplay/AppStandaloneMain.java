@@ -11,7 +11,7 @@ import java.io.*;
 import java.util.Arrays;
 
 import static huplay.file.FileUtil.checkFiles;
-import static huplay.transformer.TransformerUtil.UTIL;
+import static huplay.MathUtilProvider.MATH;
 import static huplay.ui.ConsoleUtil.getPrintStream;
 import static huplay.ui.Logo.logo;
 import static huplay.ui.TextUtil.toCenter;
@@ -27,7 +27,7 @@ public class AppStandaloneMain
             logo(OUT,"Open All GPT", "CWgY-CWX-ygb", 'W');
             OUT.println(toCenter("Standalone app\n", 60));
 
-            OUT.println(toCenter("Util: " + UTIL.getUtilName() + "\n", 60));
+            OUT.println(toCenter("Math module: " + MATH.getMathProviderName() + "\n", 60));
 
             new AppStandaloneMain().start(args);
         }

@@ -4,8 +4,9 @@ import huplay.dataType.matrix.Matrix;
 import huplay.transformer.BaseAttentionLayer;
 import huplay.dataType.vector.Vector;
 
-import static huplay.transformer.TransformerUtil.*;
+import static huplay.MathUtilProvider.*;
 import static huplay.config.ParameterType.*;
+import static huplay.math.MathUtility.sqrt;
 
 /**
  * OpenAI GPT-1 decoder implementation
@@ -36,10 +37,10 @@ public class GPT1AttentionLayer extends BaseAttentionLayer
             return null; // ...we don't need the result (only the stored state at attention), unnecessary to do the rest
 
         // Residual connection
-        hiddenState = UTIL.addVectors(inputHiddenState, hiddenState);
+        hiddenState = MATH.addVectors(inputHiddenState, hiddenState);
 
         // Normalisation
-        hiddenState = layerNorm(hiddenState, vector(ATT_NORM_WEIGHT), vector(ATT_NORM_BIAS), epsilon);
+        hiddenState = MATH.layerNorm(hiddenState, vector(ATT_NORM_WEIGHT), vector(ATT_NORM_BIAS), epsilon);
 
         return hiddenState;
     }
@@ -47,19 +48,19 @@ public class GPT1AttentionLayer extends BaseAttentionLayer
     private Vector attention(Vector hiddenState)
     {
         // Calculate the query-key-value vectors for the actual token
-        Vector queryKeyValue = UTIL.mulVectorByMatrix(hiddenState, matrix(ATT_QUERY_KEY_VALUE_WEIGHT));
-        queryKeyValue = UTIL.addVectors(queryKeyValue, vector(ATT_QUERY_KEY_VALUE_BIAS));
+        Vector queryKeyValue = MATH.mulVectorByMatrix(hiddenState, matrix(ATT_QUERY_KEY_VALUE_WEIGHT));
+        queryKeyValue = MATH.addVectors(queryKeyValue, vector(ATT_QUERY_KEY_VALUE_BIAS));
 
         // Split the query/key/value
-        Matrix split = UTIL.splitVector(queryKeyValue, 3);
+        Matrix split = MATH.splitVector(queryKeyValue, 3);
         Vector query = split.getVector(0);
         Vector key = split.getVector(1);
         Vector value = split.getVector(2);
 
         // Split the query, key and value vectors into pieces for all heads
-        Matrix queryByHead = UTIL.splitVector(query, headCount);
-        Matrix keyByHead = UTIL.splitVector(key, headCount);
-        Matrix valueByHead = UTIL.splitVector(value, headCount);
+        Matrix queryByHead = MATH.splitVector(query, headCount);
+        Matrix keyByHead = MATH.splitVector(key, headCount);
+        Matrix valueByHead = MATH.splitVector(value, headCount);
 
         // Store the keys and values (these will be available while the following tokens will be processed)
         storedKeys.add(keyByHead);
@@ -80,30 +81,30 @@ public class GPT1AttentionLayer extends BaseAttentionLayer
             {
                 // The score is calculated multiplying the "actual" query vector and the "related" key vector
                 Vector relatedKey = storedKeys.get(pos).getVector(head);
-                float score = UTIL.dotProduct(actualQuery, relatedKey);
+                float score = MATH.dotProduct(actualQuery, relatedKey);
 
                 // Divide the score by the attention dividend
                 scores.set(pos, score / attentionDividend);
             }
 
             // Scale the scores to values between 0 and 1
-            scores = softmax(scores);
+            scores = MATH.softmax(scores);
 
             // Multiply the value matrices with the scores, and sum up
             for (int pos = 0; pos < storedSize; pos++)
             {
                 Vector relatedValue = storedValues.get(pos).getVector(head);
-                Vector multipliedValue = UTIL.mulVectorByScalar(relatedValue, scores.get(pos));
-                valueAggregate.setVector(head, UTIL.addVectors(valueAggregate.getVector(head), multipliedValue));
+                Vector multipliedValue = MATH.mulVectorByScalar(relatedValue, scores.get(pos));
+                valueAggregate.setVector(head, MATH.addVectors(valueAggregate.getVector(head), multipliedValue));
             }
         }
 
         // Concatenate the results for all heads
-        hiddenState = UTIL.flattenMatrix(valueAggregate);
+        hiddenState = MATH.flattenMatrix(valueAggregate);
 
         // Projection neural layer
-        hiddenState = UTIL.mulVectorByMatrix(hiddenState, matrix(ATT_PROJ_WEIGHT));
-        hiddenState = UTIL.addVectors(hiddenState, vector(ATT_PROJ_BIAS));
+        hiddenState = MATH.mulVectorByMatrix(hiddenState, matrix(ATT_PROJ_WEIGHT));
+        hiddenState = MATH.addVectors(hiddenState, vector(ATT_PROJ_BIAS));
 
         return hiddenState;
     }

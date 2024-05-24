@@ -5,7 +5,7 @@ import huplay.transformer.BaseTransformer;
 import huplay.dataType.vector.Vector;
 
 import static huplay.config.ParameterType.*;
-import static huplay.transformer.TransformerUtil.exp;
+import static huplay.math.MathUtility.exp;
 
 /**
   Google Brain, the original decoder-only Transformer

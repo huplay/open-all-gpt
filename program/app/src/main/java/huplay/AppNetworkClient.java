@@ -3,7 +3,6 @@ package huplay;
 import huplay.network.message.toServer.fromClient.*;
 import huplay.network.NetworkSettings;
 import huplay.ui.ModelSelector;
-import huplay.util.Util;
 
 import java.io.*;
 

@@ -2,15 +2,14 @@ package huplay.transformer;
 
 import huplay.config.Config;
 import huplay.network.info.DecoderBlockType;
-import huplay.util.IndexedValue;
+import huplay.IndexedValue;
 import huplay.dataType.vector.Vector;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static huplay.transformer.TransformerUtil.UTIL;
-import static huplay.transformer.TransformerUtil.weightedRandomPick;
+import static huplay.MathUtilProvider.MATH;
 import static huplay.config.ParameterType.TOKEN_EMBEDDINGS;
 
 public abstract class BaseTransformer extends ParameterStore
@@ -109,16 +108,16 @@ public abstract class BaseTransformer extends ParameterStore
     {
         // Multiply (dot product) the output with all token embeddings.
         // It will give a higher value if the output is more similar to the token embedding
-        float[] logits = UTIL.mulVectorByTransposedMatrix(hiddenState, matrix(TOKEN_EMBEDDINGS)).getValues();
+        float[] logits = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(TOKEN_EMBEDDINGS)).getValues();
 
         // Sort (higher to lower) the result of the dot products, retaining the order (index) of the related token
-        List<IndexedValue> orderedLogits = UTIL.reverseAndFilter(logits, topK);
+        List<IndexedValue> orderedLogits = MATH.reverseAndFilter(logits, topK);
 
         // Convert the logits to probabilities
-        float[] probabilities = TransformerUtil.softmax(orderedLogits);
+        float[] probabilities = MATH.softmax(orderedLogits);
 
         // Pick one token randomly, using a weighted random selection
-        int index = weightedRandomPick(probabilities);
+        int index = MATH.weightedRandomPick(probabilities);
 
         // Lookup the token id
         return orderedLogits.get(index).getIndex();

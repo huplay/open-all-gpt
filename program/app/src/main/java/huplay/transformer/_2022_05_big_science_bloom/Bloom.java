@@ -3,7 +3,7 @@ package huplay.transformer._2022_05_big_science_bloom;
 import huplay.transformer.BaseTransformer;
 import huplay.dataType.vector.Vector;
 
-import static huplay.transformer.TransformerUtil.layerNorm;
+import static huplay.MathUtilProvider.MATH;
 import static huplay.config.ParameterType.*;
 
 /**
@@ -37,13 +37,13 @@ public class Bloom extends BaseTransformer
         Vector hiddenState = matrix(TOKEN_EMBEDDINGS).getVector(token);
 
         // Input normalization
-        return layerNorm(hiddenState, vector(INPUT_NORM_WEIGHT), vector(INPUT_NORM_BIAS), epsilon);
+        return MATH.layerNorm(hiddenState, vector(INPUT_NORM_WEIGHT), vector(INPUT_NORM_BIAS), epsilon);
     }
 
     public int generateToken(Vector hiddenState, int topK)
     {
         // Final normalization
-        hiddenState = layerNorm(hiddenState, vector(OUTPUT_NORM_WEIGHT), vector(OUTPUT_NORM_BIAS), epsilon);
+        hiddenState = MATH.layerNorm(hiddenState, vector(OUTPUT_NORM_WEIGHT), vector(OUTPUT_NORM_BIAS), epsilon);
 
         return determineOutputToken(hiddenState, topK);
     }

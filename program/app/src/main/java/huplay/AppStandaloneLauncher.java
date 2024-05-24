@@ -16,7 +16,7 @@ import java.util.Map;
 import static huplay.AppStandaloneMain.*;
 import static huplay.file.FileUtil.checkFiles;
 import static huplay.file.FileUtil.readTextFile;
-import static huplay.transformer.TransformerUtil.UTIL;
+import static huplay.MathUtilProvider.MATH;
 import static huplay.ui.ConsoleUtil.getPrintStream;
 import static huplay.ui.Logo.logo;
 import static huplay.ui.TextUtil.toCenter;
@@ -33,7 +33,7 @@ public class AppStandaloneLauncher
             logo(OUT,"Open All GPT", "CWgY-CWY-bgW", 'W');
             OUT.println(toCenter("Standalone Launcher\n", 60));
 
-            OUT.println(toCenter("Util: " + UTIL.getUtilName() + "\n", 60));
+            OUT.println(toCenter("Math module: " + MATH.getMathProviderName() + "\n", 60));
 
             new AppStandaloneLauncher().start(args);
         }

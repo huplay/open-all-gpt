@@ -20,7 +20,7 @@ import java.util.*;
 
 import static huplay.file.FileUtil.checkHeaderFiles;
 import static huplay.file.FileUtil.readTextFile;
-import static huplay.transformer.TransformerUtil.UTIL;
+import static huplay.MathUtilProvider.MATH;
 
 /**
  * Reader of the trained parameters
@@ -190,7 +190,7 @@ public class SafetensorsReader
         // TODO: Read quantized matrix
 
         var vector = read(file, rows * cols);
-        return vector == null ? null : UTIL.splitVector(vector, rows);
+        return vector == null ? null : MATH.splitVector(vector, rows);
     }
 
     public SafetensorsDataType getDataType(String file)

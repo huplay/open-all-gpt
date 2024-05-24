@@ -4,7 +4,7 @@ import huplay.transformer.BaseTransformer;
 import huplay.dataType.vector.Vector;
 
 import static huplay.config.ParameterType.*;
-import static huplay.transformer.TransformerUtil.UTIL;
+import static huplay.MathUtilProvider.MATH;
 
 /**
   OpenAI GPT-1 transformer
@@ -28,7 +28,7 @@ public class GPT1 extends BaseTransformer
         Vector hiddenState = matrix(TOKEN_EMBEDDINGS).getVector(token);
 
         // Add the position embedding to hidden state
-        return UTIL.addVectors(hiddenState, matrix(POSITION_EMBEDDINGS).getVector(pos));
+        return MATH.addVectors(hiddenState, matrix(POSITION_EMBEDDINGS).getVector(pos));
     }
 
     public int generateToken(Vector hiddenState, int topK)

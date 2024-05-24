@@ -1,11 +1,10 @@
 package huplay.transformer._2021_06_eleuther_gptj;
 
-import huplay.transformer.TransformerUtil;
 import huplay.transformer.BaseNeuralNetLayer;
 import huplay.dataType.vector.Vector;
 
 import static huplay.config.ParameterType.*;
-import static huplay.transformer.TransformerUtil.UTIL;
+import static huplay.MathUtilProvider.MATH;
 
 /**
  * EleutherAI GPT-J decoder implementation
@@ -35,7 +34,7 @@ public class GPTJNeuralNetLayer extends BaseNeuralNetLayer
         Vector hiddenState = neuralNet(inputHiddenState);
 
         // Residual connection
-        hiddenState = UTIL.addVectors(inputHiddenState, hiddenState);
+        hiddenState = MATH.addVectors(inputHiddenState, hiddenState);
 
         return hiddenState;
     }
@@ -43,17 +42,17 @@ public class GPTJNeuralNetLayer extends BaseNeuralNetLayer
     private Vector neuralNet(Vector hiddenState)
     {
         // Layer 1: <mlpSize> neurons (usually 4 * <hiddenSize>) (using a gelu activation function)
-        hiddenState = UTIL.mulVectorByTransposedMatrix(hiddenState, matrix(MLP_1_WEIGHT));
-        hiddenState = UTIL.addVectors(hiddenState, vector(MLP_1_BIAS));
+        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(MLP_1_WEIGHT));
+        hiddenState = MATH.addVectors(hiddenState, vector(MLP_1_BIAS));
 
         for (int neuron = 0; neuron < feedForwardSize; neuron++)
         {
-            hiddenState.set(neuron, TransformerUtil.gelu(hiddenState.get(neuron)));
+            hiddenState.set(neuron, MATH.gelu(hiddenState.get(neuron)));
         }
 
         // Layer 2: <hiddenSize> neurons (without activation function)
-        hiddenState = UTIL.mulVectorByTransposedMatrix(hiddenState, matrix(MLP_2_WEIGHT));
-        hiddenState = UTIL.addVectors(hiddenState, vector(MLP_2_BIAS));
+        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(MLP_2_WEIGHT));
+        hiddenState = MATH.addVectors(hiddenState, vector(MLP_2_BIAS));
 
         return hiddenState;
     }

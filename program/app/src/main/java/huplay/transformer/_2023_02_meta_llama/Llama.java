@@ -3,7 +3,7 @@ package huplay.transformer._2023_02_meta_llama;
 import huplay.transformer.BaseTransformer;
 import huplay.dataType.vector.Vector;
 
-import static huplay.transformer.TransformerUtil.RMSLayerNorm;
+import static huplay.MathUtilProvider.MATH;
 import static huplay.config.ParameterType.*;
 
 /**
@@ -38,7 +38,7 @@ public class Llama extends BaseTransformer
     public int generateToken(Vector hiddenState, int topK)
     {
         // Final normalization
-        hiddenState = RMSLayerNorm(hiddenState, vector(OUTPUT_NORM_WEIGHT), epsilon);
+        hiddenState = MATH.RMSLayerNorm(hiddenState, vector(OUTPUT_NORM_WEIGHT), epsilon);
 
         return determineOutputToken(hiddenState, topK);
     }

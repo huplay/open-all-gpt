@@ -14,8 +14,8 @@
 
     <modules>
         <module>app</module>
-        <module>dataType</module>
         <module>math</module>
+        <module>mathProvider</module>
     </modules>
 
 </project>

@@ -1,7 +1,7 @@
 package huplay;
 
 import huplay.dataType.matrix.MatrixType;
-import huplay.util.Util;
+import huplay.math.MathUtility;
 import org.junit.Test;
 
 import static huplay.dataType.matrix.Matrix.emptyMatrix;
@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 
 public class UtilTest extends BaseTest
 {
-    private static final Util UTIL = new Util();
+    private static final MathUtility UTIL = new MathUtility();
 
     @Test
     public void addVectorsTest()

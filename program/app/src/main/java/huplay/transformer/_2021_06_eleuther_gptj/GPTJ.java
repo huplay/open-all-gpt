@@ -3,7 +3,7 @@ package huplay.transformer._2021_06_eleuther_gptj;
 import huplay.transformer.BaseTransformer;
 import huplay.dataType.vector.Vector;
 
-import static huplay.transformer.TransformerUtil.layerNorm;
+import static huplay.MathUtilProvider.MATH;
 import static huplay.config.ParameterType.*;
 
 /**
@@ -48,7 +48,7 @@ public class GPTJ extends BaseTransformer
     public int generateToken(Vector hiddenState, int topK)
     {
         // Final normalization
-        hiddenState = layerNorm(hiddenState, vector(OUTPUT_NORM_WEIGHT), vector(OUTPUT_NORM_BIAS), epsilon);
+        hiddenState = MATH.layerNorm(hiddenState, vector(OUTPUT_NORM_WEIGHT), vector(OUTPUT_NORM_BIAS), epsilon);
 
         return determineOutputToken(hiddenState, topK);
     }

@@ -7,8 +7,9 @@ import huplay.dataType.vector.Vector;
 import java.util.ArrayList;
 import java.util.List;
 
-import static huplay.transformer.TransformerUtil.*;
+import static huplay.MathUtilProvider.*;
 import static huplay.config.ParameterType.*;
+import static huplay.math.MathUtility.sqrt;
 
 /**
  * BLOOM decoder implementation
@@ -53,7 +54,7 @@ public class BloomAttentionLayer extends BaseAttentionLayer
     public Vector process(Vector inputHiddenState, boolean isInputOnly)
     {
         // Normalisation
-        Vector hiddenState = layerNorm(inputHiddenState, vector(ATT_NORM_WEIGHT), vector(ATT_NORM_BIAS), epsilon);
+        Vector hiddenState = MATH.layerNorm(inputHiddenState, vector(ATT_NORM_WEIGHT), vector(ATT_NORM_BIAS), epsilon);
 
         // Attention
         hiddenState = attention(hiddenState);
@@ -62,7 +63,7 @@ public class BloomAttentionLayer extends BaseAttentionLayer
             return null; // ...we don't need the result (only the stored state at attention), unnecessary to do the rest
 
         // Residual connection
-        hiddenState = UTIL.addVectors(inputHiddenState, hiddenState);
+        hiddenState = MATH.addVectors(inputHiddenState, hiddenState);
 
         return hiddenState;
     }
@@ -70,11 +71,11 @@ public class BloomAttentionLayer extends BaseAttentionLayer
     private Vector attention(Vector hiddenState)
     {
         // Calculate the query-key-value vectors for the actual token
-        Vector queryKeyValue = UTIL.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_QUERY_KEY_VALUE_WEIGHT));
-        queryKeyValue = UTIL.addVectors(queryKeyValue, vector(ATT_QUERY_KEY_VALUE_BIAS));
+        Vector queryKeyValue = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_QUERY_KEY_VALUE_WEIGHT));
+        queryKeyValue = MATH.addVectors(queryKeyValue, vector(ATT_QUERY_KEY_VALUE_BIAS));
 
         // Split the query, key and value vectors into pieces for all heads
-        Matrix queryKeyValuesByHead = UTIL.splitVector(queryKeyValue, headCount);
+        Matrix queryKeyValuesByHead = MATH.splitVector(queryKeyValue, headCount);
 
         // Matrix for collecting the attention results for all heads
         Matrix valueAggregate = emptyMatrix(headCount, headSize);
@@ -85,7 +86,7 @@ public class BloomAttentionLayer extends BaseAttentionLayer
             Vector queryKeyValueByHead = queryKeyValuesByHead.getVector(head);
 
             // Split the query/key/value
-            Matrix split = UTIL.splitVector(queryKeyValueByHead, 3);
+            Matrix split = MATH.splitVector(queryKeyValueByHead, 3);
             Vector queryByHead = split.getVector(0);
             Vector keyByHead = split.getVector(1);
             Vector valueByHead = split.getVector(2);
@@ -103,7 +104,7 @@ public class BloomAttentionLayer extends BaseAttentionLayer
             {
                 // The score is calculated multiplying the "actual" query vector and the "related" key vector
                 Vector relatedKey = storedKeys.get(head).get(pos);
-                float score = UTIL.dotProduct(queryByHead, relatedKey);
+                float score = MATH.dotProduct(queryByHead, relatedKey);
 
                 // Position embedding at score
                 score = score - positionSlope[head] * (storedSize - pos - 1);
@@ -113,23 +114,23 @@ public class BloomAttentionLayer extends BaseAttentionLayer
             }
 
             // Scale the scores to values between 0 and 1
-            scores = softmax(scores);
+            scores = MATH.softmax(scores);
 
             // Multiply the value matrices with the scores, and sum up
             for (int pos = 0; pos < storedSize; pos++)
             {
                 Vector relatedValue = storedValues.get(head).get(pos);
-                Vector multipliedValue = UTIL.mulVectorByScalar(relatedValue, scores.get(pos));
-                valueAggregate.setVector(head, UTIL.addVectors(valueAggregate.getVector(head), multipliedValue));
+                Vector multipliedValue = MATH.mulVectorByScalar(relatedValue, scores.get(pos));
+                valueAggregate.setVector(head, MATH.addVectors(valueAggregate.getVector(head), multipliedValue));
             }
         }
 
         // Concatenate the results for all heads
-        hiddenState = UTIL.flattenMatrix(valueAggregate);
+        hiddenState = MATH.flattenMatrix(valueAggregate);
 
         // Projection neural layer
-        hiddenState = UTIL.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_PROJ_WEIGHT));
-        hiddenState = UTIL.addVectors(hiddenState, vector(ATT_PROJ_BIAS));
+        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_PROJ_WEIGHT));
+        hiddenState = MATH.addVectors(hiddenState, vector(ATT_PROJ_BIAS));
 
         return hiddenState;
     }

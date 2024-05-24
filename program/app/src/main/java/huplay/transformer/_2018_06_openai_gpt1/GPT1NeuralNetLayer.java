@@ -1,10 +1,9 @@
 package huplay.transformer._2018_06_openai_gpt1;
 
-import huplay.transformer.TransformerUtil;
 import huplay.transformer.BaseNeuralNetLayer;
 import huplay.dataType.vector.Vector;
 
-import static huplay.transformer.TransformerUtil.*;
+import static huplay.MathUtilProvider.*;
 import static huplay.config.ParameterType.*;
 
 /**
@@ -30,10 +29,10 @@ public class GPT1NeuralNetLayer extends BaseNeuralNetLayer
         Vector hiddenState = neuralNet(inputHiddenState);
 
         // Residual connection
-        hiddenState = UTIL.addVectors(inputHiddenState, hiddenState);
+        hiddenState = MATH.addVectors(inputHiddenState, hiddenState);
 
         //  Normalisation
-        hiddenState = layerNorm(hiddenState, vector(MLP_NORM_WEIGHT), vector(MLP_NORM_BIAS), epsilon);
+        hiddenState = MATH.layerNorm(hiddenState, vector(MLP_NORM_WEIGHT), vector(MLP_NORM_BIAS), epsilon);
 
         return hiddenState;
     }
@@ -41,17 +40,17 @@ public class GPT1NeuralNetLayer extends BaseNeuralNetLayer
     private Vector neuralNet(Vector hiddenState)
     {
         // Layer 1: <mlpSize> neurons (usually 4 * <hiddenSize>) (using a gelu activation function)
-        hiddenState = UTIL.mulVectorByMatrix(hiddenState, matrix(MLP_1_WEIGHT));
-        hiddenState = UTIL.addVectors(hiddenState, vector(MLP_1_BIAS));
+        hiddenState = MATH.mulVectorByMatrix(hiddenState, matrix(MLP_1_WEIGHT));
+        hiddenState = MATH.addVectors(hiddenState, vector(MLP_1_BIAS));
 
         for (int neuron = 0; neuron < feedForwardSize; neuron++)
         {
-            hiddenState.set(neuron, TransformerUtil.gelu(hiddenState.get(neuron)));
+            hiddenState.set(neuron, MATH.gelu(hiddenState.get(neuron)));
         }
 
         // Layer 2: <hiddenSize> neurons (without activation function)
-        hiddenState = UTIL.mulVectorByMatrix(hiddenState, matrix(MLP_2_WEIGHT));
-        hiddenState = UTIL.addVectors(hiddenState, vector(MLP_2_BIAS));
+        hiddenState = MATH.mulVectorByMatrix(hiddenState, matrix(MLP_2_WEIGHT));
+        hiddenState = MATH.addVectors(hiddenState, vector(MLP_2_BIAS));
 
         return hiddenState;
     }

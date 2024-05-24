@@ -4,7 +4,7 @@ import huplay.dataType.matrix.Matrix;
 import huplay.transformer.BaseAttentionLayer;
 import huplay.dataType.vector.Vector;
 
-import static huplay.transformer.TransformerUtil.*;
+import static huplay.MathUtilProvider.*;
 import static huplay.config.ParameterType.*;
 
 /**
@@ -32,7 +32,7 @@ public class GPTNeoAttentionLayer extends BaseAttentionLayer
     public Vector process(Vector inputHiddenState, boolean isInputOnly)
     {
         // Normalisation
-        Vector hiddenState = layerNorm(inputHiddenState, vector(ATT_NORM_WEIGHT), vector(ATT_NORM_BIAS), epsilon);
+        Vector hiddenState = MATH.layerNorm(inputHiddenState, vector(ATT_NORM_WEIGHT), vector(ATT_NORM_BIAS), epsilon);
 
         // Attention
         hiddenState = attention(hiddenState);
@@ -41,7 +41,7 @@ public class GPTNeoAttentionLayer extends BaseAttentionLayer
             return null; // ...we don't need the result (only the stored state at attention), unnecessary to do the rest
 
         // Residual connection
-        hiddenState = UTIL.addVectors(inputHiddenState, hiddenState);
+        hiddenState = MATH.addVectors(inputHiddenState, hiddenState);
 
         return hiddenState;
     }
@@ -49,14 +49,14 @@ public class GPTNeoAttentionLayer extends BaseAttentionLayer
     private Vector attention(Vector hiddenState)
     {
         // Calculate the query, key and value vectors for the actual token
-        Vector query = UTIL.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_QUERY_WEIGHT));
-        Vector key = UTIL.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_KEY_WEIGHT));
-        Vector value = UTIL.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_VALUE_WEIGHT));
+        Vector query = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_QUERY_WEIGHT));
+        Vector key = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_KEY_WEIGHT));
+        Vector value = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_VALUE_WEIGHT));
 
         // Split the query, key and value vectors into pieces for all heads
-        Matrix queryByHead = UTIL.splitVector(query, headCount);
-        Matrix keyByHead = UTIL.splitVector(key, headCount);
-        Matrix valueByHead = UTIL.splitVector(value, headCount);
+        Matrix queryByHead = MATH.splitVector(query, headCount);
+        Matrix keyByHead = MATH.splitVector(key, headCount);
+        Matrix valueByHead = MATH.splitVector(value, headCount);
 
         // Store the keys and values (these will be available while the following tokens will be processed)
         storedKeys.add(keyByHead);
@@ -85,27 +85,27 @@ public class GPTNeoAttentionLayer extends BaseAttentionLayer
             {
                 // The score is calculated multiplying the "actual" query vector and the "related" key vector
                 Vector relatedKey = storedKeys.get(pos).getVector(head);
-                scores.set(pos, UTIL.dotProduct(actualQuery, relatedKey));
+                scores.set(pos, MATH.dotProduct(actualQuery, relatedKey));
             }
 
             // Scale the scores to values between 0 and 1
-            scores = softmax(scores);
+            scores = MATH.softmax(scores);
 
             // Multiply the value matrices with the scores, and sum up
             for (int pos = 0; pos < storedSize; pos++)
             {
                 Vector relatedValue = storedValues.get(pos).getVector(head);
-                Vector multipliedValue = UTIL.mulVectorByScalar(relatedValue, scores.get(pos));
-                valueAggregate.setVector(head, UTIL.addVectors(valueAggregate.getVector(head), multipliedValue));
+                Vector multipliedValue = MATH.mulVectorByScalar(relatedValue, scores.get(pos));
+                valueAggregate.setVector(head, MATH.addVectors(valueAggregate.getVector(head), multipliedValue));
             }
         }
 
         // Concatenate the results for all heads
-        hiddenState = UTIL.flattenMatrix(valueAggregate);
+        hiddenState = MATH.flattenMatrix(valueAggregate);
 
         // Projection neural layer
-        hiddenState = UTIL.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_PROJ_WEIGHT));
-        hiddenState = UTIL.addVectors(hiddenState, vector(ATT_PROJ_BIAS));
+        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_PROJ_WEIGHT));
+        hiddenState = MATH.addVectors(hiddenState, vector(ATT_PROJ_BIAS));
 
         return hiddenState;
     }

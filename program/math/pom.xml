@@ -10,30 +10,15 @@
         <relativePath>../../build/pom.xml</relativePath>
     </parent>
 
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
-    <profiles>
-        <profile>
-            <id>standard</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>standard</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>nd4j</id>
-            <modules>
-                <module>nd4j</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>vector-api</id>
-            <modules>
-                <module>vectorAPI</module>
-            </modules>
-        </profile>
-    </profiles>
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
 </project>
