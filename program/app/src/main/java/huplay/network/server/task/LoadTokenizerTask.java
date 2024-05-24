@@ -1,7 +1,7 @@
 package huplay.network.server.task;
 
 import huplay.config.TokenizerConfig;
-import huplay.file.DownloadMissingFiles;
+import huplay.file.download.DownloadMissingFiles;
 import huplay.network.server.state.ServerState;
 import huplay.tokenizer.TokenizerType;
 import huplay.ui.DownloadProgressBar;

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import huplay.IdentifiedException;
 import huplay.dataType.FloatType;
-import huplay.file.SafetensorsReader;
+import huplay.file.safetensors.SafetensorsReader;
 
 import java.io.IOException;
 import java.util.*;
@@ -178,6 +178,7 @@ public class Config
     public Map<String, String> getParameterNameOverrides() {return modelConfig.getParameterNameOverrides();}
     public Integer getMemorySize() {return modelConfig.getMemorySize();}
     public Map<BlockType, Integer> getMemorySizes() {return modelConfig.getMemorySizes();}
+    public QuantizationConfig getQuantizationConfig() {return modelConfig.getQuantizationConfig();}
 
     public int getHeadSize()
     {

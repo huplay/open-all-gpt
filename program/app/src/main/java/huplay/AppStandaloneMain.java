@@ -1,7 +1,7 @@
 package huplay;
 
 import huplay.config.*;
-import huplay.file.SafetensorsReader;
+import huplay.file.safetensors.SafetensorsReader;
 import huplay.tokenizer.TokenizerType;
 import huplay.transformer.Talk;
 import huplay.transformer.TransformerFlow;

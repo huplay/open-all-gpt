@@ -1,14 +1,15 @@
-package huplay.file;
+package huplay.file.safetensors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import huplay.IdentifiedException;
-import huplay.dataType.matrix.Matrix;
 import huplay.dataType.vector.BrainFloat16Vector;
 import huplay.dataType.vector.Float16Vector;
 import huplay.dataType.vector.Float32Vector;
 import huplay.dataType.vector.Vector;
+import huplay.file.DataType;
+import huplay.file.ParameterReader;
 
 import java.io.*;
 import java.nio.*;
@@ -20,7 +21,6 @@ import java.util.*;
 
 import static huplay.file.FileUtil.checkHeaderFiles;
 import static huplay.file.FileUtil.readTextFile;
-import static huplay.MathUtilProvider.MATH;
 
 /**
  * Reader of the trained parameters
@@ -30,7 +30,7 @@ import static huplay.MathUtilProvider.MATH;
  * This helps the Server to determine the model sizes (using the reader in calculateOnly mode),
  * and this way it needs only the header file, without downloading the whole safetensors file.
  */
-public class SafetensorsReader
+public class SafetensorsReader implements ParameterReader
 {
     private final Map<String, SafetensorsHeader> parameterHeaders = new HashMap<>();
 
@@ -72,7 +72,6 @@ public class SafetensorsReader
                 var headerString = readSafetensorsHeader(file.getAbsolutePath());
 
                 writeHeaderFile(modelFolder + "/header", file.getName() + ".header", headerString);
-                // TODO save the headerString as safetensors.header into the header folder. Create it if missing
             }
         }
     }
@@ -180,22 +179,15 @@ public class SafetensorsReader
         }
     }
 
-    public Vector readVector(String file, int size)
+    @Override
+    public long getBits(String id)
     {
-        return read(file, size);
+       return  getDataType(id).getBits();
     }
 
-    public Matrix readMatrix(String file, int rows, int cols)
+    public DataType getDataType(String id)
     {
-        // TODO: Read quantized matrix
-
-        var vector = read(file, rows * cols);
-        return vector == null ? null : MATH.splitVector(vector, rows);
-    }
-
-    public SafetensorsDataType getDataType(String file)
-    {
-        return parameterHeaders.get(file).getDataType();
+        return parameterHeaders.get(id).getDataType().getDataType();
     }
 
     private void checkSize(SafetensorsHeader header, long expectedSize)
@@ -208,7 +200,8 @@ public class SafetensorsReader
         }
     }
 
-    private Vector read(String id, int size)
+    @Override
+    public Vector readFloat32(String id, int size)
     {
         var header = parameterHeaders.get(id);
         if (header == null)
@@ -223,51 +216,77 @@ public class SafetensorsReader
 
         try (var stream = new FileInputStream(file))
         {
-            return switch (header.getDataType())
-            {
-                case F16    -> readFloat16(stream, size, offset);
-                case BF16   -> readBrainFloat16(stream, size, offset);
-                case F32    -> readFloat32(stream, size, offset);
-                default ->
-                        throw new IdentifiedException("Not supported data type: " + header.getDataType() + ", key: " + id);
-            };
+            var array = new float[size];
+
+            var buffer = stream.getChannel().map(FileChannel.MapMode.READ_ONLY, offset, (long) size * 4);
+            buffer.order(ByteOrder.LITTLE_ENDIAN);
+            buffer.asFloatBuffer().get(array, 0, size);
+
+            return new Float32Vector(array);
         }
         catch (IOException e)
         {
-            throw new RuntimeException("Parameter file read error in " + header.getFileName() + ", key: " + id);
+            throw new IdentifiedException("Error reading parameter " + id, e);
         }
     }
 
-    private Vector readFloat32(FileInputStream stream, int size, long offset) throws IOException
+    @Override
+    public Vector readFloat16(String id, int size)
     {
-        var array = new float[size];
+        var header = parameterHeaders.get(id);
+        if (header == null)
+        {
+            throw new IdentifiedException("Header not found for key: " + id);
+        }
 
-        var buffer = stream.getChannel().map(FileChannel.MapMode.READ_ONLY, offset, (long) size * 4);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-        buffer.asFloatBuffer().get(array, 0, size);
+        checkSize(header, size);
 
-        return new Float32Vector(array);
+        var offset = header.getDataOffset() + header.getStartOffset();
+        var file = new File(header.getFileName());
+
+        try (var stream = new FileInputStream(file))
+        {
+            var array = new short[size];
+
+            var buffer = stream.getChannel().map(FileChannel.MapMode.READ_ONLY, offset, (long) size * 2);
+            buffer.order(ByteOrder.LITTLE_ENDIAN);
+            buffer.asShortBuffer().get(array, 0, size);
+
+            return new Float16Vector(array);
+        }
+        catch (IOException e)
+        {
+            throw new IdentifiedException("Error reading parameter " + id, e);
+        }
     }
 
-    private Vector readFloat16(FileInputStream stream, int size, long offset) throws IOException
+    @Override
+    public Vector readBrainFloat16(String id, int size)
     {
-        var array = new short[size];
+        var header = parameterHeaders.get(id);
+        if (header == null)
+        {
+            throw new IdentifiedException("Header not found for key: " + id);
+        }
 
-        var buffer = stream.getChannel().map(FileChannel.MapMode.READ_ONLY, offset, (long) size * 2);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-        buffer.asShortBuffer().get(array, 0, size);
+        checkSize(header, size);
 
-        return new Float16Vector(array);
-    }
+        var offset = header.getDataOffset() + header.getStartOffset();
+        var file = new File(header.getFileName());
 
-    private Vector readBrainFloat16(FileInputStream stream, int size, long offset) throws IOException
-    {
-        var array = new short[size];
+        try (var stream = new FileInputStream(file))
+        {
+            var array = new short[size];
 
-        var buffer = stream.getChannel().map(FileChannel.MapMode.READ_ONLY, offset, (long) size * 2);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-        buffer.asShortBuffer().get(array, 0, size);
+            var buffer = stream.getChannel().map(FileChannel.MapMode.READ_ONLY, offset, (long) size * 2);
+            buffer.order(ByteOrder.LITTLE_ENDIAN);
+            buffer.asShortBuffer().get(array, 0, size);
 
-        return new BrainFloat16Vector(array);
+            return new BrainFloat16Vector(array);
+        }
+        catch (IOException e)
+        {
+            throw new IdentifiedException("Error reading parameter " + id, e);
+        }
     }
 }

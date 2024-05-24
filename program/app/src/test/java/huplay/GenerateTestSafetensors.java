@@ -2,8 +2,9 @@ package huplay;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import huplay.file.SafetensorsReader;
-import huplay.file.SafetensorsModel;
+import huplay.file.safetensors.SafetensorsReader;
+import huplay.file.safetensors.SafetensorsModel;
+import huplay.parameters.StandardParameterLoader;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -14,7 +15,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static huplay.file.DataTypeUtil.toLittleEndian;
-import static huplay.file.SafetensorsModel.TensorModel;
+import static huplay.file.safetensors.SafetensorsModel.TensorModel;
 
 /**
  * Generates test .safetensors file to use in unit tests
@@ -135,6 +136,8 @@ public class GenerateTestSafetensors
         var reader = new SafetensorsReader(path);
         reader.readSafetensorsHeader(path + "/" + inputSafetensors);
 
+        var parameterLoader = new StandardParameterLoader();
+
         // Write the test file
         var output = new File(path + "/" + outputSafetensors);
         try (var out = new DataOutputStream(new FileOutputStream(output)))
@@ -152,7 +155,7 @@ public class GenerateTestSafetensors
                 if (shape.length == 1)
                 {
                     // Write a vector
-                    var values = reader.readVector(entry.getKey(), shape[0]);
+                    var values = parameterLoader.readVector(reader, entry.getKey(), shape[0]);
                     for (var i = 0; i < values.size(); i++)
                     {
                         var value = values.get(i);
@@ -162,7 +165,7 @@ public class GenerateTestSafetensors
                 else if (shape.length == 2)
                 {
                     // Write a matrix
-                    var values = reader.readMatrix(entry.getKey(), shape[0], shape[1]);
+                    var values = parameterLoader.readMatrix(reader, entry.getKey(), shape[0], shape[1]);
                     for (var row : values.getVectorArray())
                     {
                         for (var i = 0; i < row.size(); i++)

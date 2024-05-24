@@ -2,7 +2,7 @@ package huplay.transformer;
 
 import huplay.BaseTest;
 import huplay.config.*;
-import huplay.file.SafetensorsReader;
+import huplay.file.safetensors.SafetensorsReader;
 
 import java.io.File;
 

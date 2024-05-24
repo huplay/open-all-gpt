@@ -1,4 +1,4 @@
-package huplay.file;
+package huplay.file.download;
 
 import huplay.config.RepoConfig;
 

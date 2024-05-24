@@ -2,7 +2,19 @@
   "name": "OpenAI GPT-2 - GPTQ-4bit quantized",
   "transformerType": "OPENAI_GPT_2",
   "repo": "https://huggingface.co/mlabonne/gpt2-GPTQ-4bit",
-  "files": ["config.json", "gptq_model-4bit-128g.safetensors"],
+  "files": ["config.json", "gptq_model-4bit-128g.safetensors", "quantize_config.json"],
   "decoderParameterNaming": "transformer.h.{decoderId}.{name}",
-  "memorySize": 7168
+  "memorySize": 7168,
+  "quantization":
+  {
+    "quantizationType": "GPTQ",
+    "parameters": ["attn.c_attn.weight"],
+    "naming":
+    {
+      "groupIndex": "{name}.g_idx",
+      "zeroes": "{name}.qzeros",
+      "scales": "{name}.scales",
+      "weights": "{name}.qweight"
+    }
+  }
 }

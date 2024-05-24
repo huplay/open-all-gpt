@@ -31,8 +31,8 @@ public class ModelConfig implements RepoConfig
     private Map<String, String> parameterNameOverrides;
     private Integer memorySize;
     private Map<BlockType, Integer> memorySizes;
-
     private Config configOverride;
+    private QuantizationConfig quantizationConfig;
 
     public static ModelConfig read(String configPath, String downloadPath)
     {
@@ -85,6 +85,7 @@ public class ModelConfig implements RepoConfig
     public Integer getMemorySize() {return memorySize;}
     public Map<BlockType, Integer> getMemorySizes() {return memorySizes;}
     public Config getConfigOverride() {return configOverride;}
+    public QuantizationConfig getQuantizationConfig() {return quantizationConfig;}
 
     public String resolveFileName(String name)
     {

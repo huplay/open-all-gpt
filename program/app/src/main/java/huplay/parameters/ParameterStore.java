@@ -1,11 +1,12 @@
-package huplay.transformer;
+package huplay.parameters;
 
 import huplay.config.Config;
 import huplay.dataType.FloatType;
 import huplay.dataType.matrix.Matrix;
-import huplay.file.SafetensorsReader;
+import huplay.file.safetensors.SafetensorsReader;
 import huplay.config.ParameterType;
 import huplay.dataType.vector.Vector;
+import huplay.parameters.quantization.QuantizationType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,34 +42,48 @@ public abstract class ParameterStore
 
     protected abstract String formatName(String file);
 
-    protected void loadVector(ParameterType parameterType, String file, int size)
+    protected void loadVector(ParameterType parameterType, String id, int size)
     {
-        var name = formatName(file);
-        calculateSize(name, size);
+        var parameterLoader = getParameterLoader();
 
-        if (!config.isCalculationOnly())
-        {
-            vectorParams.put(parameterType, reader.readVector(name, size));
-        }
-    }
-
-    protected void loadMatrix(ParameterType parameterType, String file, int rows, int cols)
-    {
-        var name = formatName(file);
-        calculateSize(name, rows * cols);
-
-        if (!config.isCalculationOnly())
-        {
-            matrixParams.put(parameterType, reader.readMatrix(name, rows, cols));
-        }
-    }
-
-    private void calculateSize(String name, int size)
-    {
-        var dataType = reader.getDataType(name);
+        var name = formatName(id);
 
         parameterSize += size;
-        parameterByteSize += ((long)size) * dataType.getBits() / 8;
+        parameterByteSize += parameterLoader.calculateByteSize(reader, name, size);
+
+        if (!config.isCalculationOnly())
+        {
+            vectorParams.put(parameterType, parameterLoader.readVector(reader, name, size));
+        }
+    }
+
+    protected void loadMatrix(ParameterType parameterType, String id, int rows, int cols)
+    {
+        var parameterLoader = getParameterLoader();
+
+        var name = formatName(id);
+
+        parameterSize += (long) rows * cols;
+        parameterByteSize += parameterLoader.calculateByteSize(reader, name, rows * cols);
+
+        if (!config.isCalculationOnly())
+        {
+            matrixParams.put(parameterType, parameterLoader.readMatrix(reader, name, rows, cols));
+        }
+    }
+
+    private ParameterLoader getParameterLoader()
+    {
+        var quantizationConfig = config.getQuantizationConfig();
+
+        if (quantizationConfig == null)
+        {
+            return new StandardParameterLoader();
+        }
+        else
+        {
+            return QuantizationType.getParameterLoader(quantizationConfig.getQuantizationType());
+        }
     }
 
     public Vector vector(ParameterType parameterType)

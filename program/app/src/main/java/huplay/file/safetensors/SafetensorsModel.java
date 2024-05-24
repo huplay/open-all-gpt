@@ -1,4 +1,4 @@
-package huplay.file;
+package huplay.file.safetensors;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;

@@ -1,6 +1,7 @@
 package huplay.transformer;
 
 import huplay.config.Config;
+import huplay.parameters.ParameterStore;
 
 public abstract class BaseDecoderLayer extends ParameterStore
 {
