@@ -7,7 +7,8 @@
           "SMALL": {"order": 1},
           "MEDIUM": {"order": 2},
           "LARGE": {"order": 3},
-          "XL": {"order": 4}
+          "XL": {"order": 4},
+          "GPT 2 - GPTQ-4bit": {"order": 5}
         }
       }
     }

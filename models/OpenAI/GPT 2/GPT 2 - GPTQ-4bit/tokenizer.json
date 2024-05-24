@@ -1,0 +1,5 @@
+{
+  "tokenizerType": "OPENAI_GPT_2",
+  "repo": "https://huggingface.co/mlabonne/gpt2-GPTQ-4bit",
+  "files": ["vocab.json", "merges.txt"]
+}

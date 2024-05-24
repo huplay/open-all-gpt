@@ -1,6 +1,0 @@
-{
-  "name": "OpenAI GPT-1",
-  "transformerType": "OPENAI_GPT_1",
-  "tokenizerType": "OPENAI_GPT_1",
-  "decoderParameterNaming": "h.{decoderId}.{name}"
-}

@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>huplay</groupId>
-    <artifactId>open-all-gpt-bom</artifactId>
+    <artifactId>openallgpt-bom</artifactId>
     <version>1.0</version>
 
     <packaging>pom</packaging>
