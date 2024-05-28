@@ -1,4 +1,4 @@
-package huplay.file.download;
+package huplay.parameters.download;
 
 public interface DownloadProgressHandler
 {

@@ -9,18 +9,12 @@ import java.util.List;
 import java.util.TreeSet;
 
 import static huplay.dataType.vector.Vector.emptyVector;
+import static huplay.math.BasicMathUtility.*;
 import static java.lang.Math.PI;
 import static java.lang.Math.tanh;
 
 public abstract class AbstractMathUtility
 {
-    // Basic static math functions to return float instead of double
-    public static float pow(float a, float b) {return (float)(java.lang.Math.pow(a, b));}
-    public static float exp(double value) {return (float)(java.lang.Math.exp(value));}
-    public static float sqrt(float value) {return (float)(java.lang.Math.sqrt(value));}
-    public static float cos(double value) {return (float)(java.lang.Math.cos(value));}
-    public static float sin(double value) {return (float)(java.lang.Math.sin(value));}
-
     /**
      * Get the name of the math provider
      */
@@ -60,6 +54,29 @@ public abstract class AbstractMathUtility
      * Merge the rows of a matrix to a single vector
      */
     public abstract Vector flattenMatrix(Matrix matrix);
+
+    /**
+     * Transpose a matrix
+     */
+    public abstract Matrix transposeMatrix(Matrix matrix);
+
+    public byte[][] transposeByteMatrix(byte[][] matrix)
+    {
+        int rows = matrix.length;
+        int cols = matrix[0].length;
+
+        var transposedMatrix = new byte[cols][rows];
+
+        for (int i = 0; i < cols; i++)
+        {
+            for (int j = 0; j < rows; j++)
+            {
+                transposedMatrix[i][j] = matrix[j][i];
+            }
+        }
+
+        return transposedMatrix;
+    }
 
     /**
      * Calculate average (mean) value

@@ -1,19 +1,19 @@
-package huplay.file;
+package huplay.dataType;
 
 public enum DataType
 {
     BOOLEAN(1),
 
-    SIGNED_BYTE(8),
+    BYTE(8),
     UNSIGNED_BYTE(8),
 
-    SIGNED_INTEGER_16(16),
+    INTEGER_16(16),
     UNSIGNED_INTEGER_16(16),
 
-    SIGNED_INTEGER_32(32),
+    INTEGER_32(32),
     UNSIGNED_INTEGER_32(32),
 
-    SIGNED_INTEGER_64(64),
+    INTEGER_64(64),
     UNSIGNED_INTEGER_64(64),
 
     FLOAT_16(16),

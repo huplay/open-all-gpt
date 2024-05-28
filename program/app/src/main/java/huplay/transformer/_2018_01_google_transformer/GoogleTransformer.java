@@ -5,7 +5,7 @@ import huplay.transformer.BaseTransformer;
 import huplay.dataType.vector.Vector;
 
 import static huplay.config.ParameterType.*;
-import static huplay.math.MathUtility.exp;
+import static huplay.math.BasicMathUtility.exp;
 
 /**
   Google Brain, the original decoder-only Transformer
@@ -48,7 +48,7 @@ public class GoogleTransformer extends BaseTransformer
     public Vector preProcessToken(int pos, int token)
     {
         // Find the embeddings of the token
-        Vector hiddenState = matrix(TOKEN_EMBEDDINGS).getVector(token);
+        Vector hiddenState = matrix(TOKEN_EMBEDDINGS).getRow(token);
 
         // Position embedding
         for (int i = 0; i < hiddenState.size(); i++)

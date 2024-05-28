@@ -103,7 +103,7 @@ public class MathUtility extends AbstractMathUtility
 
         for (var col = 0; col < matrix.getRowCount(); col++)
         {
-            ret.set(col, dotProduct(vector, matrix.getVector(col)));
+            ret.set(col, dotProduct(vector, matrix.getRow(col)));
         }
 
         return ret;

@@ -3,6 +3,7 @@ package huplay.config;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import huplay.IdentifiedException;
+import huplay.quantization.QuantizationConfig;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,7 +33,7 @@ public class ModelConfig implements RepoConfig
     private Integer memorySize;
     private Map<BlockType, Integer> memorySizes;
     private Config configOverride;
-    private QuantizationConfig quantizationConfig;
+    private QuantizationConfig quantization;
 
     public static ModelConfig read(String configPath, String downloadPath)
     {
@@ -85,7 +86,7 @@ public class ModelConfig implements RepoConfig
     public Integer getMemorySize() {return memorySize;}
     public Map<BlockType, Integer> getMemorySizes() {return memorySizes;}
     public Config getConfigOverride() {return configOverride;}
-    public QuantizationConfig getQuantizationConfig() {return quantizationConfig;}
+    public QuantizationConfig getQuantizationConfig() {return quantization;}
 
     public String resolveFileName(String name)
     {

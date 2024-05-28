@@ -1,12 +1,12 @@
 package huplay.parameters;
 
 import huplay.config.Config;
-import huplay.dataType.FloatType;
+import huplay.dataType.DataType;
 import huplay.dataType.matrix.Matrix;
-import huplay.file.safetensors.SafetensorsReader;
+import huplay.parameters.safetensors.SafetensorsReader;
 import huplay.config.ParameterType;
 import huplay.dataType.vector.Vector;
-import huplay.parameters.quantization.QuantizationType;
+import huplay.quantization.QuantizationType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +16,7 @@ public abstract class ParameterStore
     public Config config;
     private long parameterSize;
     private long parameterByteSize;
-    private FloatType internalFloatType;
+    private DataType internalFloatType;
 
     public SafetensorsReader reader;
 
@@ -44,7 +44,7 @@ public abstract class ParameterStore
 
     protected void loadVector(ParameterType parameterType, String id, int size)
     {
-        var parameterLoader = getParameterLoader();
+        var parameterLoader = getParameterLoader(parameterType, id);
 
         var name = formatName(id);
 
@@ -59,7 +59,7 @@ public abstract class ParameterStore
 
     protected void loadMatrix(ParameterType parameterType, String id, int rows, int cols)
     {
-        var parameterLoader = getParameterLoader();
+        var parameterLoader = getParameterLoader(parameterType, id);
 
         var name = formatName(id);
 
@@ -68,21 +68,20 @@ public abstract class ParameterStore
 
         if (!config.isCalculationOnly())
         {
-            matrixParams.put(parameterType, parameterLoader.readMatrix(reader, name, rows, cols));
+            matrixParams.put(parameterType, parameterLoader.readMatrix(reader, parameterType, name, rows, cols));
         }
     }
 
-    private ParameterLoader getParameterLoader()
+    private ParameterLoader getParameterLoader(ParameterType parameterType, String id)
     {
         var quantizationConfig = config.getQuantizationConfig();
-
-        if (quantizationConfig == null)
+        if (quantizationConfig != null && quantizationConfig.isQuantized(parameterType, id))
         {
-            return new StandardParameterLoader();
+            return QuantizationType.getParameterLoader(config);
         }
         else
         {
-            return QuantizationType.getParameterLoader(quantizationConfig.getQuantizationType());
+            return new StandardParameterLoader();
         }
     }
 

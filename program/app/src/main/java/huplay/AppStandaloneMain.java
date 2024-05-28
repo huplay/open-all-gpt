@@ -1,7 +1,7 @@
 package huplay;
 
 import huplay.config.*;
-import huplay.file.safetensors.SafetensorsReader;
+import huplay.parameters.safetensors.SafetensorsReader;
 import huplay.tokenizer.TokenizerType;
 import huplay.transformer.Talk;
 import huplay.transformer.TransformerFlow;
@@ -10,7 +10,7 @@ import huplay.transformer.TransformerType;
 import java.io.*;
 import java.util.Arrays;
 
-import static huplay.file.FileUtil.checkFiles;
+import static huplay.parameters.FileUtil.checkFiles;
 import static huplay.MathUtilProvider.MATH;
 import static huplay.ui.ConsoleUtil.getPrintStream;
 import static huplay.ui.Logo.logo;
@@ -45,7 +45,7 @@ public class AppStandaloneMain
                     OUT.println(element.toString());
                 }
             }
-            OUT.println("ERROR: " + e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
+            OUT.println("ERROR: " + e.getMessage());
         }
     }
 

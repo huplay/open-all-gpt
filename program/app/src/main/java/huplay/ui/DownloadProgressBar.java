@@ -1,7 +1,7 @@
 package huplay.ui;
 
-import huplay.file.download.DownloadProgressHandler;
-import huplay.file.FileUtil;
+import huplay.parameters.download.DownloadProgressHandler;
+import huplay.parameters.FileUtil;
 
 import java.io.PrintStream;
 

@@ -1,4 +1,4 @@
-package huplay.file.download;
+package huplay.parameters.download;
 
 import huplay.IdentifiedException;
 import huplay.config.RepoConfig;
@@ -12,7 +12,7 @@ import java.nio.channels.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import static huplay.file.FileUtil.determineDownloadUrl;
+import static huplay.parameters.FileUtil.determineDownloadUrl;
 
 public class DownloadSafetensorsHeader
 {

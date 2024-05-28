@@ -1,14 +1,14 @@
 package huplay.dataType.matrix;
 
-import huplay.dataType.FloatType;
+import huplay.dataType.DataType;
 import huplay.dataType.vector.Vector;
 
 public class VectorArrayMatrix implements Matrix
 {
     private final Vector[] vectorArray;
-    private final FloatType internalFloatType;
+    private final DataType internalFloatType;
 
-    public VectorArrayMatrix(FloatType floatType, int rows, int cols)
+    public VectorArrayMatrix(DataType floatType, int rows, int cols)
     {
         this.vectorArray = new Vector[rows];
         this.internalFloatType = floatType;
@@ -26,15 +26,15 @@ public class VectorArrayMatrix implements Matrix
     }
 
     @Override
-    public Vector getVector(int index)
+    public Vector getRow(int row)
     {
-        return vectorArray[index];
+        return vectorArray[row];
     }
 
     @Override
-    public void setVector(int index, Vector vector)
+    public void setRow(int row, Vector vector)
     {
-        vectorArray[index] = vector;
+        vectorArray[row] = vector;
     }
 
     @Override
@@ -62,7 +62,7 @@ public class VectorArrayMatrix implements Matrix
     }
 
     @Override
-    public FloatType getInternalFloatType()
+    public DataType getInternalFloatType()
     {
         return internalFloatType;
     }

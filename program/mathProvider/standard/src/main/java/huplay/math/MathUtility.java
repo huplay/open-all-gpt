@@ -56,7 +56,7 @@ public class MathUtility extends AbstractMathUtility
     @Override
     public Vector mulVectorByMatrix(Vector vector, Matrix matrix)
     {
-        Vector ret = emptyVector(vector.getFloatType(), matrix.getVector(0).size());
+        Vector ret = emptyVector(vector.getFloatType(), matrix.getRow(0).size());
 
         for (int col = 0; col < matrix.getColCount(); col++)
         {
@@ -80,7 +80,7 @@ public class MathUtility extends AbstractMathUtility
 
         for (int i = 0; i < matrix.getRowCount(); i++)
         {
-            ret.set(i, dotProduct(vector, matrix.getVector(i)));
+            ret.set(i, dotProduct(vector, matrix.getRow(i)));
         }
 
         return ret;
@@ -128,6 +128,24 @@ public class MathUtility extends AbstractMathUtility
         }
 
         return ret;
+    }
+
+    public Matrix transposeMatrix(Matrix matrix)
+    {
+        int rows = matrix.getRowCount();
+        int cols = matrix.getColCount();
+
+        var transposedMatrix = emptyMatrix(matrix.getInternalFloatType(), cols, rows);
+
+        for (int i = 0; i < cols; i++)
+        {
+            for (int j = 0; j < rows; j++)
+            {
+                transposedMatrix.setValue(i, j, matrix.getValue(j, i));
+            }
+        }
+
+        return transposedMatrix;
     }
 
     @Override

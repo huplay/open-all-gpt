@@ -1,12 +1,10 @@
 package huplay.parameters;
 
 import huplay.IdentifiedException;
+import huplay.config.ParameterType;
 import huplay.dataType.matrix.Matrix;
 import huplay.dataType.vector.Vector;
-import huplay.file.DataType;
-import huplay.file.ParameterReader;
-
-import static huplay.MathUtilProvider.MATH;
+import huplay.dataType.DataType;
 
 public class StandardParameterLoader implements ParameterLoader
 {
@@ -23,23 +21,31 @@ public class StandardParameterLoader implements ParameterLoader
     }
 
     @Override
-    public Matrix readMatrix(ParameterReader reader, String file, int rows, int cols)
+    public Matrix readMatrix(ParameterReader reader, ParameterType parameterType, String id, int rows, int cols)
     {
-        var vector = read(reader, file, rows * cols);
-        return vector == null ? null : MATH.splitVector(vector, rows);
+        DataType FloatType = reader.getDataType(id);
+
+        return switch (FloatType)
+        {
+            case FLOAT_16           -> reader.readFloat16Matrix(id, rows, cols);
+            case BRAIN_FLOAT_16     -> reader.readBrainFloat16Matrix(id, rows, cols);
+            case FLOAT_32           -> reader.readFloat32Matrix(id, rows, cols);
+            default ->
+                    throw new IdentifiedException("Not supported data type: " + FloatType + ", key: " + id);
+        };
     }
 
     private Vector read(ParameterReader reader, String id, int size)
     {
-        DataType datatType = reader.getDataType(id);
+        DataType FloatType = reader.getDataType(id);
 
-        return switch (datatType)
+        return switch (FloatType)
         {
-            case FLOAT_16    -> reader.readFloat16(id, size);
-            case BRAIN_FLOAT_16   -> reader.readBrainFloat16(id, size);
-            case FLOAT_32    -> reader.readFloat32(id, size);
+            case FLOAT_16           -> reader.readFloat16Vector(id, size);
+            case BRAIN_FLOAT_16     -> reader.readBrainFloat16Vector(id, size);
+            case FLOAT_32           -> reader.readFloat32Vector(id, size);
             default ->
-                    throw new IdentifiedException("Not supported data type: " + datatType + ", key: " + id);
+                    throw new IdentifiedException("Not supported data type: " + FloatType + ", key: " + id);
         };
     }
 }

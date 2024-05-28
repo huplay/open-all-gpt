@@ -6,7 +6,7 @@ import huplay.dataType.vector.Vector;
 
 import static huplay.MathUtilProvider.*;
 import static huplay.config.ParameterType.*;
-import static huplay.math.AbstractMathUtility.*;
+import static huplay.math.BasicMathUtility.*;
 
 /**
  * EleutherAI GPT-J decoder implementation
@@ -82,13 +82,13 @@ public class GPTJAttentionLayer extends BaseAttentionLayer
         for (int head = 0; head < headCount; head++)
         {
             // Calculate the scores
-            Vector actualQuery = queryByHead.getVector(head);
+            Vector actualQuery = queryByHead.getRow(head);
             Vector scores = Vector.emptyVector(actualQuery.getFloatType(), storedSize);
 
             for (int pos = 0; pos < storedSize; pos++)
             {
                 // The score is calculated multiplying the "actual" query vector and the "related" key vector
-                Vector relatedKey = storedKeys.get(pos).getVector(head);
+                Vector relatedKey = storedKeys.get(pos).getRow(head);
                 scores.set(pos, MATH.dotProduct(actualQuery, relatedKey));
             }
 
@@ -98,9 +98,9 @@ public class GPTJAttentionLayer extends BaseAttentionLayer
             // Multiply the value matrices with the scores, and sum up
             for (int pos = 0; pos < storedSize; pos++)
             {
-                Vector relatedValue = storedValues.get(pos).getVector(head);
+                Vector relatedValue = storedValues.get(pos).getRow(head);
                 Vector multipliedValue = MATH.mulVectorByScalar(relatedValue, scores.get(pos));
-                valueAggregate.setVector(head, MATH.addVectors(valueAggregate.getVector(head), multipliedValue));
+                valueAggregate.setRow(head, MATH.addVectors(valueAggregate.getRow(head), multipliedValue));
             }
         }
 

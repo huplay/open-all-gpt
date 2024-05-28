@@ -32,7 +32,7 @@ public class Llama extends BaseTransformer
     public Vector preProcessToken(int pos, int token)
     {
         // Find the embeddings of the token
-        return matrix(TOKEN_EMBEDDINGS).getVector(token);
+        return matrix(TOKEN_EMBEDDINGS).getRow(token);
     }
 
     public int generateToken(Vector hiddenState, int topK)

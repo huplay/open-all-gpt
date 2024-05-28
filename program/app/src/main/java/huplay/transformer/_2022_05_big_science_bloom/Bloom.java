@@ -34,7 +34,7 @@ public class Bloom extends BaseTransformer
     public Vector preProcessToken(int pos, int token)
     {
         // Find the embeddings of the token
-        Vector hiddenState = matrix(TOKEN_EMBEDDINGS).getVector(token);
+        Vector hiddenState = matrix(TOKEN_EMBEDDINGS).getRow(token);
 
         // Input normalization
         return MATH.layerNorm(hiddenState, vector(INPUT_NORM_WEIGHT), vector(INPUT_NORM_BIAS), epsilon);

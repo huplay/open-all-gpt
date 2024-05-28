@@ -1,5 +1,5 @@
 {
   "tokenizerType": "OPENAI_GPT_2",
-  "repo": "https://huggingface.co/bigscience/bloom-560m",
-  "files": ["tokenizer.json"]
+  "repo": "https://huggingface.co/openai-community/gpt2",
+  "files": ["vocab.json", "merges.txt"]
 }

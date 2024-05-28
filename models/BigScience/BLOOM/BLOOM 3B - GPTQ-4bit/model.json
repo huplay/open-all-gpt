@@ -1,0 +1,13 @@
+{
+  "name": "BLOOM 3B - GPTQ-4bit quantized",
+  "transformerType": "BIG_SCIENCE_BLOOM",
+  "repo": "https://huggingface.co/iproskurina/bloom-3b-gptq-4bit",
+  "files": ["config.json", "model.safetensors", "quantize_config.json"],
+  "parameterNaming": "transformer.{name}",
+  "decoderParameterNaming": "transformer.h.{decoderId}.{name}",
+  "memorySize": 12288,
+  "quantization":
+  {
+    "quantizationType": "GPTQ"
+  }
+}

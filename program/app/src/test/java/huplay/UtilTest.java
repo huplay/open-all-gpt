@@ -50,10 +50,10 @@ public class UtilTest extends BaseTest
         var vector4 = createVector(6, 0, 0, 7);
 
         var matrix = emptyMatrix(MatrixType.VECTOR_ARRAY_FLOAT_32, 4, 4);
-        matrix.setVector(0, vector1);
-        matrix.setVector(1, vector2);
-        matrix.setVector(2, vector3);
-        matrix.setVector(3, vector4);
+        matrix.setRow(0, vector1);
+        matrix.setRow(1, vector2);
+        matrix.setRow(2, vector3);
+        matrix.setRow(3, vector4);
 
         var expectedResult = new float[]{4, 47, 5, 68};
 
@@ -70,9 +70,9 @@ public class UtilTest extends BaseTest
         var vector3 = createVector(3, 6, 9, 12);
 
         var matrix = emptyMatrix(MatrixType.VECTOR_ARRAY_FLOAT_32, 3, 4);
-        matrix.setVector(0, vector1);
-        matrix.setVector(1, vector2);
-        matrix.setVector(2, vector3);
+        matrix.setRow(0, vector1);
+        matrix.setRow(1, vector2);
+        matrix.setRow(2, vector3);
 
         var expectedResult = new float[]{5 + 6*4 + 7*7 + 8*10, 5*2 + 6*5 + 7*8 + 8*11, 5*3 + 6*6 + 7*9 + 8*12};
 
@@ -96,9 +96,9 @@ public class UtilTest extends BaseTest
         var vector3 = createVector(5, 6);
 
         var matrix = emptyMatrix(MatrixType.VECTOR_ARRAY_FLOAT_32, 3, 2);
-        matrix.setVector(0, vector1);
-        matrix.setVector(1, vector2);
-        matrix.setVector(2, vector3);
+        matrix.setRow(0, vector1);
+        matrix.setRow(1, vector2);
+        matrix.setRow(2, vector3);
 
         var expectedResult = new float[]{1, 2, 3, 4, 5, 6};
 

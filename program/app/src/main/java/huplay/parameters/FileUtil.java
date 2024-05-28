@@ -1,4 +1,4 @@
-package huplay.file;
+package huplay.parameters;
 
 import huplay.IdentifiedException;
 import huplay.config.RepoConfig;

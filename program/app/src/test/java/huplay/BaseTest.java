@@ -1,6 +1,6 @@
 package huplay;
 
-import huplay.dataType.FloatType;
+import huplay.dataType.DataType;
 import huplay.dataType.matrix.Matrix;
 import huplay.dataType.vector.Vector;
 
@@ -11,7 +11,7 @@ public class BaseTest
 {
     protected Vector createVector(float... values)
     {
-        var vector = emptyVector(FloatType.FLOAT_32, values.length);
+        var vector = emptyVector(DataType.FLOAT_32, values.length);
 
         for (var i = 0; i < values.length; i ++)
         {
@@ -54,7 +54,7 @@ public class BaseTest
 
             for (var i = 0; i < expected.length; i++)
             {
-                assertVectorEquals(expected[i], actual.getVector(i), delta);
+                assertVectorEquals(expected[i], actual.getRow(i), delta);
             }
         }
     }

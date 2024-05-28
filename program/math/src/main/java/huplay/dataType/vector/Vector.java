@@ -1,10 +1,10 @@
 package huplay.dataType.vector;
 
-import huplay.dataType.FloatType;
+import huplay.dataType.DataType;
 
 public interface Vector
 {
-    FloatType getFloatType();
+    DataType getFloatType();
 
     float[] getValues();
 
@@ -16,36 +16,42 @@ public interface Vector
 
     static Vector emptyVector(int size)
     {
-        return emptyVector(FloatType.FLOAT_32, size);
+        return emptyVector(DataType.FLOAT_32, size);
     }
 
-    static Vector emptyVector(FloatType floatType, int size)
+    static Vector emptyVector(DataType floatType, int size)
     {
         return switch (floatType)
         {
             case FLOAT_32 -> new Float32Vector(size);
             case FLOAT_16 -> new Float16Vector(size);
             case BRAIN_FLOAT_16 -> new BrainFloat16Vector(size);
+            default
+                -> throw new RuntimeException("Unsupported data type at emptyVector: " + floatType);
         };
     }
 
-    static Vector of(FloatType floatType, float[] values)
+    static Vector of(DataType floatType, float[] values)
     {
         return switch (floatType)
         {
             case FLOAT_32 -> new Float32Vector(values);
             case FLOAT_16 -> new Float16Vector(values);
             case BRAIN_FLOAT_16 -> new BrainFloat16Vector(values);
+            default
+                    -> throw new RuntimeException("Unsupported data type at of: " + floatType);
         };
     }
 
-    static Vector of(FloatType floatType, short[] values)
+    static Vector of(DataType floatType, short[] values)
     {
         return switch (floatType)
         {
             case FLOAT_32 -> throw new RuntimeException("Unsupported construction (Float32Vector of short[])");
             case FLOAT_16 -> new Float16Vector(values);
             case BRAIN_FLOAT_16 -> new BrainFloat16Vector(values);
+            default
+                    -> throw new RuntimeException("Unsupported data type at of: " + floatType);
         };
     }
 }

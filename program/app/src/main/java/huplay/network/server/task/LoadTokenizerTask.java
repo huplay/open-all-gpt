@@ -1,13 +1,13 @@
 package huplay.network.server.task;
 
 import huplay.config.TokenizerConfig;
-import huplay.file.download.DownloadMissingFiles;
+import huplay.parameters.download.DownloadMissingFiles;
 import huplay.network.server.state.ServerState;
 import huplay.tokenizer.TokenizerType;
 import huplay.ui.DownloadProgressBar;
 
 import static huplay.AppNetworkWorker.OUT;
-import static huplay.file.FileUtil.checkFiles;
+import static huplay.parameters.FileUtil.checkFiles;
 import static huplay.network.server.state.ServerState.getServerState;
 
 public class LoadTokenizerTask implements Runnable

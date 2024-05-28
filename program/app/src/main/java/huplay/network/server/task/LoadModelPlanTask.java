@@ -4,8 +4,8 @@ import huplay.config.BlockType;
 import huplay.config.Config;
 import huplay.config.ModelConfig;
 import huplay.config.TokenizerConfig;
-import huplay.file.download.DownloadSafetensorsHeader;
-import huplay.file.safetensors.SafetensorsReader;
+import huplay.parameters.download.DownloadSafetensorsHeader;
+import huplay.parameters.safetensors.SafetensorsReader;
 import huplay.network.info.DecoderBlock;
 import huplay.network.info.DecoderBlockType;
 import huplay.network.message.toWorker.LoadModelMessage;
@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static huplay.config.BlockType.*;
-import static huplay.file.FileUtil.checkHeaderFiles;
+import static huplay.parameters.FileUtil.checkHeaderFiles;
 import static huplay.network.server.state.ServerState.getServerState;
 import static java.lang.Math.round;
 

@@ -1,7 +1,7 @@
 package huplay.dataType.vector;
 
 import huplay.dataType.BrainFloat16;
-import huplay.dataType.FloatType;
+import huplay.dataType.DataType;
 
 /**
  * Brain Float 16 Vector implementation (Google Brain)
@@ -31,9 +31,9 @@ public class BrainFloat16Vector implements Vector
     }
 
     @Override
-    public FloatType getFloatType()
+    public DataType getFloatType()
     {
-        return FloatType.FLOAT_32;
+        return DataType.FLOAT_32;
     }
 
     @Override

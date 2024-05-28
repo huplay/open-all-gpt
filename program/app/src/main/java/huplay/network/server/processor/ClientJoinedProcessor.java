@@ -8,7 +8,7 @@ import huplay.network.message.toServer.fromClient.ClientJoinedResponse;
 
 import java.util.Map;
 
-import static huplay.file.FileUtil.readTextFile;
+import static huplay.parameters.FileUtil.readTextFile;
 import static huplay.network.server.state.ServerState.getServerState;
 
 public class ClientJoinedProcessor

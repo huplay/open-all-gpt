@@ -6,7 +6,7 @@ import huplay.dataType.vector.Vector;
 
 import static huplay.MathUtilProvider.*;
 import static huplay.config.ParameterType.*;
-import static huplay.math.MathUtility.sqrt;
+import static huplay.math.BasicMathUtility.sqrt;
 
 /**
  * OpenAI GPT-2 decoder implementation
@@ -19,8 +19,8 @@ public class GPT2AttentionLayer extends BaseAttentionLayer
     {
         loadVector(ATT_NORM_WEIGHT, "ln_1.weight", hiddenSize);
         loadVector(ATT_NORM_BIAS, "ln_1.bias", hiddenSize);
-        loadMatrix(ATT_QUERY_KEY_VALUE_WEIGHT, "attn.c_attn.weight", hiddenSize, hiddenSize * 3);
-        loadVector(ATT_QUERY_KEY_VALUE_BIAS, "attn.c_attn.bias", hiddenSize * 3);
+        loadMatrix(ATT_COMBINED_WEIGHT, "attn.c_attn.weight", hiddenSize, hiddenSize * 3);
+        loadVector(ATT_COMBINED_BIAS, "attn.c_attn.bias", hiddenSize * 3);
         loadMatrix(ATT_PROJ_WEIGHT, "attn.c_proj.weight", hiddenSize, hiddenSize);
         loadVector(ATT_PROJ_BIAS, "attn.c_proj.bias", hiddenSize);
 
@@ -48,14 +48,14 @@ public class GPT2AttentionLayer extends BaseAttentionLayer
     private Vector attention(Vector hiddenState)
     {
         // Calculate the query-key-value vectors for the actual token
-        Vector queryKeyValue = MATH.mulVectorByMatrix(hiddenState, matrix(ATT_QUERY_KEY_VALUE_WEIGHT));
-        queryKeyValue = MATH.addVectors(queryKeyValue, vector(ATT_QUERY_KEY_VALUE_BIAS));
+        Vector queryKeyValue = MATH.mulVectorByMatrix(hiddenState, matrix(ATT_COMBINED_WEIGHT));
+        queryKeyValue = MATH.addVectors(queryKeyValue, vector(ATT_COMBINED_BIAS));
 
         // Split the query/key/value
         Matrix split = MATH.splitVector(queryKeyValue, 3);
-        Vector query = split.getVector(0);
-        Vector key = split.getVector(1);
-        Vector value = split.getVector(2);
+        Vector query = split.getRow(0);
+        Vector key = split.getRow(1);
+        Vector value = split.getRow(2);
 
         // Split the query, key and value vectors into pieces for all heads
         Matrix queryByHead = MATH.splitVector(query, headCount);
@@ -76,12 +76,12 @@ public class GPT2AttentionLayer extends BaseAttentionLayer
             // Calculate the scores
             Vector scores = emptyVector(storedSize);
 
-            Vector actualQuery = queryByHead.getVector(head);
+            Vector actualQuery = queryByHead.getRow(head);
 
             for (int pos = 0; pos < storedSize; pos++)
             {
                 // The score is calculated multiplying the "actual" query vector and the "related" key vector
-                Vector relatedKey = storedKeys.get(pos).getVector(head);
+                Vector relatedKey = storedKeys.get(pos).getRow(head);
                 float score = MATH.dotProduct(actualQuery, relatedKey);
 
                 // Divide the score by the attention dividend
@@ -94,9 +94,9 @@ public class GPT2AttentionLayer extends BaseAttentionLayer
             // Multiply the value matrices with the scores, and sum up
             for (int pos = 0; pos < storedSize; pos++)
             {
-                Vector relatedValue = storedValues.get(pos).getVector(head);
+                Vector relatedValue = storedValues.get(pos).getRow(head);
                 Vector multipliedValue = MATH.mulVectorByScalar(relatedValue, scores.get(pos));
-                valueAggregate.setVector(head, MATH.addVectors(valueAggregate.getVector(head), multipliedValue));
+                valueAggregate.setRow(head, MATH.addVectors(valueAggregate.getRow(head), multipliedValue));
             }
         }
 

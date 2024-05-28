@@ -2,8 +2,9 @@ package huplay;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import huplay.file.safetensors.SafetensorsReader;
-import huplay.file.safetensors.SafetensorsModel;
+import huplay.config.ParameterType;
+import huplay.parameters.safetensors.SafetensorsReader;
+import huplay.parameters.safetensors.SafetensorsModel;
 import huplay.parameters.StandardParameterLoader;
 
 import java.io.*;
@@ -14,8 +15,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static huplay.file.DataTypeUtil.toLittleEndian;
-import static huplay.file.safetensors.SafetensorsModel.TensorModel;
+import static huplay.parameters.safetensors.SafetensorsModel.TensorModel;
+import static huplay.math.TypeConversionUtility.toLittleEndian;
 
 /**
  * Generates test .safetensors file to use in unit tests
@@ -165,7 +166,7 @@ public class GenerateTestSafetensors
                 else if (shape.length == 2)
                 {
                     // Write a matrix
-                    var values = parameterLoader.readMatrix(reader, entry.getKey(), shape[0], shape[1]);
+                    var values = parameterLoader.readMatrix(reader, ParameterType.TEST, entry.getKey(), shape[0], shape[1]);
                     for (var row : values.getVectorArray())
                     {
                         for (var i = 0; i < row.size(); i++)

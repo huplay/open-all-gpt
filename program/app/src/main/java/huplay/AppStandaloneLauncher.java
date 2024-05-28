@@ -3,8 +3,8 @@ package huplay;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import huplay.config.*;
-import huplay.file.download.DownloadMissingFiles;
-import huplay.file.safetensors.SafetensorsReader;
+import huplay.parameters.download.DownloadMissingFiles;
+import huplay.parameters.safetensors.SafetensorsReader;
 import huplay.network.info.Models;
 import huplay.transformer.TransformerType;
 import huplay.ui.DownloadProgressBar;
@@ -14,8 +14,8 @@ import java.io.*;
 import java.util.Map;
 
 import static huplay.AppStandaloneMain.*;
-import static huplay.file.FileUtil.checkFiles;
-import static huplay.file.FileUtil.readTextFile;
+import static huplay.parameters.FileUtil.checkFiles;
+import static huplay.parameters.FileUtil.readTextFile;
 import static huplay.MathUtilProvider.MATH;
 import static huplay.ui.ConsoleUtil.getPrintStream;
 import static huplay.ui.Logo.logo;
@@ -68,7 +68,7 @@ public class AppStandaloneLauncher
 
         // Check necessary files for tokenizer
         missingFiles = checkFiles(tokenizerConfig, arguments.getModelPath());
-        downloader.download(missingFiles, modelConfig, arguments.getModelPath());
+        downloader.download(missingFiles, tokenizerConfig, arguments.getModelPath());
 
         var reader = new SafetensorsReader(arguments.getModelPath());
 

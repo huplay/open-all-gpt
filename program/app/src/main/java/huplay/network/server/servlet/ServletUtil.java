@@ -1,6 +1,6 @@
 package huplay.network.server.servlet;
 
-import huplay.file.FileUtil;
+import huplay.parameters.FileUtil;
 
 import java.io.File;
 

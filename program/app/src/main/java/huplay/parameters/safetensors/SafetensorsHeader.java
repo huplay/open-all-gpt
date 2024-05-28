@@ -1,4 +1,4 @@
-package huplay.file.safetensors;
+package huplay.parameters.safetensors;
 
 import java.util.List;
 
@@ -43,6 +43,11 @@ public class SafetensorsHeader
     public long getSizeInBytes()
     {
         return endOffset - startOffset;
+    }
+
+    public long getOffset()
+    {
+        return dataOffset + startOffset;
     }
 
     @Override

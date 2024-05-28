@@ -1,4 +1,4 @@
-package huplay.file.download;
+package huplay.parameters.download;
 
 import huplay.config.RepoConfig;
 
@@ -9,7 +9,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 
-import static huplay.file.FileUtil.determineDownloadUrl;
+import static huplay.parameters.FileUtil.determineDownloadUrl;
 
 public class DownloadTask implements Runnable
 {

@@ -1,7 +1,7 @@
 package huplay.dataType.vector;
 
 import huplay.dataType.Float16;
-import huplay.dataType.FloatType;
+import huplay.dataType.DataType;
 
 /**
  * Float 16 Vector implementation
@@ -31,9 +31,9 @@ public class Float16Vector implements Vector
     }
 
     @Override
-    public FloatType getFloatType()
+    public DataType getFloatType()
     {
-        return FloatType.FLOAT_32;
+        return DataType.FLOAT_32;
     }
 
     @Override

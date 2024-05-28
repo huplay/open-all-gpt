@@ -1,21 +1,21 @@
-package huplay.file.safetensors;
+package huplay.parameters.safetensors;
 
-import huplay.file.DataType;
+import huplay.dataType.DataType;
 
 public enum SafetensorsDataType
 {
     BOOL(1, DataType.BOOLEAN),
 
-    I8(8, DataType.SIGNED_BYTE),
+    I8(8, DataType.BYTE),
     U8(8, DataType.UNSIGNED_BYTE),
 
-    I16(16, DataType.SIGNED_INTEGER_16),
+    I16(16, DataType.INTEGER_16),
     U16(16, DataType.UNSIGNED_INTEGER_16),
 
-    I32(32, DataType.SIGNED_INTEGER_32),
+    I32(32, DataType.INTEGER_32),
     U32(32, DataType.UNSIGNED_INTEGER_32),
 
-    I64(64, DataType.SIGNED_INTEGER_64),
+    I64(64, DataType.INTEGER_64),
     U64(64, DataType.UNSIGNED_INTEGER_64),
 
     F16(16, DataType.FLOAT_16),
@@ -26,7 +26,7 @@ public enum SafetensorsDataType
     F64(64, DataType.FLOAT_64);
 
     private final int bits;
-    private DataType dataType;
+    private final DataType dataType;
 
     SafetensorsDataType(int bits, DataType dataType)
     {

@@ -8,7 +8,8 @@
           "MEDIUM": {"order": 2},
           "LARGE": {"order": 3},
           "XL": {"order": 4},
-          "GPT 2 - GPTQ-4bit": {"order": 5}
+          "GPT 2 - GPTQ-4bit": {"order": 5},
+          "GPT 2 - QLoRA-4bit": {"order": 6}
         }
       }
     }
@@ -32,8 +33,10 @@
           "BLOOM 1.1B": {"order": 2},
           "BLOOM 1.7B": {"order": 3},
           "BLOOM 3B": {"order": 4},
-          "BLOOM 7.1B": {"order": 5},
-          "BLOOM 176B": {"order": 6}
+          "BLOOM 3B - GPTQ-4bit": {"order": 5},
+          "BLOOM 7.1B": {"order": 6},
+          "BLOOM 7.1B - GPTQ-4bit": {"order": 7},
+          "BLOOM 176B": {"order": 8}
         }
       },
       "BLOOMZ": {"order": 2,

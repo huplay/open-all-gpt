@@ -1,15 +1,15 @@
 package huplay.dataType.matrix;
 
-import huplay.dataType.FloatType;
+import huplay.dataType.DataType;
 import huplay.dataType.vector.Vector;
 
 public interface Matrix
 {
     Vector[] getVectorArray();
 
-    Vector getVector(int index);
+    Vector getRow(int row);
 
-    void setVector(int index, Vector vector);
+    void setRow(int row, Vector vector);
 
     float getValue(int row, int col);
 
@@ -19,19 +19,21 @@ public interface Matrix
 
     int getColCount();
 
-    FloatType getInternalFloatType();
+    DataType getInternalFloatType();
 
-    static MatrixType getInternalMatrixType(FloatType floatType)
+    static MatrixType getInternalMatrixType(DataType floatType)
     {
         return switch (floatType)
         {
             case FLOAT_32           -> MatrixType.VECTOR_ARRAY_FLOAT_32;
             case FLOAT_16           -> MatrixType.VECTOR_ARRAY_FLOAT_16;
             case BRAIN_FLOAT_16     -> MatrixType.VECTOR_ARRAY_BRAIN_FLOAT_16;
+            default
+                    -> throw new RuntimeException("Unsupported data type at emptyVector: " + floatType);
         };
     }
 
-    static Matrix emptyMatrix(FloatType floatType, int rows, int cols)
+    static Matrix emptyMatrix(DataType floatType, int rows, int cols)
     {
         return emptyMatrix(getInternalMatrixType(floatType), rows, cols);
     }
@@ -40,9 +42,9 @@ public interface Matrix
     {
         return switch (matrixType)
         {
-            case VECTOR_ARRAY_FLOAT_32          -> new VectorArrayMatrix(FloatType.FLOAT_32, rows, cols);
-            case VECTOR_ARRAY_FLOAT_16          -> new VectorArrayMatrix(FloatType.FLOAT_16, rows, cols);
-            case VECTOR_ARRAY_BRAIN_FLOAT_16    -> new VectorArrayMatrix(FloatType.BRAIN_FLOAT_16, rows, cols);
+            case VECTOR_ARRAY_FLOAT_32          -> new VectorArrayMatrix(DataType.FLOAT_32, rows, cols);
+            case VECTOR_ARRAY_FLOAT_16          -> new VectorArrayMatrix(DataType.FLOAT_16, rows, cols);
+            case VECTOR_ARRAY_BRAIN_FLOAT_16    -> new VectorArrayMatrix(DataType.BRAIN_FLOAT_16, rows, cols);
             default -> null;
         };
     }

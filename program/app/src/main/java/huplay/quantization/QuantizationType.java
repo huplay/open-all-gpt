@@ -1,14 +1,16 @@
-package huplay.parameters.quantization;
+package huplay.quantization;
 
 import huplay.IdentifiedException;
+import huplay.config.Config;
 import huplay.parameters.ParameterLoader;
-import huplay.parameters.quantization.gptq.GPTQParameterLoader;
+import huplay.quantization.gptq.GptqParameterLoader;
+import huplay.quantization.qlora.QloraParameterLoader;
 
 public enum QuantizationType
 {
     LLM_INT_8,
-    GPTQ,
     QLORA,
+    GPTQ,
     AWQ,
     HQQ,
     QUIP,
@@ -26,12 +28,13 @@ public enum QuantizationType
         return QuantizationType.valueOf(quantizationType);
     }
 
-    public static ParameterLoader getParameterLoader(String quantizationType)
+    public static ParameterLoader getParameterLoader(Config config)
     {
-        var type = getQuantizationType(quantizationType);
+        var type = getQuantizationType(config.getQuantizationConfig().getQuantizationType());
         return switch (type)
         {
-            case GPTQ       -> new GPTQParameterLoader();
+            case QLORA      -> new QloraParameterLoader(config);
+            case GPTQ       -> new GptqParameterLoader(config);
             default
                     -> throw new IdentifiedException("Unsupported quantization type: " + type);
         };

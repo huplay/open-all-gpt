@@ -1,8 +1,8 @@
 package huplay.network.worker.task;
 
 import huplay.config.Config;
-import huplay.file.download.DownloadMissingFiles;
-import huplay.file.safetensors.SafetensorsReader;
+import huplay.parameters.download.DownloadMissingFiles;
+import huplay.parameters.safetensors.SafetensorsReader;
 import huplay.network.Address;
 import huplay.network.message.toWorker.LoadModelMessage;
 import huplay.network.message.toServer.fromWorker.ModelLoadedMessage;
@@ -10,7 +10,7 @@ import huplay.transformer.TransformerType;
 import huplay.ui.DownloadProgressBar;
 
 import static huplay.AppNetworkWorker.OUT;
-import static huplay.file.FileUtil.checkFiles;
+import static huplay.parameters.FileUtil.checkFiles;
 import static huplay.network.worker.state.WorkerState.getWorkerState;
 
 public class LoadModelTask implements Runnable

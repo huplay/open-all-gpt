@@ -3,7 +3,7 @@ package huplay.network;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import huplay.file.FileUtil;
+import huplay.parameters.FileUtil;
 import huplay.network.message.BaseMessage;
 
 import java.io.*;

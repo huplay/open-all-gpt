@@ -19,9 +19,9 @@ public class GPTJNeuralNetLayer extends BaseNeuralNetLayer
     {
         loadVector(MLP_NORM_WEIGHT, "ln_f.weight", hiddenSize);
         loadVector(MLP_NORM_BIAS, "ln_f.bias", hiddenSize);
-        loadMatrix(MLP_1_WEIGHT, "mlp.fc_in.weight", feedForwardSize, hiddenSize);
+        loadMatrix(MLP_1_WEIGHT, "mlp.fc_in.weight", hiddenSize, feedForwardSize);
         loadVector(MLP_1_BIAS, "mlp.fc_in.bias", feedForwardSize);
-        loadMatrix(MLP_2_WEIGHT, "mlp.fc_out.weight", hiddenSize, feedForwardSize);
+        loadMatrix(MLP_2_WEIGHT, "mlp.fc_out.weight", feedForwardSize, hiddenSize);
         loadVector(MLP_2_BIAS, "mlp.fc_out.bias", hiddenSize);
     }
 
