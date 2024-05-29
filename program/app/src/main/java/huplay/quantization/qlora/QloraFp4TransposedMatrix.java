@@ -7,11 +7,8 @@ import huplay.dataType.vector.Vector;
 
 import java.util.Locale;
 
-import static huplay.math.TypeConversionUtility.*;
-
 public class QloraFp4TransposedMatrix implements Matrix
 {
-    private final String variant;
     private final int blockSize;
     private final float[] quantMap;
     private final float[] absMax;
@@ -19,10 +16,8 @@ public class QloraFp4TransposedMatrix implements Matrix
     private final String outputFloatType;
     private final int blocksPerCol;
 
-    public QloraFp4TransposedMatrix(String variant, int blockSize, float[] quantMap, float[] absMax, byte[][] values,
-                                    String outputFloatType)
+    public QloraFp4TransposedMatrix(int blockSize, float[] quantMap, float[] absMax, byte[][] values, String outputFloatType)
     {
-        this.variant = variant;
         this.blockSize = blockSize;
         this.quantMap = quantMap;
         this.absMax = absMax;
@@ -69,8 +64,8 @@ public class QloraFp4TransposedMatrix implements Matrix
         var value = values[Math.floorDiv(row, 2)][col];
 
         var quantizedValue = (row % 2 == 0)
-                ? getLower4bitsFromUnsignedByte(value)
-                : getUpper4bitsFromUnsignedByte(value);
+                ? (byte)((value & 0b11110000) >>> 4)
+                : (byte) (value & 0b1111);
 
         var blockId = col * blocksPerCol + Math.floorDiv(row, blockSize);
 

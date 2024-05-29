@@ -82,12 +82,12 @@ public class QloraParameterLoader extends StandardParameterLoader
             {
                 var weights = readQuantizedWeights(reader, id, cols, rows);
                 weights  = MATH.transposeByteMatrix(weights);
-                return new QloraFp4TransposedMatrix(variant, blockSize, quantMap, absMax, weights, outputFloatType);
+                return new QloraFp4TransposedMatrix(blockSize, quantMap, absMax, weights, outputFloatType);
             }
             else
             {
                 var weights = readQuantizedWeights(reader, id, rows, cols);
-                return new QloraFp4Matrix(variant, blockSize, quantMap, absMax, weights, outputFloatType);
+                return new QloraFp4Matrix(blockSize, quantMap, absMax, weights, outputFloatType);
             }
         }
         catch (JsonProcessingException e)

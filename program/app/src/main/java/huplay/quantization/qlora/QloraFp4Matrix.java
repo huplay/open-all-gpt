@@ -7,12 +7,8 @@ import huplay.dataType.vector.Vector;
 
 import java.util.Locale;
 
-import static huplay.math.TypeConversionUtility.getLower4bitsFromUnsignedByte;
-import static huplay.math.TypeConversionUtility.getUpper4bitsFromUnsignedByte;
-
 public class QloraFp4Matrix implements Matrix
 {
-    private final String variant;
     private final int blockSize;
     private final float[] quantMap;
     private final float[] absMax;
@@ -20,10 +16,8 @@ public class QloraFp4Matrix implements Matrix
     private final String outputFloatType;
     private final int blocksPerRow;
 
-    public QloraFp4Matrix(String variant, int blockSize, float[] quantMap, float[] absMax, byte[][] values,
-                          String outputFloatType)
+    public QloraFp4Matrix(int blockSize, float[] quantMap, float[] absMax, byte[][] values, String outputFloatType)
     {
-        this.variant = variant;
         this.blockSize = blockSize;
         this.quantMap = quantMap;
         this.absMax = absMax;

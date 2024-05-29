@@ -157,6 +157,26 @@ public class MathUtility extends AbstractMathUtility
 
     @Override
     // TODO: Vector-api isn't used
+    public Matrix transposeMatrix(Matrix matrix)
+    {
+        int rows = matrix.getRowCount();
+        int cols = matrix.getColCount();
+
+        var transposedMatrix = emptyMatrix(matrix.getInternalFloatType(), cols, rows);
+
+        for (int i = 0; i < cols; i++)
+        {
+            for (int j = 0; j < rows; j++)
+            {
+                transposedMatrix.setValue(i, j, matrix.getValue(j, i));
+            }
+        }
+
+        return transposedMatrix;
+    }
+
+    @Override
+    // TODO: Vector-api isn't used
     public float average(Vector vector)
     {
         float sum = 0;
