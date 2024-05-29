@@ -1,0 +1,4 @@
+{
+  "tokenizerType": "OPENAI_GPT_2",
+  "files": ["vocab.json", "merges.txt"]
+}

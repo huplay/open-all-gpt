@@ -1,8 +1,7 @@
 package huplay.tokenizer;
 
-import huplay.tokenizer.Tokenizer;
+import huplay.config.TokenizerConfig;
 import huplay.tokenizer.gpt.GPT2Tokenizer;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -10,7 +9,6 @@ import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 
-@Ignore
 public class GPT2TokenizerTest
 {
     private static final Tokenizer tokenizer = getTokenizer();
@@ -68,9 +66,10 @@ public class GPT2TokenizerTest
 
     private static Tokenizer getTokenizer()
     {
-        var path = new File("src/test/resources").getAbsolutePath() + "/../../../../tokenizerConfig/GPT-2";
+        var path = new File("src/test/resources").getAbsolutePath() + "/tokenizerConfig/GPT 2";
+        var tokenizerConfig = TokenizerConfig.read(path, path);
 
-        return new GPT2Tokenizer(null);
+        return new GPT2Tokenizer(tokenizerConfig);
     }
 
     private void testEncoder(String text, Integer... tokens)

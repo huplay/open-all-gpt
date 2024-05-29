@@ -1,7 +1,6 @@
 {
   "name": "EleutherAI GPT-NEO TEST",
   "transformerType": "ELEUTHERAI_GPT_NEO",
-  "tokenizerType": "OPENAI_GPT_2",
   "parameterNaming": "transformer.{name}",
   "decoderParameterNaming": "transformer.h.{decoderId}.{name}"
 }

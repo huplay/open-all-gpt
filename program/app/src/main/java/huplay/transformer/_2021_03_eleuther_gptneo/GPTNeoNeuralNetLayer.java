@@ -19,9 +19,9 @@ public class GPTNeoNeuralNetLayer extends BaseNeuralNetLayer
     {
         loadVector(MLP_NORM_WEIGHT, "ln_2.weight", hiddenSize);
         loadVector(MLP_NORM_BIAS, "ln_2.bias", hiddenSize);
-        loadMatrix(MLP_1_WEIGHT, "mlp.c_fc.weight", hiddenSize, feedForwardSize);
+        loadMatrix(MLP_1_WEIGHT, "mlp.c_fc.weight", feedForwardSize, hiddenSize);
         loadVector(MLP_1_BIAS, "mlp.c_fc.bias", feedForwardSize);
-        loadMatrix(MLP_2_WEIGHT, "mlp.c_proj.weight", feedForwardSize, hiddenSize);
+        loadMatrix(MLP_2_WEIGHT, "mlp.c_proj.weight", hiddenSize, feedForwardSize);
         loadVector(MLP_2_BIAS, "mlp.c_proj.bias", hiddenSize);
     }
 

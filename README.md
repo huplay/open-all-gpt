@@ -66,19 +66,19 @@ Every model should have two files to configure the model itself and the tokenize
 - `name`: The name of the model
 - `date`: The release date of the model
 - `transformerType`: The type of the transformer as it is listed in TransformerType.java
-- `repo`: The url of the repo to download the model files (Currently it should be a Hugging Face repo)
-- `branch`: The branch name of the repo
+- `repo`: The url of the repo to download the model files (GitHub or Hugging Face repo name, or a url which should work appending the fileName)
+- `branch`: The branch name of the repo (at GitHub (default "master") or Hugging Face (default "main"))
 - `files`: list of necessary files. If some of these are missing it will be downloaded from the repo
 - `parameterNaming`: The format of the transformer parameters (outside of decoders). The `{name}` will be replaced by the name used in the code
 - `decoderParameterNaming`: The format of the transformer parameter at decoders. The `{decoderId}` will be replaced by the index of the decoder, the `{name}" by the name used in the code
 - `memorySize`: The recommended minimum memory size to load the model
 - `configOverride`: In the rare cases there's no `config.json` provided in the repo it is possible to give the parameters here
-
+- `quantization`: Quantization config, see later at quantization
 
 `tokenizer.json` format:
 - `tokenizerType`: The type of the tokenizer as it is listed in TokenizerType.java
-- `repo`: The url of the repo to download the model files (Currently it should be a Hugging Face repo)
-- `branch`: The branch name of the repo
+- `repo`: The url of the repo to download the model files (GitHub or Hugging Face repo name, or a url which should work appending the fileName)
+- `branch`: The branch name of the repo (at GitHub (default "master") or Hugging Face (default "main"))
 - `files`: list of necessary files. If some of these are missing it will be downloaded from the repo
 
 The `tranformerType` and `tokenizerType` values are necessary, all other values are optional.

@@ -16,11 +16,10 @@ public class FileUtil
     public static String determineDownloadUrl(RepoConfig repoConfig, String fileName)
     {
         var repoUrl = repoConfig.getRepo();
+        var branch = repoConfig.getBranch();
 
         if (repoUrl.startsWith("https://huggingface.co/"))
         {
-            var branch = repoConfig.getBranch();
-
             if (branch == null || branch.isEmpty())
             {
                 branch = "main";
@@ -29,6 +28,15 @@ public class FileUtil
             branch = branch.replace("/", "%2F");
 
             repoUrl += "/resolve/" + branch + "/" + fileName + "?download=true";
+        }
+        else if (repoUrl.startsWith("https://github.com/"))
+        {
+            if (branch == null || branch.isEmpty())
+            {
+                branch = "master";
+            }
+
+            repoUrl += "/raw/" + branch + "/" + fileName;
         }
 
         return repoUrl;

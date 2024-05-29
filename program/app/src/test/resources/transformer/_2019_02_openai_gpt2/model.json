@@ -1,6 +1,5 @@
 {
   "name": "OpenAI GPT-2 Small",
   "transformerType": "OPENAI_GPT_2",
-  "tokenizerType": "OPENAI_GPT_2",
   "decoderParameterNaming": "h.{decoderId}.{name}"
 }

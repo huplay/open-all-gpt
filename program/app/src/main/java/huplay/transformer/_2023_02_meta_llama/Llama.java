@@ -25,7 +25,7 @@ public class Llama extends BaseTransformer
 {
     public void loadParameters()
     {
-        loadMatrix(TOKEN_EMBEDDINGS, "embed_tokens.weight", embeddingCount + 3, hiddenSize);
+        loadMatrix(TOKEN_EMBEDDINGS, "embed_tokens.weight", embeddingCount, hiddenSize);
         loadVector(OUTPUT_NORM_WEIGHT, "norm.weight", hiddenSize);
     }
 

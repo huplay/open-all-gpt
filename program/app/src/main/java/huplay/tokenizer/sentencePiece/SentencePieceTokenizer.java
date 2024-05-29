@@ -5,7 +5,6 @@ import huplay.config.TokenizerConfig;
 import huplay.tokenizer.Token;
 import huplay.tokenizer.Tokenizer;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteOrder;
@@ -16,6 +15,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 import static huplay.tokenizer.sentencePiece.SentencePieceModel.ModelProto;
+import static huplay.ui.TextUtil.equalsIgnoreCase;
 
 /**
  * Java implementation of Google SentencePiece tokenizer (without training)
@@ -35,19 +35,13 @@ public class SentencePieceTokenizer implements Tokenizer
 
     public SentencePieceTokenizer(TokenizerConfig tokenizerConfig, String variant)
     {
-        var tokenizerFile = tokenizerConfig.findFile("tokenizer.model");
-        if (!tokenizerFile.exists() || !tokenizerFile.isFile())
+        if (equalsIgnoreCase(variant, "TINY"))
         {
-            throw new IdentifiedException("SentencePiece tokenizer merges file is missing. (" + tokenizerFile.getName() + ")");
-        }
-
-        if (variant.equals("TINY"))
-        {
-            initTiny(tokenizerFile);
+            initTiny(tokenizerConfig);
         }
         else
         {
-            initStandard(tokenizerFile);
+            initStandard(tokenizerConfig);
         }
 
         // Create the vocabulary index, to quickly find the id of a token
@@ -57,8 +51,13 @@ public class SentencePieceTokenizer implements Tokenizer
         }
     }
 
-    protected void initStandard(File tokenizerFile)
+    private void initStandard(TokenizerConfig tokenizerConfig)
     {
+        var tokenizerFile = tokenizerConfig.findFile("tokenizer.model");
+        if (!tokenizerFile.exists() || !tokenizerFile.isFile())
+        {
+            throw new IdentifiedException("SentencePiece tokenizer file is missing. (" + tokenizerFile.getName() + ")");
+        }
         /*
             The tokenizer.model file (which contains the vocabulary and the scores) is a Protocol Buffer file.
             Protocol Buffer (Protobuf) is a cross-platform data serialization technique created by Google:
@@ -85,24 +84,28 @@ public class SentencePieceTokenizer implements Tokenizer
             this.vocabulary = new ArrayList<>(sentencesPieces.size());
             this.vocabularyScores = new ArrayList<>(sentencesPieces.size());
 
-            var i = 0;
             for (var sentencePiece : sentencesPieces)
             {
-                vocabulary.set(i, sentencePiece.getPiece());
-                vocabularyScores.set(i, sentencePiece.getScore());
-                i++;
+                vocabulary.add(sentencePiece.getPiece());
+                vocabularyScores.add(sentencePiece.getScore());
             }
         }
         catch (IOException e)
         {
-            throw new IdentifiedException("SentencePiece tokenizer vocabulary reading error.", e);
+            throw new IdentifiedException("SentencePiece tokenizer.model reading error.", e);
         }
     }
 
-    protected void initTiny(File tokenizerFile)
+    private void initTiny(TokenizerConfig tokenizerConfig)
     {
         this.vocabulary = new ArrayList<>(32000);
         this.vocabularyScores = new ArrayList<>(32000);
+
+        var tokenizerFile = tokenizerConfig.findFile("tokenizer.bin");
+        if (!tokenizerFile.exists() || !tokenizerFile.isFile())
+        {
+            throw new IdentifiedException("SentencePiece tokenizer file is missing. (" + tokenizerFile.getName() + ")");
+        }
 
         // Read the vocabulary from the binary config file
         var configFilePath = Paths.get(tokenizerFile.getAbsolutePath());
@@ -115,11 +118,10 @@ public class SentencePieceTokenizer implements Tokenizer
             buffer.getInt();
 
             // Iterate over on all tokens
-            var i = 0;
             while(buffer.hasRemaining())
             {
                 // Read vocabulary score
-                vocabularyScores.set(i, buffer.getFloat());
+                vocabularyScores.add(buffer.getFloat());
 
                 // Read token length
                 var tokenLength = buffer.getInt();
@@ -128,14 +130,12 @@ public class SentencePieceTokenizer implements Tokenizer
                 byte[] bytes = new byte[tokenLength];
                 buffer.get(bytes);
 
-                vocabulary.set(i, new String(bytes, StandardCharsets.UTF_8));
-
-                i++;
+                vocabulary.add(new String(bytes, StandardCharsets.UTF_8));
             }
         }
         catch (Exception e)
         {
-            throw new IdentifiedException("SentencePiece tokenizer vocabulary reading error.", e);
+            throw new IdentifiedException("SentencePiece tokenizer.bin reading error: " + e.getMessage());
         }
     }
 
