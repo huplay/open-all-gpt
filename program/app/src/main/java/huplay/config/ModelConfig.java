@@ -1,6 +1,7 @@
 package huplay.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import huplay.IdentifiedException;
 import huplay.quantization.QuantizationConfig;
@@ -33,6 +34,8 @@ public class ModelConfig implements RepoConfig
     private Integer memorySize;
     private Map<BlockType, Integer> memorySizes;
     private Config configOverride;
+
+    @JsonProperty("quantization")
     private QuantizationConfig quantization;
 
     public static ModelConfig read(String configPath, String downloadPath)

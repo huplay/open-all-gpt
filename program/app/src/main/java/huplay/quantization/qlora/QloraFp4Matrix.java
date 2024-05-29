@@ -70,8 +70,8 @@ public class QloraFp4Matrix implements Matrix
         var value = values[row][Math.floorDiv(col, 2)];
 
         var quantizedValue = (col % 2 == 0)
-                ? getLower4bitsFromUnsignedByte(value)
-                : getUpper4bitsFromUnsignedByte(value);
+                ? (byte)((value & 0b11110000) >>> 4)
+                : (byte) (value & 0b1111);
 
         var blockId = row * blocksPerRow + Math.floorDiv(col, blockSize);
 
