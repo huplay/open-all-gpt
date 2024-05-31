@@ -67,7 +67,40 @@ public class TextUtil
 
     public static boolean equalsIgnoreCase(String a, String b)
     {
+        if (a == null || b == null)
+        {
+            return false;
+        }
+
         return a.toLowerCase(Locale.ROOT).equals(b.toLowerCase(Locale.ROOT));
+    }
+
+    public static boolean equalsIgnoreTypo(String a, String b)
+    {
+        if (a == null || b == null)
+        {
+            return false;
+        }
+
+        a = removeIrrelevantChars(a);
+        b = removeIrrelevantChars(b);
+
+        return equalsIgnoreCase(a, b);
+    }
+
+    private static String removeIrrelevantChars(String value)
+    {
+        var irrelevantChars = new String[] {" ", "_", "-", "/"};
+
+        for (var irrelevantChar : irrelevantChars)
+        {
+            if (value != null && !value.equals(""))
+            {
+                value = value.replace(irrelevantChar, "");
+            }
+        }
+
+        return value;
     }
 
     public static int readInt(String value, int defaultValue)

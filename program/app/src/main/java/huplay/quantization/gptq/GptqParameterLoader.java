@@ -5,13 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import huplay.IdentifiedException;
 import huplay.config.Config;
 import huplay.config.ParameterType;
-import huplay.dataType.DataType;
 import huplay.dataType.matrix.Matrix;
 import huplay.parameters.ParameterReader;
 import huplay.parameters.StandardParameterLoader;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static huplay.MathUtilProvider.MATH;
 import static huplay.dataType.matrix.Matrix.emptyMatrix;
@@ -30,17 +26,19 @@ import static huplay.math.TypeConversionUtility.*;
  */
 public class GptqParameterLoader extends StandardParameterLoader
 {
-    private final Config config;
-    private final Map<String, String> defaultNamingMap = new HashMap<>();
+    private static final String GROUP_INDEX_KEY = "groupIndex";
+    private static final String ZEROS_KEY = "zeros";
+    private static final String SCALES_KEY = "scales";
+    private static final String WEIGHTS_KEY = "weights";
 
-    public GptqParameterLoader(Config quantizationConfig)
+    public GptqParameterLoader(Config config)
     {
-        this.config = quantizationConfig;
+        super(config);
 
-        defaultNamingMap.put("groupIndex", "{name-1}.g_idx");
-        defaultNamingMap.put("zeros", "{name-1}.qzeros");
-        defaultNamingMap.put("scales", "{name-1}.scales");
-        defaultNamingMap.put("weights", "{name-1}.qweight");
+        addDefaultNaming(GROUP_INDEX_KEY, "{name-1}.g_idx");
+        addDefaultNaming(ZEROS_KEY, "{name-1}.qzeros");
+        addDefaultNaming(SCALES_KEY, "{name-1}.scales");
+        addDefaultNaming(WEIGHTS_KEY, "{name-1}.qweight");
     }
 
     @Override
@@ -93,7 +91,7 @@ public class GptqParameterLoader extends StandardParameterLoader
         int[][] quantizedWeights = readQuantizedWeights(gptqConfig, reader, id, rows, cols);
 
         // This is the collector of the de-quantized weights
-        Matrix resultMatrix = emptyMatrix(DataType.FLOAT_16, rows, cols);
+        Matrix resultMatrix = emptyMatrix(config.getQuantizationConfig().getOutputFloatType(), rows, cols);
 
         for (var col = 0; col < cols; col++)
         {
@@ -171,7 +169,7 @@ public class GptqParameterLoader extends StandardParameterLoader
     private int[] readGroupIndexes(ParameterReader reader, String id, int rows)
     {
         // GroupIndex, int32 (Interestingly, isn't packed. A whole int32 is used to store few different values)
-        return reader.readIntArray(getFinalId(id, "groupIndex"), rows);
+        return reader.readIntArray(getFinalId(id, GROUP_INDEX_KEY), rows);
     }
 
     private int[][] readZeros(GptqConfig gptqConfig, ParameterReader reader, String id, int rows, int cols)
@@ -186,7 +184,7 @@ public class GptqParameterLoader extends StandardParameterLoader
             var zerosRows = rows / gptqConfig.getGroupSize();
             var zerosCols = cols / valuesPerInt32;
 
-            int[][] zerosMatrix = reader.readIntArray2D(getFinalId(id, "zeros"), zerosRows, zerosCols);
+            int[][] zerosMatrix = reader.readIntArray2D(getFinalId(id, ZEROS_KEY), zerosRows, zerosCols);
             zeros = unpackIntMatrixByRow(zerosMatrix, valuesPerInt32, bits);
         //}
 
@@ -197,7 +195,7 @@ public class GptqParameterLoader extends StandardParameterLoader
     {
         // Scales, FLOAT 16
         var scalesRows = rows / gptqConfig.getGroupSize();
-        return reader.readFloat16Matrix(getFinalId(id, "scales"), scalesRows, cols);
+        return reader.readFloat16Matrix(getFinalId(id, SCALES_KEY), scalesRows, cols);
     }
 
     private int[][] readQuantizedWeights(GptqConfig gptqConfig, ParameterReader reader, String id, int rows, int cols)
@@ -210,7 +208,7 @@ public class GptqParameterLoader extends StandardParameterLoader
                    into a single 32-bit word using bit-shifting operations."*/
             // Quantized weights, packed ints
             var weightRows = rows / valuesPerInt32;
-            int[][] quantizedWeightsMatrix = reader.readIntArray2D(getFinalId(id, "weights"), weightRows, cols);
+            int[][] quantizedWeightsMatrix = reader.readIntArray2D(getFinalId(id, WEIGHTS_KEY), weightRows, cols);
 
             return unpackIntMatrixByCol(quantizedWeightsMatrix, valuesPerInt32, bits);
         }
@@ -221,27 +219,6 @@ public class GptqParameterLoader extends StandardParameterLoader
             // TODO
         }
         return null;
-    }
-
-    private String getFinalId(String id, String name)
-    {
-        var namingMap = config.getQuantizationConfig().getNaming();
-        if (namingMap == null) namingMap = defaultNamingMap;
-
-        var naming = namingMap.get(name);
-        naming = naming.replace("{name}", id);
-
-        if (id.contains("."))
-        {
-            var lastIndex = id.lastIndexOf(".");
-            naming = naming.replace("{name-1}", id.substring(0, lastIndex));
-        }
-        else
-        {
-            naming = naming.replace("{name-1}", id);
-        }
-
-        return naming;
     }
 
     @Override

@@ -1,13 +1,19 @@
 package huplay.parameters;
 
 import huplay.IdentifiedException;
+import huplay.config.Config;
 import huplay.config.ParameterType;
 import huplay.dataType.matrix.Matrix;
 import huplay.dataType.vector.Vector;
 import huplay.dataType.DataType;
 
-public class StandardParameterLoader implements ParameterLoader
+public class StandardParameterLoader extends ParameterLoader
 {
+    public StandardParameterLoader(Config config)
+    {
+        super(config);
+    }
+
     @Override
     public long calculateByteSize(ParameterReader reader, String id, int size)
     {

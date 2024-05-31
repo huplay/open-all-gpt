@@ -137,7 +137,7 @@ public class GenerateTestSafetensors
         var reader = new SafetensorsReader(path);
         reader.readSafetensorsHeader(path + "/" + inputSafetensors);
 
-        var parameterLoader = new StandardParameterLoader();
+        var parameterLoader = new StandardParameterLoader(null);
 
         // Write the test file
         var output = new File(path + "/" + outputSafetensors);

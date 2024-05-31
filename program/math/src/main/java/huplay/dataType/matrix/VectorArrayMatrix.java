@@ -20,9 +20,15 @@ public class VectorArrayMatrix implements Matrix
     }
 
     @Override
-    public Vector[] getVectorArray()
+    public float getValue(int row, int col)
     {
-        return vectorArray;
+        return vectorArray[row].get(col);
+    }
+
+    @Override
+    public void setValue(int row, int col, float value)
+    {
+        vectorArray[row].set(col, value);
     }
 
     @Override
@@ -38,15 +44,9 @@ public class VectorArrayMatrix implements Matrix
     }
 
     @Override
-    public float getValue(int row, int col)
+    public Vector[] getVectorArray()
     {
-        return vectorArray[row].get(col);
-    }
-
-    @Override
-    public void setValue(int row, int col, float value)
-    {
-        vectorArray[row].set(col, value);
+        return vectorArray;
     }
 
     @Override

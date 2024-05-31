@@ -5,15 +5,15 @@ import huplay.dataType.vector.Vector;
 
 public interface Matrix
 {
-    Vector[] getVectorArray();
+    float getValue(int row, int col);
+
+    void setValue(int row, int col, float value);
 
     Vector getRow(int row);
 
     void setRow(int row, Vector vector);
 
-    float getValue(int row, int col);
-
-    void setValue(int row, int col, float value);
+    Vector[] getVectorArray();
 
     int getRowCount();
 
@@ -45,7 +45,6 @@ public interface Matrix
             case VECTOR_ARRAY_FLOAT_32          -> new VectorArrayMatrix(DataType.FLOAT_32, rows, cols);
             case VECTOR_ARRAY_FLOAT_16          -> new VectorArrayMatrix(DataType.FLOAT_16, rows, cols);
             case VECTOR_ARRAY_BRAIN_FLOAT_16    -> new VectorArrayMatrix(DataType.BRAIN_FLOAT_16, rows, cols);
-            default -> null;
         };
     }
 }

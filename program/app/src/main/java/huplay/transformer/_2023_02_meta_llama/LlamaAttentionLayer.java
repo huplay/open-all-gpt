@@ -152,8 +152,8 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
         Vector query = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_QUERY_WEIGHT));
 
         // The key and value matrices are smaller (less head count) than the query matrix
-        Vector key = MATH.mulVectorByMatrix(hiddenState, matrix(ATT_KEY_WEIGHT));
-        Vector value = MATH.mulVectorByMatrix(hiddenState, matrix(ATT_VALUE_WEIGHT));
+        Vector key = MATH.mulVectorByMatrix(hiddenState, matrix(ATT_KEY_WEIGHT)); // TODO: Why it isn't transposed?
+        Vector value = MATH.mulVectorByMatrix(hiddenState, matrix(ATT_VALUE_WEIGHT)); // TODO: Why it isn't transposed?
 
         // Split the query, key and value vectors into pieces for all heads
         Matrix queryByHead = MATH.splitVector(query, headCount);

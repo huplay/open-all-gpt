@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static huplay.parameters.FileUtil.checkHeaderFiles;
 import static huplay.parameters.FileUtil.readTextFile;
@@ -61,6 +62,9 @@ public class SafetensorsReader implements ParameterReader
             }
         }
     }
+
+    // Getter
+    public Map<String, SafetensorsHeader> getParameterHeaders() {return parameterHeaders;}
 
     private void createHeadersFromSafetensorsFiles(File modelFolder)
     {
@@ -181,15 +185,47 @@ public class SafetensorsReader implements ParameterReader
         return parameterHeaders.get(id).getDataType().getDataType();
     }
 
-    private void checkSize(SafetensorsHeader header, long[] shape)
+    private void checkSize(SafetensorsHeader header, long[] expectedShape)
     {
-        var parameterSize = header.getSizeInBytes() * 8 / header.getDataType().getBits();
-
-        if (shape.length != header.getShape().size())
+        var expectedSize = 1L;
+        for (var dim : expectedShape)
         {
-            System.out.print("\nWARNING: The file has different shape (" + header.getShape() + ") " +
-                    "to the expected (" + shape + "). Id: " + header.getId());
+            expectedSize *= dim;
         }
+
+        var actualSize = header.getSizeInBytes() * 8 / header.getDataType().getBits();
+
+        if (expectedSize != actualSize)
+        {
+            System.out.println("WARNING: The parameter tensor has different size to the expected." +
+                    " Expected size: " + expectedSize + "[" + shapeToString(expectedShape) + "]," +
+                    " Actual size: " + actualSize + "[" + shapeToString(header.getShape()) + "]," +
+                    " Id: " + header.getId());
+        }
+        else
+        {
+            if (expectedShape.length != header.getShape().size())
+            {
+                System.out.println("WARNING: The parameter tensor has the same size, but different shape to the expected." +
+                        " Expected shape: [" + shapeToString(expectedShape) + "]," +
+                        " Actual shape: [" + shapeToString(header.getShape()) + "]," +
+                        " Id: " + header.getId());
+            }
+        }
+    }
+
+    private String shapeToString(long[] shape)
+    {
+        return Arrays.stream(shape)
+                        .mapToObj(String::valueOf)
+                        .collect(Collectors.joining(", "));
+    }
+
+    private String shapeToString(List<Integer> shape)
+    {
+        return shape.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(", "));
     }
 
     private SafetensorsHeader getHeader(String id, long[] shape)

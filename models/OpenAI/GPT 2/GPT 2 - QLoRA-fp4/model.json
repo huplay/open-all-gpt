@@ -1,5 +1,5 @@
 {
-  "name": "OpenAI GPT-2 - GPTQ-4bit quantized",
+  "name": "OpenAI GPT-2 - QLoRA-fp4 quantized",
   "transformerType": "OPENAI_GPT_2",
   "repo": "https://huggingface.co/PrunaAI/openai-community-gpt2-bnb-4bit-smashed",
   "files": ["config.json", "model.safetensors"],
@@ -9,7 +9,6 @@
   "quantization":
   {
     "quantizationType": "QLoRA",
-    "variant": "fp4",
     "outputFloatType": "FLOAT_16",
     "transposeMatrix": true
   }

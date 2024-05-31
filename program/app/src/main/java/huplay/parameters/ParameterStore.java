@@ -68,7 +68,8 @@ public abstract class ParameterStore
 
         if (!config.isCalculationOnly())
         {
-            matrixParams.put(parameterType, parameterLoader.readMatrix(reader, parameterType, name, rows, cols));
+            var parameters = parameterLoader.readMatrix(reader, parameterType, name, rows, cols);
+            matrixParams.put(parameterType, parameters);
         }
     }
 
@@ -81,7 +82,7 @@ public abstract class ParameterStore
         }
         else
         {
-            return new StandardParameterLoader();
+            return new StandardParameterLoader(config);
         }
     }
 

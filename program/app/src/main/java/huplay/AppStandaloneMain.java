@@ -80,13 +80,13 @@ public class AppStandaloneMain
 
         displayConfig(config, 0);
 
-        OUT.print("\nLoading parameters... ");
+        OUT.println("\nLoading parameters... ");
         var transformer = TransformerType.getTransformer(config.getTransformerType());
 
         var tokenizer = TokenizerType.getTokenizer(tokenizerConfig);
         var transformerFlow = new TransformerFlow(config, tokenizer, transformer);
 
-        OUT.println("Done.");
+        OUT.println("... Parameters are loaded.");
         OUT.println("Parameter size:  " + Math.round((float) transformer.getParameterSize() / 1000_000) + "M");
 
         if (!config.isCalculationOnly())

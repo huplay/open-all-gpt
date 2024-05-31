@@ -3,12 +3,17 @@ package huplay.parameters;
 import huplay.dataType.DataType;
 import huplay.dataType.matrix.Matrix;
 import huplay.dataType.vector.Vector;
+import huplay.parameters.safetensors.SafetensorsHeader;
+
+import java.util.Map;
 
 /**
  * Parameter reader which is responsible to read a specific data as a vector from the parameter files
  */
 public interface ParameterReader
 {
+    Map<String, SafetensorsHeader> getParameterHeaders();
+
     String readString(String id);
 
     int[] readIntArray(String id, int size);

@@ -8,9 +8,9 @@ import huplay.config.ParameterType;
 import huplay.dataType.matrix.Matrix;
 import huplay.parameters.ParameterReader;
 import huplay.parameters.StandardParameterLoader;
+import huplay.quantization.QuantizedMatrix;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Locale;
 
 import static huplay.MathUtilProvider.MATH;
 import static huplay.ui.TextUtil.equalsIgnoreCase;
@@ -21,13 +21,8 @@ import static huplay.ui.TextUtil.equalsIgnoreCase;
  * QLoRA (Quantized Low Rank Adapters) (University of Washington)
  * Publication (23 May 2023): https://arxiv.org/abs/2305.14314
 
- * QLoRA has multiple variants:
- * - int4
- * - fp4 (pure float 4)
- * - nf4 (normalized float 4)
- * - af4 (abnormal float 4) (https://arxiv.org/abs/2306.06965)
- * with or without double quantization (DQ, where the absMax is quantized again)
- * (nf4 with DQ is the recommended variant.)
+ * QLoRA has multiple variants (int4, fp4, nf4, af4), with or without double quantization
+ * The used variant is determined automatically
 
  * The main author of LLM.int8() and QLoRA is the same person: Tim Dettmers, who is leader of bitsandbytes.
  * Hugging Face has a collaboration with bitsandbytes, so the bitsandbytes quantization implementations
@@ -45,26 +40,58 @@ import static huplay.ui.TextUtil.equalsIgnoreCase;
  */
 public class QloraParameterLoader extends StandardParameterLoader
 {
-    private final Config config;
-    private final Map<String, String> defaultNamingMap = new HashMap<>();
+    private static final String DEFAULT_QUANT_STATE_KEY_PREFIX = "quant_state.bitsandbytes__";
+    private static final String QUANT_STATE_KEY = "quantState";
+    private static final String ABS_MAX_KEY = "absMax";
+    private static final String QUANT_MAP_KEY = "quantMap";
+    private static final String NESTED_ABS_MAX_KEY = "nestedAbsMax";
+    private static final String NESTED_QUANT_MAP_KEY = "nestedQuantMap";
+    private static final String QUANTIZED_ABS_MAX_KEY = "quantizedAbsMax";
 
-    public QloraParameterLoader(Config quantizationConfig)
+    private String quantStateKeyPrefix;
+
+    public QloraParameterLoader(Config config)
     {
-        this.config = quantizationConfig;
+        super(config);
 
-        defaultNamingMap.put("quantStateFP4", "{name}.quant_state.bitsandbytes__fp4");
+        this.quantStateKeyPrefix = DEFAULT_QUANT_STATE_KEY_PREFIX;
+
+        var naming = config.getQuantizationConfig().getNaming();
+        if (naming != null && naming.get("QUANT_STATE_KEY_PREFIX") != null)
+        {
+            this.quantStateKeyPrefix = naming.get("QUANT_STATE_KEY_PREFIX");
+        }
+
+        addDefaultNaming(QUANT_STATE_KEY, "{name}." + quantStateKeyPrefix + "{variant}");
+        addDefaultNaming(ABS_MAX_KEY, "{name}.absmax");
+        addDefaultNaming(QUANT_MAP_KEY, "{name}.quant_map");
+        addDefaultNaming(NESTED_ABS_MAX_KEY, "{name}.nested_absmax");
+        addDefaultNaming(NESTED_QUANT_MAP_KEY, "{name}.nested_quant_map");
+        addDefaultNaming(QUANTIZED_ABS_MAX_KEY, "{name}.absmax");
     }
 
     @Override
     public Matrix readMatrix(ParameterReader reader, ParameterType parameterType, String id, int rows, int cols)
     {
+        var result = readMatrixInternal(reader, id, rows, cols);
+
+        if (config.getQuantizationConfig().getDeQuantizeOnLoad())
+        {
+            return result.toDeQuantized();
+        }
+
+        return result;
+    }
+
+    public QuantizedMatrix readMatrixInternal(ParameterReader reader, String id, int rows, int cols)
+    {
         try
         {
+            var variant = determineVariant(reader);
             var quantizationConfig = config.getQuantizationConfig();
             var outputFloatType = quantizationConfig.getOutputFloatType();
-            var variant = quantizationConfig.getVariant();
-            if (variant == null) variant = "fp4";
 
+            // Read the QuantState, which iss a special JSON parameter, containing the settings of the quantization
             QloraQuantState quantState = readQuantState(reader, variant, id);
             int blockSize = quantState.getBlockSize();
 
@@ -74,20 +101,55 @@ public class QloraParameterLoader extends StandardParameterLoader
                         " is different to the specified variant: " + variant);
             }
 
-            // Read and unpack the quantized collections
-            float[] absMax = readAbsMax(reader, id, rows * cols / blockSize);
-            float[] quantMap = readQuantMap(reader, id);
+            // Read the quantization map for the 16 different values (which can be stored in 4 bit)
+            // This is the real difference between the variants. Different variants use different set of quantiles
+            float[] quantMap = readQuantMap(reader, id, 16);
 
-            if (quantizationConfig.getTransposeMatrix())
+            var nestedBlockSize = quantState.getNestedBlockSize();
+            if (nestedBlockSize != null)
             {
-                var weights = readQuantizedWeights(reader, id, cols, rows);
-                weights  = MATH.transposeByteMatrix(weights);
-                return new QloraFp4TransposedMatrix(blockSize, quantMap, absMax, weights, outputFloatType);
+                // If the QuantState contains a nested block size value, then it is a double quantized model
+                var nestedOffset = quantState.getNestedOffset();
+
+                // Read the stored parameters for double quantized weights
+                float[] nestedQuantMap = readNestedQuantMap(reader, id, 256);
+                float[] nestedAbsMax = readNestedAbsMax(reader, id, rows * cols / blockSize / nestedBlockSize);
+                byte[] quantizedAbsMax = readQuantizedAbsMax(reader, id, cols * rows / blockSize);
+
+                if (quantizationConfig.getTransposeMatrix())
+                {
+                    var weights = readQuantizedWeights(reader, id, cols, rows); // Swapped row and col sizes
+                    weights = MATH.transposeByteMatrix(weights);
+
+                    return new QloraMatrixDQTransposed(outputFloatType, blockSize, nestedBlockSize, nestedOffset,
+                            quantMap, nestedQuantMap, nestedAbsMax, quantizedAbsMax, weights);
+                }
+                else
+                {
+                    var weights = readQuantizedWeights(reader, id, rows, cols);
+
+                    return new QloraMatrixDQ(outputFloatType, blockSize, nestedBlockSize, nestedOffset,
+                            quantMap, nestedQuantMap, nestedAbsMax, quantizedAbsMax, weights);
+                }
             }
             else
             {
-                var weights = readQuantizedWeights(reader, id, rows, cols);
-                return new QloraFp4Matrix(blockSize, quantMap, absMax, weights, outputFloatType);
+                // Simple quantization
+                float[] absMax = readAbsMax(reader, id, rows * cols / blockSize);
+
+                if (quantizationConfig.getTransposeMatrix())
+                {
+                    var weights = readQuantizedWeights(reader, id, cols, rows); // Swapped row and col sizes
+                    weights = MATH.transposeByteMatrix(weights);
+
+                    return new QloraMatrixSimpleTransposed(outputFloatType, blockSize, quantMap, absMax, weights);
+                }
+                else
+                {
+                    var weights = readQuantizedWeights(reader, id, rows, cols);
+
+                    return new QloraMatrixSimple(outputFloatType, blockSize, quantMap, absMax, weights);
+                }
             }
         }
         catch (JsonProcessingException e)
@@ -96,40 +158,66 @@ public class QloraParameterLoader extends StandardParameterLoader
         }
     }
 
+    private String determineVariant(ParameterReader reader)
+    {
+        // At QLoRA there is a special parameter, which contains the settings of the quantization in JSON format
+        // The name of the parameter ends with "quant_state.bitsandbytes__{variant}"
+        // For example: "transformer.h.0.attn.c_attn.weight.quant_state.bitsandbytes__nf4"
+        // Here we determine the used variant based on the "nf4" (or "fp4, etc.) suffix.
+
+        for (var key : reader.getParameterHeaders().keySet())
+        {
+            if (key.contains(quantStateKeyPrefix))
+            {
+                var index = key.indexOf(quantStateKeyPrefix);
+                return key.substring(index + quantStateKeyPrefix.length());
+            }
+        }
+
+        return "nf4";
+    }
+
     private QloraQuantState readQuantState(ParameterReader reader, String variant, String id) throws JsonProcessingException
     {
-        var namingMap = config.getQuantizationConfig().getNaming();
-        if (namingMap == null) namingMap = defaultNamingMap;
+        id = getFinalId(id, QUANT_STATE_KEY).replace("{variant}", variant.toLowerCase(Locale.ROOT));
 
-        var quantStateName = namingMap.get("quantStateFP4");
-
-        if (variant == null || equalsIgnoreCase(variant, "fp4"))
-        {
-            quantStateName = quantStateName.replace("{name}", id);
-            var quantStateJson = reader.readString(quantStateName);
-            return new ObjectMapper().readValue(quantStateJson, QloraQuantState.class);
-        }
-        else
-        {
-            // TODO
-            return null;
-        }
+        var quantStateJson = reader.readString(id);
+        return new ObjectMapper().readValue(quantStateJson, QloraQuantState.class);
     }
 
-    // TODO: support naming
-    private float[] readAbsMax(ParameterReader reader, String id, int rows)
+    private float[] readQuantMap(ParameterReader reader, String id, int size)
     {
-        return reader.readFloatArray(id + ".absmax", rows);
+        id = getFinalId(id, QUANT_MAP_KEY);
+        return reader.readFloatArray(id, size);
     }
 
-    private float[] readQuantMap(ParameterReader reader, String id)
+    private float[] readAbsMax(ParameterReader reader, String id, int size)
     {
-        return reader.readFloatArray(id + ".quant_map", 16);
+        id = getFinalId(id, ABS_MAX_KEY);
+        return reader.readFloatArray(id, size);
     }
 
     private byte[][] readQuantizedWeights(ParameterReader reader, String id, int rows, int cols)
     {
         return reader.readByteArray2D(id, rows, cols / 2);
+    }
+
+    private float[] readNestedQuantMap(ParameterReader reader, String id, int size)
+    {
+        id = getFinalId(id, NESTED_QUANT_MAP_KEY);
+        return reader.readFloatArray(id, size);
+    }
+
+    private float[] readNestedAbsMax(ParameterReader reader, String id, int size)
+    {
+        id = getFinalId(id, NESTED_ABS_MAX_KEY);
+        return reader.readFloatArray(id, size);
+    }
+
+    private byte[] readQuantizedAbsMax(ParameterReader reader, String id, int size)
+    {
+        id = getFinalId(id, QUANTIZED_ABS_MAX_KEY);
+        return reader.readByteArray(id, size);
     }
 
     @Override
