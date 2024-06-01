@@ -1,0 +1,15 @@
+{
+  "name": "OpenAI GPT-2 - LLM.int(8) quantized",
+  "transformerType": "OPENAI_GPT_2",
+  "repo": "https://huggingface.co/PrunaAI/stanford-crfm-alias-gpt2-small-x21-bnb-8bit-smashed",
+  "files": ["config.json", "model.safetensors"],
+  "parameterNaming": "transformer.{name}",
+  "decoderParameterNaming": "transformer.h.{decoderId}.{name}",
+  "memorySize": 7168,
+  "quantization":
+  {
+    "quantizationType": "LLM_INT_8",
+    "outputFloatType": "FLOAT_16",
+    "transposeMatrix": false
+  }
+}

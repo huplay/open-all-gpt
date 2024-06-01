@@ -8,7 +8,6 @@ import huplay.config.ParameterType;
 import huplay.dataType.matrix.Matrix;
 import huplay.parameters.ParameterReader;
 import huplay.parameters.StandardParameterLoader;
-import huplay.quantization.QuantizedMatrix;
 
 import java.util.Locale;
 
@@ -72,18 +71,6 @@ public class QloraParameterLoader extends StandardParameterLoader
 
     @Override
     public Matrix readMatrix(ParameterReader reader, ParameterType parameterType, String id, int rows, int cols)
-    {
-        var result = readMatrixInternal(reader, id, rows, cols);
-
-        if (config.getQuantizationConfig().getDeQuantizeOnLoad())
-        {
-            return result.toDeQuantized();
-        }
-
-        return result;
-    }
-
-    public QuantizedMatrix readMatrixInternal(ParameterReader reader, String id, int rows, int cols)
     {
         try
         {

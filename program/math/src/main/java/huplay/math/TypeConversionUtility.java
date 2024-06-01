@@ -2,63 +2,28 @@ package huplay.math;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.HashMap;
-import java.util.Map;
 
 public class TypeConversionUtility
 {
-    private static final Map<Integer, Integer> maskBases = new HashMap<>(5);
-
-    static
-    {
-        maskBases.put(1, 0b1);
-        maskBases.put(2, 0b11);
-        maskBases.put(4, 0b1111);
-        maskBases.put(8, 0b1111_1111);
-        maskBases.put(16, 0b1111_1111_1111_1111);
-        maskBases.put(32, 0b1111_1111_1111_1111_1111_1111_1111_1111);
-    }
-
     /**
-     * Unpacks an int (32 bit) value into "n" signed int values of "bits" size,
-     * and appends it into an array at the given offset
-     * (Of course (n * size) should be 32. No checks here to make it fast.)
+     * Unpacks an int (32 bit) value into 8 signed 4-bit int values,
+     * and appends it into an array at the given offset.
      */
-    public static void unpackInt(int value, int n, int size, int[] array, int offset)
+    public static void unpack4bitsFromInt32(int value, int[] array, int offset)
     {
-        var shift = 32 - size;
-        for (var i = 0; i < n; i++)
-        {
-            int mask = maskBases.get(size) << shift;
-            array[i + offset] = (byte) ((value & mask) >>> shift) - 8;
-
-            shift -= size;
-        }
+        array[    offset] = ((value & 0b1111_0000_0000_0000_0000_0000_0000_0000) >>> 28) - 8;
+        array[1 + offset] = ((value & 0b0000_1111_0000_0000_0000_0000_0000_0000) >>> 24) - 8;
+        array[2 + offset] = ((value & 0b0000_0000_1111_0000_0000_0000_0000_0000) >>> 20) - 8;
+        array[3 + offset] = ((value & 0b0000_0000_0000_1111_0000_0000_0000_0000) >>> 16) - 8;
+        array[4 + offset] = ((value & 0b0000_0000_0000_0000_1111_0000_0000_0000) >>> 12) - 8;
+        array[5 + offset] = ((value & 0b0000_0000_0000_0000_0000_1111_0000_0000) >>> 8) - 8;
+        array[6 + offset] = ((value & 0b0000_0000_0000_0000_0000_0000_1111_0000) >>> 4) - 8;
+        array[7 + offset] = (value & 0b0000_0000_0000_0000_0000_0000_0000_1111) - 8;
     }
 
-    /**
-     * Unpacks two 4-bit unsigned values of an unsigned byte
-     */
-    public static void unpack4bitsFromUnsignedByte(byte value, byte[] array, int offset)
+    public static int[][] unpack4bitsFromIntMatrixByRow(int[][] matrix)
     {
-        int mask = maskBases.get(4);
-        array[offset] = (byte)((value & (mask << 4)) >>> 4);
-        array[offset + 1] = (byte)(value & mask);
-    }
-
-    public static byte getLower4bitsFromUnsignedByte(byte value)
-    {
-        return (byte)((value & 0b11110000) >>> 4);
-    }
-
-    public static byte getUpper4bitsFromUnsignedByte(byte value)
-    {
-        return (byte)(value & 0b1111);
-    }
-
-    public static int[][] unpackIntMatrixByRow(int[][] matrix, int n, int size)
-    {
-        int[][] result = new int[matrix.length][matrix[0].length * n];
+        int[][] result = new int[matrix.length][matrix[0].length * 8];
 
         int i = 0;
         for (int[] row : matrix)
@@ -66,8 +31,8 @@ public class TypeConversionUtility
             var offset = 0;
             for (int value : row)
             {
-                unpackInt(value, n, size, result[i], offset);
-                offset += n;
+                unpack4bitsFromInt32(value, result[i], offset);
+                offset += 8;
             }
             i++;
         }
@@ -80,12 +45,12 @@ public class TypeConversionUtility
         int[][] result = new int[matrix.length * n][matrix[0].length];
 
         int rowOffset = 0;
-        for (int row = 0; row < matrix.length; row++)
+        for (int[] ints : matrix)
         {
             for (var col = 0; col < matrix[0].length; col++)
             {
                 int[] array = new int[n];
-                unpackInt(matrix[row][col], n, size, array, 0);
+                unpack4bitsFromInt32(ints[col], array, 0);
 
                 for (var i = 0; i < array.length; i++)
                 {

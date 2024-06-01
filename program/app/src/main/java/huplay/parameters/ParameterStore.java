@@ -7,6 +7,7 @@ import huplay.parameters.safetensors.SafetensorsReader;
 import huplay.config.ParameterType;
 import huplay.dataType.vector.Vector;
 import huplay.quantization.QuantizationType;
+import huplay.quantization.QuantizedMatrix;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,8 +69,15 @@ public abstract class ParameterStore
 
         if (!config.isCalculationOnly())
         {
-            var parameters = parameterLoader.readMatrix(reader, parameterType, name, rows, cols);
-            matrixParams.put(parameterType, parameters);
+            var matrix = parameterLoader.readMatrix(reader, parameterType, name, rows, cols);
+
+            if (matrix instanceof QuantizedMatrix quantizedMatrix
+                    && config.getQuantizationConfig().getDeQuantizeOnLoad())
+            {
+                matrix = quantizedMatrix.toDeQuantized();
+            }
+
+            matrixParams.put(parameterType, matrix);
         }
     }
 

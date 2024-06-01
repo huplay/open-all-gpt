@@ -115,9 +115,7 @@ public class GptqParameterLoader extends StandardParameterLoader
                     }
                 }
 
-                // At symmetric quantization the zero is always 0 (stored as -1), otherwise use the stored value.
-                int zero = gptqConfig.getSym() ? 0 : zeros[groupIndex][col] + 1;
-                //int zero = zeros[groupIndex][col] + 1;
+                int zero = zeros[groupIndex][col];
 
                 float scale = scalesMatrix.getValue(groupIndex, col);
 
@@ -174,21 +172,13 @@ public class GptqParameterLoader extends StandardParameterLoader
 
     private int[][] readZeros(GptqConfig gptqConfig, ParameterReader reader, String id, int rows, int cols)
     {
-        int[][] zeros = null;
+        var bits = gptqConfig.getBits();
+        var valuesPerInt32 = 32 / bits;
+        var zerosRows = rows / gptqConfig.getGroupSize();
+        var zerosCols = cols / valuesPerInt32;
 
-        //if (!gptqConfig.getSym())
-        //{
-            // At symmetric quantization all value of "zeros" is 0 (stored as -1). Otherwise, read the "zeros" matrix:
-            var bits = gptqConfig.getBits();
-            var valuesPerInt32 = 32 / bits;
-            var zerosRows = rows / gptqConfig.getGroupSize();
-            var zerosCols = cols / valuesPerInt32;
-
-            int[][] zerosMatrix = reader.readIntArray2D(getFinalId(id, ZEROS_KEY), zerosRows, zerosCols);
-            zeros = unpackIntMatrixByRow(zerosMatrix, valuesPerInt32, bits);
-        //}
-
-        return zeros;
+        int[][] zerosMatrix = reader.readIntArray2D(getFinalId(id, ZEROS_KEY), zerosRows, zerosCols);
+        return unpack4bitsFromIntMatrixByRow(zerosMatrix); // TODO: Only 4 bits is supported here
     }
 
     private Matrix readScales(GptqConfig gptqConfig, ParameterReader reader, String id, int rows, int cols)

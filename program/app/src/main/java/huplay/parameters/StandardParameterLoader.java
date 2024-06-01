@@ -29,15 +29,29 @@ public class StandardParameterLoader extends ParameterLoader
     @Override
     public Matrix readMatrix(ParameterReader reader, ParameterType parameterType, String id, int rows, int cols)
     {
-        DataType FloatType = reader.getDataType(id);
+        DataType floatType = reader.getDataType(id);
 
-        return switch (FloatType)
+        var matrix = readMatrix(reader, floatType, id, rows, cols);
+
+        /*if (parameterType.isWeight())
         {
-            case FLOAT_16           -> reader.readFloat16Matrix(id, rows, cols);
-            case BRAIN_FLOAT_16     -> reader.readBrainFloat16Matrix(id, rows, cols);
-            case FLOAT_32           -> reader.readFloat32Matrix(id, rows, cols);
+            // TODO: This is just a temporary experiment:
+            // Quantize the model on-the fly
+            matrix = quantize(matrix);
+        }*/
+
+        return matrix;
+    }
+
+    private Matrix readMatrix(ParameterReader reader, DataType floatType, String id, int rows, int cols)
+    {
+        return switch (floatType)
+        {
+            case FLOAT_16 -> reader.readFloat16Matrix(id, rows, cols);
+            case BRAIN_FLOAT_16 -> reader.readBrainFloat16Matrix(id, rows, cols);
+            case FLOAT_32 -> reader.readFloat32Matrix(id, rows, cols);
             default ->
-                    throw new IdentifiedException("Not supported data type: " + FloatType + ", key: " + id);
+                    throw new IdentifiedException("Not supported data type: " + floatType + ", key: " + id);
         };
     }
 

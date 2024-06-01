@@ -15,8 +15,8 @@ public class TypeConversionUtilityTest
 
         var array = new int[16];
 
-        unpackInt(input1, 8, 4, array, 0);
-        unpackInt(input2, 8, 4, array, 8);
+        unpack4bitsFromInt32(input1, array, 0);
+        unpack4bitsFromInt32(input2, array, 8);
 
         assertArrayEquals(new int[]{-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7}, array);
     }
@@ -31,7 +31,7 @@ public class TypeConversionUtilityTest
         matrix[0][0] = input00; matrix[0][1] = input01;
         matrix[1][0] = input10; matrix[1][1] = input11;
 
-        int[][] result = unpackIntMatrixByRow(matrix, 8, 4);
+        int[][] result = unpack4bitsFromIntMatrixByRow(matrix);
 
         assertArrayEquals(new int[][]{
                 {-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7},

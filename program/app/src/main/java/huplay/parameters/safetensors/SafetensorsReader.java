@@ -197,19 +197,19 @@ public class SafetensorsReader implements ParameterReader
 
         if (expectedSize != actualSize)
         {
-            System.out.println("WARNING: The parameter tensor has different size to the expected." +
-                    " Expected size: " + expectedSize + "[" + shapeToString(expectedShape) + "]," +
-                    " Actual size: " + actualSize + "[" + shapeToString(header.getShape()) + "]," +
-                    " Id: " + header.getId());
+            System.out.println("WARNING: The parameter tensor has different size to the expected.\n" +
+                    "         Id: " + header.getId() + "\n" +
+                    "         Expected size: " + expectedSize + ", shape: [" + shapeToString(expectedShape) + "]\n" +
+                    "         Actual size:   " + actualSize + ", shape: [" + shapeToString(header.getShape()) + "]");
         }
         else
         {
             if (expectedShape.length != header.getShape().size())
             {
-                System.out.println("WARNING: The parameter tensor has the same size, but different shape to the expected." +
-                        " Expected shape: [" + shapeToString(expectedShape) + "]," +
-                        " Actual shape: [" + shapeToString(header.getShape()) + "]," +
-                        " Id: " + header.getId());
+                System.out.println("WARNING: The parameter tensor has the same size, but different shape to the expected.\n" +
+                        "         Id: " + header.getId() + "\n" +
+                        "         Expected shape: [" + shapeToString(expectedShape) + "]\n" +
+                        "         Actual shape: [" + shapeToString(header.getShape()) + "]\n");
             }
         }
     }

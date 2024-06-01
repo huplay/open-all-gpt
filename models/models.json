@@ -8,9 +8,10 @@
           "MEDIUM": {"order": 2},
           "LARGE": {"order": 3},
           "XL": {"order": 4},
-          "GPT 2 - GPTQ-4bit": {"order": 5},
+          "GPT 2 - LLMInt8": {"order": 5},
           "GPT 2 - QLoRA-fp4": {"order": 6},
-          "GPT 2 - QLoRA-nf4": {"order": 7}
+          "GPT 2 - QLoRA-nf4": {"order": 7},
+          "GPT 2 - GPTQ-4bit": {"order": 8}
         }
       }
     }

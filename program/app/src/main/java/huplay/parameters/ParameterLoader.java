@@ -47,11 +47,11 @@ public abstract class ParameterLoader
             if (id.contains("."))
             {
                 var lastIndex = id.lastIndexOf(".");
-                name = naming.replace("{name-1}", id.substring(0, lastIndex));
+                name = name.replace("{name-1}", id.substring(0, lastIndex));
             }
             else
             {
-                name = naming.replace("{name-1}", id);
+                name = name.replace("{name-1}", id);
             }
         }
 
