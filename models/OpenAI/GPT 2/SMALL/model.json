@@ -9,5 +9,30 @@
     "MAIN": 200,
     "ATTENTION_LAYER": 50,
     "NEURAL_NET_LAYER": 40
+  },
+  "-quantize": {
+    "quantizationType": "LLM_INT_8",
+    "outputFloatType": "FLOAT_16",
+    "config": {
+      "threshold": 6.0
+    }
+  },
+  "--quantize": {
+    "quantizationType": "QLoRA",
+    "outputFloatType": "FLOAT_16",
+    "config": {
+      "variant": "fp4",
+      "blockSize": 128
+    }
+  },
+  "quantize": {
+    "quantizationType": "QLoRA",
+    "outputFloatType": "FLOAT_16",
+    "config": {
+      "variant": "nf4",
+      "blockSize": 128,
+      "nestedBlockSize": 256,
+      "nestedOffset": 1.0
+    }
   }
 }

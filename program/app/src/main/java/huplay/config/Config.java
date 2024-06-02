@@ -8,6 +8,7 @@ import huplay.IdentifiedException;
 import huplay.dataType.DataType;
 import huplay.parameters.safetensors.SafetensorsReader;
 import huplay.quantization.QuantizationConfig;
+import huplay.quantization.QuantizeConfig;
 
 import java.io.IOException;
 import java.util.*;
@@ -180,6 +181,7 @@ public class Config
     public Integer getMemorySize() {return modelConfig.getMemorySize();}
     public Map<BlockType, Integer> getMemorySizes() {return modelConfig.getMemorySizes();}
     public QuantizationConfig getQuantizationConfig() {return modelConfig.getQuantizationConfig();}
+    public QuantizeConfig getQuantizeConfig() {return modelConfig.getQuantizeConfig();}
 
     public int getHeadSize()
     {

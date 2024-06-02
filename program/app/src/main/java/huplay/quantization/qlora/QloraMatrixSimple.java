@@ -1,7 +1,6 @@
 package huplay.quantization.qlora;
 
 import huplay.dataType.DataType;
-import huplay.dataType.vector.Vector;
 import huplay.quantization.QuantizedMatrix;
 
 import static huplay.math.BasicMathUtility.absMax;
@@ -31,34 +30,21 @@ public class QloraMatrixSimple extends QuantizedMatrix
     }
 
     @Override
-    public float getValue(int row, int col)
+    public float getValue(int rowId, int colId)
     {
         // This is the byte which holds the quantized 4-bit value
-        var value = values[row][col / 2];
+        var value = values[rowId][colId / 2];
 
         // Read the 4-bit value from the lower or upper part of the byte
-        var quantizedValue = ((col & 1) == 0)
+        var quantizedValue = ((colId & 1) == 0)
                 ? (byte)((value & 0b11110000) >>> 4)
                 : (byte) (value & 0b1111);
 
         // Determine which block the value is in
-        var blockId = row * blocksPerRow + (col / blockSize);
+        var blockId = rowId * blocksPerRow + (colId / blockSize);
 
         // This is the de-quantization algorithm:
         return quantMap[quantizedValue] * absMax[blockId] / maxQuantMap;
-    }
-
-    @Override
-    public Vector[] getVectorArray()
-    {
-        var vectorArray = new Vector[values.length];
-
-        for (int i = 0; i < values.length; i++)
-        {
-            vectorArray[i] = getRow(i);
-        }
-
-        return vectorArray;
     }
 
     @Override

@@ -43,40 +43,71 @@ public abstract class ParameterStore
 
     protected abstract String formatName(String file);
 
+    /**
+     * Loads a vector parameter (Currently quantization isn't supported for vectors, only for matrices)
+     */
     protected void loadVector(ParameterType parameterType, String id, int size)
     {
+        // Get the parameter loader (standard or a quantizer, but non-of the quantizers supports vectors)
         var parameterLoader = getParameterLoader(parameterType, id);
 
+        // Resolve the final name of the parameter
         var name = formatName(id);
 
+        // Calculate size
         parameterSize += size;
         parameterByteSize += parameterLoader.calculateByteSize(reader, name, size);
 
         if (!config.isCalculationOnly())
         {
-            vectorParams.put(parameterType, parameterLoader.readVector(reader, name, size));
+            // Load and store the vector
+            vectorParams.put(parameterType, parameterLoader.loadVector(reader, name, size));
         }
     }
 
+    /**
+     * Loads a matrix parameter (standard or quantized)
+     * Optionally it can de-quantize a quantized or quantize a non-quantized parameter
+     */
     protected void loadMatrix(ParameterType parameterType, String id, int rows, int cols)
     {
+        // Get the parameter loader (standard or a quantizer)
         var parameterLoader = getParameterLoader(parameterType, id);
 
+        // Resolve the final name of the parameter
         var name = formatName(id);
 
+        // Calculate size
         parameterSize += (long) rows * cols;
         parameterByteSize += parameterLoader.calculateByteSize(reader, name, rows * cols);
 
         if (!config.isCalculationOnly())
         {
-            var matrix = parameterLoader.readMatrix(reader, parameterType, name, rows, cols);
+            // Load the matrix parameter (it can result a standard VectorArrayMatrix, or a quantized matrix as well
+            var matrix = parameterLoader.loadMatrix(reader, parameterType, name, rows, cols);
 
-            if (matrix instanceof QuantizedMatrix quantizedMatrix
-                    && config.getQuantizationConfig().getDeQuantizeOnLoad())
+            if (matrix instanceof QuantizedMatrix quantizedMatrix)
             {
-                matrix = quantizedMatrix.toDeQuantized();
+                // This is a quantized matrix, ...
+                if (config.getQuantizationConfig() != null && config.getQuantizationConfig().getDeQuantizeOnLoad())
+                {
+                    // ... but we can de-quantize it, if requested
+                    matrix = quantizedMatrix.toDeQuantized();
+                }
+            }
+            else
+            {
+                // This is a non-quantized matrix, ...
+                if (parameterType.isWeight() && config.getQuantizeConfig() != null)
+                {
+                    // ... but we can quantize it, if requested
+                    var quantizationType = config.getQuantizeConfig().getQuantizationType();
+                    System.out.println("INFO: This parameter is quantized at loading: "  + id + ", using: " + quantizationType);
+                    matrix = QuantizationType.getQuantizer(config, quantizationType).quantize(parameterType, matrix);
+                }
             }
 
+            // Store the matrix
             matrixParams.put(parameterType, matrix);
         }
     }
@@ -84,13 +115,15 @@ public abstract class ParameterStore
     private ParameterLoader getParameterLoader(ParameterType parameterType, String id)
     {
         var quantizationConfig = config.getQuantizationConfig();
-        if (quantizationConfig != null && quantizationConfig.isQuantized(parameterType, id))
+        if (quantizationConfig == null || !quantizationConfig.isQuantized(parameterType, id))
         {
-            return QuantizationType.getParameterLoader(config);
+            // Get the standard parameter loader to load non-quantized parameters
+            return new StandardParameterLoader(config);
         }
         else
         {
-            return new StandardParameterLoader(config);
+            // Get the specific quantizer as parameter loader to load a quantized model
+            return QuantizationType.getQuantizer(config, quantizationConfig.getQuantizationType());
         }
     }
 

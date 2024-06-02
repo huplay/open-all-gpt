@@ -4,17 +4,17 @@ import huplay.dataType.DataType;
 import huplay.quantization.QuantizedMatrix;
 
 /**
- * Matrix which holds the LLM.int8() quantized values,
+ * Matrix which holds the LLM.int8() quantized values in transposed orientation,
  * and processes the de-quantization when the getValue() is called
  */
-public class LlmInt8Matrix extends QuantizedMatrix
+public class LlmInt8MatrixTransposed extends QuantizedMatrix
 {
     // Worst naming ever: "SCB" means "the quantization state that belongs to B":
     // https://github.com/TimDettmers/bitsandbytes/issues/540
     private final float[] scb;
     private final byte[][] quantizedValues;
 
-    public LlmInt8Matrix(DataType outputFloatType, float[] scb, byte[][] quantizedValues)
+    public LlmInt8MatrixTransposed(DataType outputFloatType, float[] scb, byte[][] quantizedValues)
     {
         super(outputFloatType);
         this.scb = scb;
@@ -25,18 +25,21 @@ public class LlmInt8Matrix extends QuantizedMatrix
     public float getValue(int rowId, int colId)
     {
         // This is the de-quantization algorithm:
-        return scb[colId] * quantizedValues[rowId][colId] / 127;
+        // The quantized values are stored in transposed orientation, so the rowId and colId are swapped.
+        return scb[colId] * quantizedValues[colId][rowId] / 127;
     }
 
     @Override
     public int getRowCount()
     {
-        return quantizedValues.length;
+        // The quantized values are stored in transposed orientation, so it returns the number of columns as rowCount
+        return quantizedValues[0].length;
     }
 
     @Override
     public int getColCount()
     {
-        return quantizedValues[0].length;
+        // The quantized values are stored in transposed orientation, so it returns the number of rows as colCount
+        return quantizedValues.length;
     }
 }

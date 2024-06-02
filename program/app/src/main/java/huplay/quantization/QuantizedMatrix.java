@@ -26,28 +26,41 @@ public abstract class QuantizedMatrix implements Matrix
     }
 
     @Override
-    public void setValue(int row, int col, float value)
+    public void setValue(int rowId, int colId, float value)
     {
         throw new IdentifiedException("Unsupported operation: setValue on quantized matrix");
     }
 
     @Override
-    public Vector getRow(int row)
+    public Vector getRow(int rowId)
     {
         var vector = Vector.emptyVector(getInternalFloatType(), getColCount());
 
-        for (int i = 0; i < getColCount(); i++)
+        for (int colId = 0; colId < getColCount(); colId++)
         {
-            vector.set(i, getValue(row, i));
+            vector.set(colId, getValue(rowId, colId));
         }
 
         return vector;
     }
 
     @Override
-    public void setRow(int row, Vector vector)
+    public void setRow(int rowId, Vector vector)
     {
         throw new IdentifiedException("Unsupported operation: setVector on quantized matrix");
+    }
+
+    @Override
+    public Vector[] getVectorArray()
+    {
+        var vectorArray = new Vector[getRowCount()];
+
+        for (int i = 0; i < getRowCount(); i++)
+        {
+            vectorArray[i] = getRow(i);
+        }
+
+        return vectorArray;
     }
 
     @Override

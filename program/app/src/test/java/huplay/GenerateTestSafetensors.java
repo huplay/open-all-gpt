@@ -156,7 +156,7 @@ public class GenerateTestSafetensors
                 if (shape.length == 1)
                 {
                     // Write a vector
-                    var values = parameterLoader.readVector(reader, entry.getKey(), shape[0]);
+                    var values = parameterLoader.loadVector(reader, entry.getKey(), shape[0]);
                     for (var i = 0; i < values.size(); i++)
                     {
                         var value = values.get(i);
@@ -166,7 +166,7 @@ public class GenerateTestSafetensors
                 else if (shape.length == 2)
                 {
                     // Write a matrix
-                    var values = parameterLoader.readMatrix(reader, ParameterType.TEST, entry.getKey(), shape[0], shape[1]);
+                    var values = parameterLoader.loadMatrix(reader, ParameterType.TEST, entry.getKey(), shape[0], shape[1]);
                     for (var row : values.getVectorArray())
                     {
                         for (var i = 0; i < row.size(); i++)

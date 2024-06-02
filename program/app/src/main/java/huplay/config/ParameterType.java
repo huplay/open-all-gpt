@@ -14,7 +14,7 @@ public enum ParameterType
 
     // Attention block:
     ATT_COMBINED_WEIGHT             (WEIGHT),
-    ATT_TRANSPOSED_COMBINED_WEIGHT  (WEIGHT, true),
+    ATT_COMBINED_VERTICAL_WEIGHT    (WEIGHT, true),
     ATT_COMBINED_BIAS,
 
     ATT_QUERY_WEIGHT                (WEIGHT),
@@ -27,7 +27,7 @@ public enum ParameterType
     ATT_VALUE_BIAS,
 
     ATT_PROJ_WEIGHT                 (WEIGHT),
-    ATT_TRANSPOSED_PROJ_WEIGHT      (WEIGHT, true),
+    ATT_VERTICAL_PROJ_WEIGHT        (WEIGHT, true),
     ATT_PROJ_BIAS,
 
     ATT_NORM_WEIGHT,
@@ -37,11 +37,11 @@ public enum ParameterType
 
     // Neural net block:
     MLP_1_WEIGHT                    (WEIGHT),
-    MLP_1_TRANSPOSED_WEIGHT         (WEIGHT, true),
+    MLP_1_VERTICAL_WEIGHT           (WEIGHT, true),
     MLP_1_BIAS,
 
     MLP_2_WEIGHT                    (WEIGHT),
-    MLP_2_TRANSPOSED_WEIGHT         (WEIGHT, true),
+    MLP_2_VERTICAL_WEIGHT           (WEIGHT, true),
     MLP_2_BIAS,
 
     MLP_3_WEIGHT                    (WEIGHT),
@@ -57,9 +57,16 @@ public enum ParameterType
     // Test:
     TEST;
 
-    // Marks if a parameter is a "classic" weight parameter. These parameters are expected to be quantized
+    /**
+     * Marks if a parameter is a "classic" weight parameter. These parameters are expected to be quantized
+     */
     private final boolean isWeight;
-    private final boolean isTransposed;
+
+    /**
+     * Marks if a matrix is stored in vertical orientation (transposed).
+     * Horizontal orientation used at the original models, later the vertical became more common
+     */
+    private final boolean isVertical;
 
     ParameterType()
     {
@@ -71,20 +78,25 @@ public enum ParameterType
         this(isWeight, false);
     }
 
-    ParameterType(boolean isTransposed)
+    ParameterType(boolean isVertical)
     {
-        this(null, isTransposed);
+        this(null, isVertical);
     }
 
-    ParameterType(Weight isWeight, boolean isTransposed)
+    ParameterType(Weight isWeight, boolean isVertical)
     {
         this.isWeight = isWeight != null;
-        this.isTransposed = isTransposed;
+        this.isVertical = isVertical;
     }
 
     // Getters
     public boolean isWeight() {return isWeight;}
-    public boolean isTransposed() {return isTransposed;}
+    public boolean isVertical() {return isVertical;}
+
+    public boolean isHorizontal()
+    {
+        return !isVertical;
+    }
 
     // Trick to differentiate between the two boolean constructor parameters, and allow both optional:
     private static class Weight {}

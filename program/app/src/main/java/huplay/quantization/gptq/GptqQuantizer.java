@@ -7,7 +7,8 @@ import huplay.config.Config;
 import huplay.config.ParameterType;
 import huplay.dataType.matrix.Matrix;
 import huplay.parameters.ParameterReader;
-import huplay.parameters.StandardParameterLoader;
+import huplay.quantization.AbstractQuantizer;
+import huplay.quantization.QuantizedMatrix;
 
 import static huplay.MathUtilProvider.MATH;
 import static huplay.dataType.matrix.Matrix.emptyMatrix;
@@ -21,17 +22,16 @@ import static huplay.math.TypeConversionUtility.*;
  * Publication (31 Oct 2022): https://arxiv.org/abs/2210.17323
  * Code for the publication: https://github.com/IST-DASLab/gptq
 
- * (Only the matrix quantization is supported, so the vector reading is inherited from the standard parameter loader.)
  * @author Hunor Szegi
  */
-public class GptqParameterLoader extends StandardParameterLoader
+public class GptqQuantizer extends AbstractQuantizer
 {
     private static final String GROUP_INDEX_KEY = "groupIndex";
     private static final String ZEROS_KEY = "zeros";
     private static final String SCALES_KEY = "scales";
     private static final String WEIGHTS_KEY = "weights";
 
-    public GptqParameterLoader(Config config)
+    public GptqQuantizer(Config config)
     {
         super(config);
 
@@ -42,7 +42,14 @@ public class GptqParameterLoader extends StandardParameterLoader
     }
 
     @Override
-    public Matrix readMatrix(ParameterReader reader, ParameterType parameterType, String id, int rows, int cols)
+    public QuantizedMatrix quantize(ParameterType parameterType, Matrix matrix)
+    {
+        // TODO
+        return null;
+    }
+
+    @Override
+    public Matrix load(ParameterReader reader, ParameterType parameterType, String id, int rows, int cols)
     {
         try
         {
@@ -53,7 +60,7 @@ public class GptqParameterLoader extends StandardParameterLoader
             var realRows = rows;
             var realCols = cols;
 
-            if (parameterType.isTransposed())
+            if (parameterType.isVertical())
             {
                 realRows = cols;
                 realCols = rows;
@@ -61,7 +68,7 @@ public class GptqParameterLoader extends StandardParameterLoader
 
             var matrix = readMatrixInternal(gptqConfig, reader, id, realRows, realCols);
 
-            if (parameterType.isTransposed())
+            if (parameterType.isVertical())
             {
                 return MATH.transposeMatrix(matrix);
             }

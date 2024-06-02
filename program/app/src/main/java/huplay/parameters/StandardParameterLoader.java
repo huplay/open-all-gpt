@@ -21,26 +21,16 @@ public class StandardParameterLoader extends ParameterLoader
     }
 
     @Override
-    public Vector readVector(ParameterReader reader, String file, int size)
+    public Vector loadVector(ParameterReader reader, String file, int size)
     {
         return read(reader, file, size);
     }
 
     @Override
-    public Matrix readMatrix(ParameterReader reader, ParameterType parameterType, String id, int rows, int cols)
+    public Matrix loadMatrix(ParameterReader reader, ParameterType parameterType, String id, int rows, int cols)
     {
         DataType floatType = reader.getDataType(id);
-
-        var matrix = readMatrix(reader, floatType, id, rows, cols);
-
-        /*if (parameterType.isWeight())
-        {
-            // TODO: This is just a temporary experiment:
-            // Quantize the model on-the fly
-            matrix = quantize(matrix);
-        }*/
-
-        return matrix;
+        return readMatrix(reader, floatType, id, rows, cols);
     }
 
     private Matrix readMatrix(ParameterReader reader, DataType floatType, String id, int rows, int cols)

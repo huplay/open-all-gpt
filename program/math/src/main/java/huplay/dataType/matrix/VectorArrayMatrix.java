@@ -20,27 +20,27 @@ public class VectorArrayMatrix implements Matrix
     }
 
     @Override
-    public float getValue(int row, int col)
+    public float getValue(int rowId, int colId)
     {
-        return vectorArray[row].get(col);
+        return vectorArray[rowId].get(colId);
     }
 
     @Override
-    public void setValue(int row, int col, float value)
+    public void setValue(int rowId, int colId, float value)
     {
-        vectorArray[row].set(col, value);
+        vectorArray[rowId].set(colId, value);
     }
 
     @Override
-    public Vector getRow(int row)
+    public Vector getRow(int rowId)
     {
-        return vectorArray[row];
+        return vectorArray[rowId];
     }
 
     @Override
-    public void setRow(int row, Vector vector)
+    public void setRow(int rowId, Vector vector)
     {
-        vectorArray[row] = vector;
+        vectorArray[rowId] = vector;
     }
 
     @Override

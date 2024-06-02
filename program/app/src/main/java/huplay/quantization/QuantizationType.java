@@ -2,10 +2,9 @@ package huplay.quantization;
 
 import huplay.IdentifiedException;
 import huplay.config.Config;
-import huplay.parameters.ParameterLoader;
-import huplay.quantization.gptq.GptqParameterLoader;
-import huplay.quantization.llmInt8.LlmInt8ParameterLoader;
-import huplay.quantization.qlora.QloraParameterLoader;
+import huplay.quantization.gptq.GptqQuantizer;
+import huplay.quantization.llmInt8.LlmInt8Quantizer;
+import huplay.quantization.qlora.QloraQuantizer;
 
 public enum QuantizationType
 {
@@ -29,14 +28,14 @@ public enum QuantizationType
         return QuantizationType.valueOf(quantizationType);
     }
 
-    public static ParameterLoader getParameterLoader(Config config)
+    public static AbstractQuantizer getQuantizer(Config config, String quantizationType)
     {
-        var type = getQuantizationType(config.getQuantizationConfig().getQuantizationType());
+        var type = getQuantizationType(quantizationType);
         return switch (type)
         {
-            case LLM_INT_8  -> new LlmInt8ParameterLoader(config);
-            case QLORA      -> new QloraParameterLoader(config);
-            case GPTQ       -> new GptqParameterLoader(config);
+            case LLM_INT_8  -> new LlmInt8Quantizer(config);
+            case QLORA      -> new QloraQuantizer(config);
+            case GPTQ       -> new GptqQuantizer(config);
         };
     }
 }

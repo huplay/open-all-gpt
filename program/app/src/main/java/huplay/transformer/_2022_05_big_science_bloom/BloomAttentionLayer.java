@@ -34,9 +34,9 @@ public class BloomAttentionLayer extends BaseAttentionLayer
         // Load parameters
         loadVector(ATT_NORM_WEIGHT, "input_layernorm.weight", hiddenSize);
         loadVector(ATT_NORM_BIAS, "input_layernorm.bias", hiddenSize);
-        loadMatrix(ATT_TRANSPOSED_COMBINED_WEIGHT, "self_attention.query_key_value.weight", hiddenSize * 3, hiddenSize);
+        loadMatrix(ATT_COMBINED_VERTICAL_WEIGHT, "self_attention.query_key_value.weight", hiddenSize * 3, hiddenSize);
         loadVector(ATT_COMBINED_BIAS, "self_attention.query_key_value.bias", hiddenSize * 3);
-        loadMatrix(ATT_TRANSPOSED_PROJ_WEIGHT, "self_attention.dense.weight", hiddenSize, hiddenSize);
+        loadMatrix(ATT_VERTICAL_PROJ_WEIGHT, "self_attention.dense.weight", hiddenSize, hiddenSize);
         loadVector(ATT_PROJ_BIAS, "self_attention.dense.bias", hiddenSize);
 
         // Calculate the attention dividend
@@ -71,7 +71,7 @@ public class BloomAttentionLayer extends BaseAttentionLayer
     private Vector attention(Vector hiddenState)
     {
         // Calculate the query-key-value vectors for the actual token
-        Vector queryKeyValue = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_TRANSPOSED_COMBINED_WEIGHT));
+        Vector queryKeyValue = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_COMBINED_VERTICAL_WEIGHT));
         queryKeyValue = MATH.addVectors(queryKeyValue, vector(ATT_COMBINED_BIAS));
 
         // Split the query, key and value vectors into pieces for all heads
@@ -129,7 +129,7 @@ public class BloomAttentionLayer extends BaseAttentionLayer
         hiddenState = MATH.flattenMatrix(valueAggregate);
 
         // Projection neural layer
-        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_TRANSPOSED_PROJ_WEIGHT));
+        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_VERTICAL_PROJ_WEIGHT));
         hiddenState = MATH.addVectors(hiddenState, vector(ATT_PROJ_BIAS));
 
         return hiddenState;

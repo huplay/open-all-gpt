@@ -5,13 +5,13 @@ import huplay.dataType.vector.Vector;
 
 public interface Matrix
 {
-    float getValue(int row, int col);
+    float getValue(int rowId, int colId);
 
-    void setValue(int row, int col, float value);
+    void setValue(int rowId, int colId, float value);
 
-    Vector getRow(int row);
+    Vector getRow(int rowId);
 
-    void setRow(int row, Vector vector);
+    void setRow(int rowId, Vector vector);
 
     Vector[] getVectorArray();
 

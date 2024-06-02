@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import huplay.IdentifiedException;
 import huplay.quantization.QuantizationConfig;
+import huplay.quantization.QuantizeConfig;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,8 +36,17 @@ public class ModelConfig implements RepoConfig
     private Map<BlockType, Integer> memorySizes;
     private Config configOverride;
 
+    /**
+     * Settings of the quantization (if the model is already quantized)
+     */
     @JsonProperty("quantization")
-    private QuantizationConfig quantization;
+    private QuantizationConfig quantizationConfig;
+
+    /**
+     * Settings of the requested quantization (if the model isn't quantized, but we do it at loading)
+     */
+    @JsonProperty("quantize")
+    private QuantizeConfig quantizeConfig;
 
     public static ModelConfig read(String configPath, String downloadPath)
     {
@@ -89,7 +99,8 @@ public class ModelConfig implements RepoConfig
     public Integer getMemorySize() {return memorySize;}
     public Map<BlockType, Integer> getMemorySizes() {return memorySizes;}
     public Config getConfigOverride() {return configOverride;}
-    public QuantizationConfig getQuantizationConfig() {return quantization;}
+    public QuantizationConfig getQuantizationConfig() {return quantizationConfig;}
+    public QuantizeConfig getQuantizeConfig() {return quantizeConfig;}
 
     public String resolveFileName(String name)
     {
