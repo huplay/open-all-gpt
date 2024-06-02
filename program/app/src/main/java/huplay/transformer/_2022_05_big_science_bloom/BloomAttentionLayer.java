@@ -1,5 +1,6 @@
 package huplay.transformer._2022_05_big_science_bloom;
 
+import huplay.config.Parameter;
 import huplay.dataType.matrix.Matrix;
 import huplay.transformer.BaseAttentionLayer;
 import huplay.dataType.vector.Vector;
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static huplay.MathUtilProvider.*;
+import static huplay.config.Parameter.par;
 import static huplay.config.ParameterType.*;
 import static huplay.math.BasicMathUtility.sqrt;
 
@@ -18,6 +20,14 @@ import static huplay.math.BasicMathUtility.sqrt;
  */
 public class BloomAttentionLayer extends BaseAttentionLayer
 {
+    // Declare the used parameters (id, parameter type):
+    Parameter NORM_WEIGHT = par("input_layernorm.weight", NORMALIZATION_WEIGHT);
+    Parameter NORM_BIAS = par("input_layernorm.bias", NORMALIZATION_BIAS);
+    Parameter QUERY_KEY_VALUE_WEIGHT = par("self_attention.query_key_value.weight", VERTICAL_WEIGHT);
+    Parameter QUERY_KEY_VALUE_BIAS = par("self_attention.query_key_value.bias", BIAS);
+    Parameter PROJECTION_WEIGHT = par("self_attention.dense.weight", VERTICAL_WEIGHT);
+    Parameter PROJECTION_BIAS = par("self_attention.dense.bias", BIAS);
+
     private float[] positionSlope;
 
     protected final List<List<Vector>> storedKeys = new ArrayList<>(headCount);
@@ -32,12 +42,12 @@ public class BloomAttentionLayer extends BaseAttentionLayer
         }
 
         // Load parameters
-        loadVector(ATT_NORM_WEIGHT, "input_layernorm.weight", hiddenSize);
-        loadVector(ATT_NORM_BIAS, "input_layernorm.bias", hiddenSize);
-        loadMatrix(ATT_COMBINED_VERTICAL_WEIGHT, "self_attention.query_key_value.weight", hiddenSize * 3, hiddenSize);
-        loadVector(ATT_COMBINED_BIAS, "self_attention.query_key_value.bias", hiddenSize * 3);
-        loadMatrix(ATT_VERTICAL_PROJ_WEIGHT, "self_attention.dense.weight", hiddenSize, hiddenSize);
-        loadVector(ATT_PROJ_BIAS, "self_attention.dense.bias", hiddenSize);
+        loadVector(NORM_WEIGHT, hiddenSize);
+        loadVector(NORM_BIAS, hiddenSize);
+        loadMatrix(QUERY_KEY_VALUE_WEIGHT,  hiddenSize * 3, hiddenSize);
+        loadVector(QUERY_KEY_VALUE_BIAS, hiddenSize * 3);
+        loadMatrix(PROJECTION_WEIGHT, hiddenSize, hiddenSize);
+        loadVector(PROJECTION_BIAS, hiddenSize);
 
         // Calculate the attention dividend
         attentionDividend = sqrt(headSize);
@@ -54,7 +64,7 @@ public class BloomAttentionLayer extends BaseAttentionLayer
     public Vector process(Vector inputHiddenState, boolean isInputOnly)
     {
         // Normalisation
-        Vector hiddenState = MATH.layerNorm(inputHiddenState, vector(ATT_NORM_WEIGHT), vector(ATT_NORM_BIAS), epsilon);
+        Vector hiddenState = MATH.layerNorm(inputHiddenState, vector(NORM_WEIGHT), vector(NORM_BIAS), epsilon);
 
         // Attention
         hiddenState = attention(hiddenState);
@@ -71,8 +81,8 @@ public class BloomAttentionLayer extends BaseAttentionLayer
     private Vector attention(Vector hiddenState)
     {
         // Calculate the query-key-value vectors for the actual token
-        Vector queryKeyValue = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_COMBINED_VERTICAL_WEIGHT));
-        queryKeyValue = MATH.addVectors(queryKeyValue, vector(ATT_COMBINED_BIAS));
+        Vector queryKeyValue = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(QUERY_KEY_VALUE_WEIGHT));
+        queryKeyValue = MATH.addVectors(queryKeyValue, vector(QUERY_KEY_VALUE_BIAS));
 
         // Split the query, key and value vectors into pieces for all heads
         Matrix queryKeyValuesByHead = MATH.splitVector(queryKeyValue, headCount);
@@ -129,8 +139,8 @@ public class BloomAttentionLayer extends BaseAttentionLayer
         hiddenState = MATH.flattenMatrix(valueAggregate);
 
         // Projection neural layer
-        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_VERTICAL_PROJ_WEIGHT));
-        hiddenState = MATH.addVectors(hiddenState, vector(ATT_PROJ_BIAS));
+        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(PROJECTION_WEIGHT));
+        hiddenState = MATH.addVectors(hiddenState, vector(PROJECTION_BIAS));
 
         return hiddenState;
     }

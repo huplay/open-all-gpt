@@ -1,9 +1,11 @@
 package huplay.transformer._2023_02_meta_llama;
 
+import huplay.config.Parameter;
 import huplay.transformer.BaseNeuralNetLayer;
 import huplay.dataType.vector.Vector;
 
 import static huplay.MathUtilProvider.*;
+import static huplay.config.Parameter.par;
 import static huplay.config.ParameterType.*;
 
 /**
@@ -13,18 +15,24 @@ import static huplay.config.ParameterType.*;
  */
 public class LlamaNeuralNetLayer extends BaseNeuralNetLayer
 {
+    // Declare the used parameters (id, parameter type):
+    Parameter NORM_WEIGHT = par("post_attention_layernorm.weight", NORMALIZATION_WEIGHT);
+    Parameter NEURAL_LAYER_1_WEIGHT = par("mlp.gate_proj.weight", VERTICAL_WEIGHT);
+    Parameter NEURAL_LAYER_2_WEIGHT = par("mlp.up_proj.weight", VERTICAL_WEIGHT);
+    Parameter NEURAL_LAYER_3_WEIGHT = par("mlp.down_proj.weight", VERTICAL_WEIGHT);
+
     public void loadParameters()
     {
-        loadVector(MLP_NORM_WEIGHT, "post_attention_layernorm.weight", hiddenSize);
-        loadMatrix(MLP_1_WEIGHT, "mlp.gate_proj.weight", feedForwardSize, hiddenSize);
-        loadMatrix(MLP_2_WEIGHT, "mlp.up_proj.weight", feedForwardSize, hiddenSize);
-        loadMatrix(MLP_3_WEIGHT, "mlp.down_proj.weight", hiddenSize, feedForwardSize);
+        loadVector(NORM_WEIGHT, hiddenSize);
+        loadMatrix(NEURAL_LAYER_1_WEIGHT, feedForwardSize, hiddenSize);
+        loadMatrix(NEURAL_LAYER_2_WEIGHT, feedForwardSize, hiddenSize);
+        loadMatrix(NEURAL_LAYER_3_WEIGHT, hiddenSize, feedForwardSize);
     }
 
     public Vector process(Vector inputHiddenState)
     {
         // Normalisation
-        Vector hiddenState = MATH.RMSLayerNorm(inputHiddenState, vector(MLP_NORM_WEIGHT), epsilon);
+        Vector hiddenState = MATH.RMSLayerNorm(inputHiddenState, vector(NORM_WEIGHT), epsilon);
 
         // Neural layers
         hiddenState = neuralNet(hiddenState);
@@ -38,8 +46,8 @@ public class LlamaNeuralNetLayer extends BaseNeuralNetLayer
     private Vector neuralNet(Vector hiddenState)
     {
         // Feed parallel two layers with the same input
-        Vector hiddenState1 = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(MLP_1_WEIGHT));
-        Vector hiddenState2 = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(MLP_2_WEIGHT));
+        Vector hiddenState1 = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(NEURAL_LAYER_1_WEIGHT));
+        Vector hiddenState2 = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(NEURAL_LAYER_2_WEIGHT));
 
         // Use SwiGLU activation function on the gate layer (no activation function on the other)
         for (int neuron = 0; neuron < feedForwardSize; neuron++)
@@ -54,7 +62,7 @@ public class LlamaNeuralNetLayer extends BaseNeuralNetLayer
         }
 
         // Use the third layer (no activation function)
-        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState1, matrix(MLP_3_WEIGHT));
+        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState1, matrix(NEURAL_LAYER_3_WEIGHT));
 
         return hiddenState;
     }

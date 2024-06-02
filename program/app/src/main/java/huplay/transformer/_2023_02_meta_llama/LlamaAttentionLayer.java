@@ -1,11 +1,14 @@
 package huplay.transformer._2023_02_meta_llama;
 
+import huplay.config.Parameter;
 import huplay.dataType.matrix.Matrix;
 import huplay.transformer.BaseAttentionLayer;
 import huplay.dataType.vector.Vector;
 
 import static huplay.MathUtilProvider.*;
-import static huplay.config.ParameterType.*;
+import static huplay.config.Parameter.par;
+import static huplay.config.ParameterType.NORMALIZATION_WEIGHT;
+import static huplay.config.ParameterType.VERTICAL_WEIGHT;
 import static huplay.math.BasicMathUtility.*;
 
 /**
@@ -15,23 +18,30 @@ import static huplay.math.BasicMathUtility.*;
  */
 public class LlamaAttentionLayer extends BaseAttentionLayer
 {
-    private int kvHeadCount;
-    private int kvHeadSize;
+    // Declare the used parameters (id, parameter type):
+    Parameter QUERY_WEIGHT = par("self_attn.q_proj.weight", VERTICAL_WEIGHT);
+    Parameter KEY_WEIGHT = par("self_attn.k_proj.weight", VERTICAL_WEIGHT);
+    Parameter VALUE_WEIGHT = par("self_attn.v_proj.weight", VERTICAL_WEIGHT);
+    Parameter NORM_WEIGHT = par("input_layernorm.weight", NORMALIZATION_WEIGHT);
+    Parameter PROJECTION_WEIGHT = par("self_attn.o_proj.weight", VERTICAL_WEIGHT);
+
+    int kvHeadCount;
+    int kvHeadSize;
 
     public void loadParameters()
     {
-        loadMatrix(ATT_QUERY_WEIGHT, "self_attn.q_proj.weight", hiddenSize, hiddenSize);
+        loadMatrix(QUERY_WEIGHT, hiddenSize, hiddenSize);
 
         // Read the optional config for the "key/value head" count
         // (At the original attention (MHA) there was only a single kind of head. Call it "query head" from now on.)
         // If the "query head" is different to the "key/value head" count, we are using Grouped Query Attention (GQA)
         kvHeadCount = config.getIntOptional("num_key_value_heads", headCount);
         kvHeadSize = headCount / kvHeadCount;
-        loadMatrix(ATT_KEY_WEIGHT, "self_attn.k_proj.weight", hiddenSize, hiddenSize / kvHeadSize);
-        loadMatrix(ATT_VALUE_WEIGHT, "self_attn.v_proj.weight", hiddenSize, hiddenSize / kvHeadSize);
+        loadMatrix(KEY_WEIGHT, hiddenSize, hiddenSize / kvHeadSize);
+        loadMatrix(VALUE_WEIGHT, hiddenSize, hiddenSize / kvHeadSize);
 
-        loadVector(ATT_NORM_WEIGHT, "input_layernorm.weight", hiddenSize);
-        loadMatrix(ATT_PROJ_WEIGHT, "self_attn.o_proj.weight", hiddenSize, hiddenSize);
+        loadVector(NORM_WEIGHT, hiddenSize);
+        loadMatrix(PROJECTION_WEIGHT, hiddenSize, hiddenSize);
 
         // Calculate the attention dividend
         this.attentionDividend = sqrt(headSize);
@@ -40,7 +50,7 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
     public Vector process(Vector inputHiddenState, boolean isInputOnly)
     {
         // Normalisation
-        Vector hiddenState = MATH.RMSLayerNorm(inputHiddenState, vector(ATT_NORM_WEIGHT), epsilon);
+        Vector hiddenState = MATH.RMSLayerNorm(inputHiddenState, vector(NORM_WEIGHT), epsilon);
 
         if (kvHeadSize == 1)
         {
@@ -65,9 +75,9 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
     protected Vector attention(Vector hiddenState)
     {
         // Calculate the query, key and value vectors for the actual token
-        Vector query = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_QUERY_WEIGHT));
-        Vector key = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_KEY_WEIGHT));
-        Vector value = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_VALUE_WEIGHT));
+        Vector query = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(QUERY_WEIGHT));
+        Vector key = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(KEY_WEIGHT));
+        Vector value = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(VALUE_WEIGHT));
 
         // Split the query, key and value vectors into pieces for all heads
         Matrix queryByHead = MATH.splitVector(query, headCount);
@@ -118,7 +128,7 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
         hiddenState = MATH.flattenMatrix(valueAggregate);
 
         // Projection neural layer
-        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_PROJ_WEIGHT));
+        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(PROJECTION_WEIGHT));
 
         return hiddenState;
     }
@@ -149,11 +159,11 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
     protected Vector groupedQueryAttention(Vector hiddenState)
     {
         // Calculate the query, key and value vectors for the actual token
-        Vector query = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_QUERY_WEIGHT));
+        Vector query = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(QUERY_WEIGHT));
 
         // The key and value matrices are smaller (less head count) than the query matrix
-        Vector key = MATH.mulVectorByMatrix(hiddenState, matrix(ATT_KEY_WEIGHT)); // TODO: Why it isn't transposed?
-        Vector value = MATH.mulVectorByMatrix(hiddenState, matrix(ATT_VALUE_WEIGHT)); // TODO: Why it isn't transposed?
+        Vector key = MATH.mulVectorByMatrix(hiddenState, matrix(KEY_WEIGHT)); // TODO: Why it isn't transposed?
+        Vector value = MATH.mulVectorByMatrix(hiddenState, matrix(VALUE_WEIGHT)); // TODO: Why it isn't transposed?
 
         // Split the query, key and value vectors into pieces for all heads
         Matrix queryByHead = MATH.splitVector(query, headCount);
@@ -206,7 +216,7 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
         hiddenState = MATH.flattenMatrix(valueAggregate);
 
         // Projection neural layer
-        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_PROJ_WEIGHT));
+        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(PROJECTION_WEIGHT));
 
         return hiddenState;
     }

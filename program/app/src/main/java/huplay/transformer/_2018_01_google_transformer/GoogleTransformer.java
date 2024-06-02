@@ -1,9 +1,12 @@
 package huplay.transformer._2018_01_google_transformer;
 
+import huplay.config.Parameter;
 import huplay.dataType.matrix.Matrix;
 import huplay.transformer.BaseTransformer;
 import huplay.dataType.vector.Vector;
 
+import static huplay.MathUtilProvider.MATH;
+import static huplay.config.Parameter.par;
 import static huplay.config.ParameterType.*;
 import static huplay.math.BasicMathUtility.exp;
 
@@ -35,11 +38,14 @@ import static huplay.math.BasicMathUtility.exp;
  */
 public class GoogleTransformer extends BaseTransformer
 {
+    // Declare the used parameter (id, parameter type):
+    Parameter TOKEN_EMBEDDINGS = par("tokens_embed.weight", EMBEDDINGS);
+
     private Matrix positionMatrix;
 
     public void loadParameters()
     {
-        loadMatrix(TOKEN_EMBEDDINGS, "tokens_embed.weight", tokenCount, hiddenSize);
+        loadMatrix(TOKEN_EMBEDDINGS, tokenCount, hiddenSize);
 
         // Calculates the sinusoidal transform matrix for the position embedding
         this.positionMatrix = calculatePositionMatrix();
@@ -61,7 +67,11 @@ public class GoogleTransformer extends BaseTransformer
 
     public int generateToken(Vector hiddenState, int topK)
     {
-        return determineOutputToken(hiddenState, topK);
+        // Multiply (dot product) the output with all token embeddings.
+        // It will give a higher value if the output is more similar to the token embedding
+        float[] logits = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(TOKEN_EMBEDDINGS)).getValues();
+
+        return selectBestToken(logits, topK);
     }
 
     private Matrix calculatePositionMatrix()

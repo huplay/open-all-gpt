@@ -4,7 +4,7 @@
   "repo": "https://huggingface.co/EleutherAI/gpt-j-6b",
   "branch": "refs/pr/40",
   "files": ["config.json", "model.safetensors"],
-  "decoderParameterNaming": "transformer.h.{decoderId}.{name}",
+  "parameterNaming": "transformer.h.{decoderId}.{name}",
   "parameterNameOverrides": {
     "transformer.h.0.ln_f.weight": "transformer.ln_f.weight",
     "transformer.h.1.ln_f.weight": "transformer.ln_f.weight",

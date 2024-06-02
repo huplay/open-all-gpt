@@ -166,7 +166,7 @@ public class GenerateTestSafetensors
                 else if (shape.length == 2)
                 {
                     // Write a matrix
-                    var values = parameterLoader.loadMatrix(reader, ParameterType.TEST, entry.getKey(), shape[0], shape[1]);
+                    var values = parameterLoader.loadMatrix(reader, ParameterType.HORIZONTAL_WEIGHT, entry.getKey(), shape[0], shape[1]);
                     for (var row : values.getVectorArray())
                     {
                         for (var i = 0; i < row.size(); i++)

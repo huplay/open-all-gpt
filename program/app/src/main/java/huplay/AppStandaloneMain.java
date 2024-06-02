@@ -91,6 +91,32 @@ public class AppStandaloneMain
 
         if (!config.isCalculationOnly())
         {
+            if (config.getQuantizationConfig() != null)
+            {
+                var quantizationType = config.getQuantizationConfig().getQuantizationType();
+                if (quantizationType != null)
+                {
+                    OUT.print("\nThe model is quantized, using: " + quantizationType);
+
+                    if (config.getQuantizationConfig().getDeQuantizeOnLoad())
+                    {
+                        OUT.println(", but it was de-quantized at load.");
+                    }
+                    else
+                    {
+                        OUT.println();
+                    }
+                }
+            }
+            else if (config.getQuantizeConfig() != null)
+            {
+                var quantizationType = config.getQuantizeConfig().getQuantizationType();
+                if (quantizationType != null)
+                {
+                    OUT.println("\nIt was a non-quantized model, but we quantized it at load, using: " + quantizationType);
+                }
+            }
+
             Talk.talk(OUT, transformerFlow);
         }
     }

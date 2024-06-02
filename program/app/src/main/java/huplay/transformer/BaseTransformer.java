@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 import static huplay.MathUtilProvider.MATH;
-import static huplay.config.ParameterType.TOKEN_EMBEDDINGS;
 
 public abstract class BaseTransformer extends ParameterStore
 {
@@ -105,12 +104,8 @@ public abstract class BaseTransformer extends ParameterStore
         return hiddenState;
     }
 
-    protected int determineOutputToken(Vector hiddenState, int topK)
+    protected int selectBestToken(float[] logits, int topK)
     {
-        // Multiply (dot product) the output with all token embeddings.
-        // It will give a higher value if the output is more similar to the token embedding
-        float[] logits = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(TOKEN_EMBEDDINGS)).getValues();
-
         // Sort (higher to lower) the result of the dot products, retaining the order (index) of the related token
         List<IndexedValue> orderedLogits = MATH.reverseAndFilter(logits, topK);
 

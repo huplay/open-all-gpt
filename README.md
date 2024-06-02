@@ -56,42 +56,66 @@ Above the 32-bit float (which is the same as the standard Java float), 16-bit fl
 
 ## Quantization ##
 
-Quantized parameters are also supported. It means the parameters are loaded into memory in quantized format (stored in a special matrix object), and the values are unpacked when accessed. Every calculation is performed on the standard 32-bit float data type, and every result (immediate of final) will be stored in the memory as 32 or 16-bit float values. So only the original trained parameters are stored in quantized format. (And usually only weights are quantized: the query/key/value, the attention projection weights, and the weights of the neural net.)
+Quantized models are also supported. The app can load models in quantized format, which will be stored in a special matrix object, occupying as less memory as possible. The values will be de-quantized when accessed, so the intermediate objects (created as a result of a calculation) will use FLOAT 32 values, but most of it will be removed by the garbage collector, so it will be in the memory only temporarily, not permanently as the quantized parameters.
+
+Every calculation is performed on the standard 32-bit float data type, and every result (intermediate of final) will be stored in the memory as 32 or 16-bit float values. (Usually only weights are quantized: the query/key/value, the attention projection weights, and the weights of the neural net.)
+
+Not only the de-quantization is possible, this app can quantize a non-quantized model on the fly (during the load). Furthermore, that is also possible to de-quantize an already quantized model. (The quantization and de-quantization happens only in-memory, it isn't saved.)
 
 Supported quantization methods:
+
+### LLM.int8() ###
+This is an 8-bit quantization method. (One of the first used at LLMs.)
+The values are quantized using a simple interpolation, so in practice every value is rounded to the nearest of 256 possible values. (Grouped by rows.)
+
+### QLoRA ###
+It is one of the first 4-bit quantization method used at LLMs.
+It also uses a simple interpolation, but it has only 16 possible values. The same team implemented it which created the LLM.int8(), but there are some differences. It uses smaller groups (not a whole row), and it has different variants, like `fp4` or `nf4`, etc. (With or without double quantization.) 
+
+The variant type is automatically determined at load. But you have to specify when the quantization is requested. 
+
+- Default parameter names:
+    - `absMax`: `{name}.absmax` (The FLOAT 32 absMax values at simple quantization)
+    - `quantMap`: `{name}.quant_map` (The quantiles used at quantization)
+    - `nestedAbsMax`: `{name}.nested_absmax` (The nested absMax values at double quantization, so the absMaxes of the absMaxes)
+    - `nestedQuantMap`: `{name}.nested_quant_map"` (The quantiles used at double quantization for the absMaxes)
+    - `quantizedAbsMax`: `{name}.absmax` (The quantized absMax values at double quantization)
+
+- LLM.int8() (8-bit)
 - QLoRA (4-bit)
-- GPTQ (4-bit)
-
-The quantization should be configured in the `quantization` section of the `model.json`:
-- `quantizationType`: The name of the quantization method (QLORA or GPTQ)
-- `outputFloatType`: The float type used when the values are unpacked. (FLOAT32/FLOAT16/BFLOAT16)
-- `transposeMatrix`: Whether we have to transpose the matrix (if the quantization treats it the other way round) (`true` or `false`)
-- `parameters`: List of parameters where the quantization happened. If it is missing the WEIGHT parameters are expected to be quantized 
-- `naming`: Mappings (key-value pairs) to override the default parameter names
-
-The `naming` mapping can contain placeholders:
-- `{name}` will be replaced by the final name of the parameter.
-- `{name-1}` will be replaced by the final name of the parameter, but the last segment removed (segments are separated by '.').
-
+- In progress: GPTQ (4-bit)
 
 Specialities of the quantization methods:
 
 QLoRA:
 - There are different QLoRA variants, like `fp4` or `nf4`, etc. (With or without double quantization.) It is automatically determined based on the collection name. (There's a `quant_state.bitsandbytes__{variant}` collection. If some reason it had a different name, it can be specified in the naming section with the `QUANT_STATE_KEY_PREFIX` key.)
 - Default parameter names:
-  - `absMax`: `{name}.absmax` (The FLOAT 32 absMax values at simple quantization)
-  - `quantMap`: `{name}.quant_map` (The quantiles used at quantization)
-  - `nestedAbsMax`: `{name}.nested_absmax` (The nested absMax values at double quantization, so the absMaxes of the absMaxes)
-  - `nestedQuantMap`: `{name}.nested_quant_map"` (The quantiles used at double quantization for the absMaxes)
-  - `quantizedAbsMax`: `{name}.absmax` (The quantized absMax values at double quantization)
+    - `absMax`: `{name}.absmax` (The FLOAT 32 absMax values at simple quantization)
+    - `quantMap`: `{name}.quant_map` (The quantiles used at quantization)
+    - `nestedAbsMax`: `{name}.nested_absmax` (The nested absMax values at double quantization, so the absMaxes of the absMaxes)
+    - `nestedQuantMap`: `{name}.nested_quant_map"` (The quantiles used at double quantization for the absMaxes)
+    - `quantizedAbsMax`: `{name}.absmax` (The quantized absMax values at double quantization)
 
 GPTQ:
 - The `quantize.json` file should be added to the `files` list at the `model.json` to download it with the other files
 - Default parameter names:
-  - `groupIndex`: `{name-1}.g_idx`
-  - `zeros`: `{name-1}.qzeros`
-  - `scales`: `{name-1}.scales`
-  - `weights`: `{name-1}.qweight`
+    - `groupIndex`: `{name-1}.g_idx`
+    - `zeros`: `{name-1}.qzeros`
+    - `scales`: `{name-1}.scales`
+    - `weights`: `{name-1}.qweight`
+
+###Loading 
+
+The quantization type of an already quantized model should be configured in the `quantization` section of the `model.json`:
+- `quantizationType`: The name of the quantization method (QLORA or GPTQ)
+- `outputFloatType`: The float type used when the values are unpacked. (FLOAT32/FLOAT16/BFLOAT16)
+- `parameters`: List of parameters where the quantization happened. If it is missing the WEIGHT parameters are expected to be quantized 
+- `naming`: Mappings (key-value pairs) to override the default parameter names
+- `deQuantizeOnLoad`: Set to true to de-quantize the model at load. It will lost its advantage to occupy less memory, and the performance remains degraded, but if the memory size isn't a problem, the execution will be faster.
+
+The `naming` mapping can contain placeholders:
+- `{name}` will be replaced by the final name of the parameter.
+- `{name-1}` will be replaced by the final name of the parameter, but the last segment removed (segments are separated by '.').
 
 ## Configuration ##
 

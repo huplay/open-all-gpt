@@ -16,14 +16,12 @@ public class QuantizationConfig
     private List<String> parameters;
     private Map<String, String> naming;
     private String outputFloatType;
-    private boolean transposeMatrix;
     private boolean deQuantizeOnLoad;
 
     // Getters
     public String getQuantizationType() {return quantizationType;}
     public List<String> getParameters() {return parameters;}
     public Map<String, String> getNaming() {return naming;}
-    public boolean getTransposeMatrix() {return transposeMatrix;}
     public boolean getDeQuantizeOnLoad() {return deQuantizeOnLoad;}
 
     public DataType getOutputFloatType()

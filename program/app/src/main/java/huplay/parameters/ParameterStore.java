@@ -1,6 +1,7 @@
 package huplay.parameters;
 
 import huplay.config.Config;
+import huplay.config.Parameter;
 import huplay.dataType.DataType;
 import huplay.dataType.matrix.Matrix;
 import huplay.parameters.safetensors.SafetensorsReader;
@@ -21,8 +22,8 @@ public abstract class ParameterStore
 
     public SafetensorsReader reader;
 
-    public final Map<ParameterType, Vector> vectorParams = new HashMap<>();
-    public final Map<ParameterType, Matrix> matrixParams = new HashMap<>();
+    public final Map<String, Vector> vectorParams = new HashMap<>();
+    public final Map<String, Matrix> matrixParams = new HashMap<>();
 
     public void init(Config config)
     {
@@ -46,13 +47,16 @@ public abstract class ParameterStore
     /**
      * Loads a vector parameter (Currently quantization isn't supported for vectors, only for matrices)
      */
-    protected void loadVector(ParameterType parameterType, String id, int size)
+    protected void loadVector(Parameter parameter, int size)
     {
+        var parameterType = parameter.getParameterType();
+        var parameterId = parameter.getId();
+
         // Get the parameter loader (standard or a quantizer, but non-of the quantizers supports vectors)
-        var parameterLoader = getParameterLoader(parameterType, id);
+        var parameterLoader = getParameterLoader(parameterType, parameterId);
 
         // Resolve the final name of the parameter
-        var name = formatName(id);
+        var name = formatName(parameter.getId());
 
         // Calculate size
         parameterSize += size;
@@ -61,7 +65,7 @@ public abstract class ParameterStore
         if (!config.isCalculationOnly())
         {
             // Load and store the vector
-            vectorParams.put(parameterType, parameterLoader.loadVector(reader, name, size));
+            vectorParams.put(parameter.getId(), parameterLoader.loadVector(reader, name, size));
         }
     }
 
@@ -69,13 +73,16 @@ public abstract class ParameterStore
      * Loads a matrix parameter (standard or quantized)
      * Optionally it can de-quantize a quantized or quantize a non-quantized parameter
      */
-    protected void loadMatrix(ParameterType parameterType, String id, int rows, int cols)
+    protected void loadMatrix(Parameter parameter, int rows, int cols)
     {
+        var parameterType = parameter.getParameterType();
+        var parameterId = parameter.getId();
+
         // Get the parameter loader (standard or a quantizer)
-        var parameterLoader = getParameterLoader(parameterType, id);
+        var parameterLoader = getParameterLoader(parameterType, parameterId);
 
         // Resolve the final name of the parameter
-        var name = formatName(id);
+        var name = formatName(parameterId);
 
         // Calculate size
         parameterSize += (long) rows * cols;
@@ -102,13 +109,12 @@ public abstract class ParameterStore
                 {
                     // ... but we can quantize it, if requested
                     var quantizationType = config.getQuantizeConfig().getQuantizationType();
-                    System.out.println("INFO: This parameter is quantized at loading: "  + id + ", using: " + quantizationType);
                     matrix = QuantizationType.getQuantizer(config, quantizationType).quantize(parameterType, matrix);
                 }
             }
 
             // Store the matrix
-            matrixParams.put(parameterType, matrix);
+            matrixParams.put(parameterId, matrix);
         }
     }
 
@@ -127,14 +133,14 @@ public abstract class ParameterStore
         }
     }
 
-    public Vector vector(ParameterType parameterType)
+    public Vector vector(Parameter parameter)
     {
-        return vectorParams.get(parameterType);
+        return vectorParams.get(parameter.getId());
     }
 
-    public Matrix matrix(ParameterType parameterType)
+    public Matrix matrix(Parameter parameter)
     {
-        return matrixParams.get(parameterType);
+        return matrixParams.get(parameter.getId());
     }
 
     // Getters

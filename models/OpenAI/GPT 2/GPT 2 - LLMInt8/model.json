@@ -10,6 +10,6 @@
   {
     "quantizationType": "LLM_INT_8",
     "outputFloatType": "FLOAT_16",
-    "transposeMatrix": false
+    "deQuantizeOnLoad": true
   }
 }

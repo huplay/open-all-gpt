@@ -6,5 +6,12 @@
   "files": ["config.json", "model.safetensors"],
   "parameterNaming": "model.{name}",
   "decoderParameterNaming": "model.layers.{decoderId}.{name}",
-  "memorySize": 1024
+  "memorySize": 1024,
+  "quantize": {
+    "quantizationType": "LLM_INT_8",
+    "outputFloatType": "FLOAT_16",
+    "config": {
+      "threshold": 6.0
+    }
+  }
 }

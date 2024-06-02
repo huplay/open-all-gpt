@@ -3,7 +3,7 @@
   "date": "2018-06",
   "transformerType": "OPENAI_GPT_1",
   "repo": "https://huggingface.co/openai-community/openai-gpt",
-  "files": ["model.safetensors"],
+  "files": ["model.safetensors", "config.json"],
   "decoderParameterNaming": "h.{decoderId}.{name}",
   "memorySize": 1024,
   "configOverride": {

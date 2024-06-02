@@ -1,10 +1,12 @@
 package huplay.transformer._2018_06_openai_gpt1;
 
+import huplay.config.Parameter;
 import huplay.dataType.matrix.Matrix;
 import huplay.transformer.BaseAttentionLayer;
 import huplay.dataType.vector.Vector;
 
 import static huplay.MathUtilProvider.*;
+import static huplay.config.Parameter.par;
 import static huplay.config.ParameterType.*;
 import static huplay.math.BasicMathUtility.sqrt;
 
@@ -15,14 +17,22 @@ import static huplay.math.BasicMathUtility.sqrt;
  */
 public class GPT1AttentionLayer extends BaseAttentionLayer
 {
+    // Declare the used parameters (id, parameter type):
+    Parameter NORM_WEIGHT = par("ln_1.weight", NORMALIZATION_WEIGHT);
+    Parameter NORM_BIAS = par("ln_1.bias", NORMALIZATION_BIAS);
+    Parameter QUERY_KEY_VALUE_WEIGHT = par("attn.c_attn.weight", HORIZONTAL_WEIGHT);
+    Parameter QUERY_KEY_VALUE_BIAS = par("attn.c_attn.bias", BIAS);
+    Parameter PROJECTION_WEIGHT = par("attn.c_proj.weight", HORIZONTAL_WEIGHT);
+    Parameter PROJECTION_BIAS = par("attn.c_proj.bias", BIAS);
+
     public void loadParameters()
     {
-        loadVector(ATT_NORM_WEIGHT, "ln_1.weight", hiddenSize);
-        loadVector(ATT_NORM_BIAS, "ln_1.bias", hiddenSize);
-        loadMatrix(ATT_COMBINED_WEIGHT, "attn.c_attn.weight", hiddenSize, hiddenSize * 3);
-        loadVector(ATT_COMBINED_BIAS, "attn.c_attn.bias", hiddenSize * 3);
-        loadMatrix(ATT_PROJ_WEIGHT, "attn.c_proj.weight", hiddenSize, hiddenSize);
-        loadVector(ATT_PROJ_BIAS, "attn.c_proj.bias", hiddenSize);
+        loadVector(NORM_WEIGHT, hiddenSize);
+        loadVector(NORM_BIAS, hiddenSize);
+        loadMatrix(QUERY_KEY_VALUE_WEIGHT, hiddenSize, hiddenSize * 3);
+        loadVector(QUERY_KEY_VALUE_BIAS, hiddenSize * 3);
+        loadMatrix(PROJECTION_WEIGHT, hiddenSize, hiddenSize);
+        loadVector(PROJECTION_BIAS, hiddenSize);
 
         // Calculate the attention dividend
         attentionDividend = sqrt(headSize);
@@ -40,7 +50,7 @@ public class GPT1AttentionLayer extends BaseAttentionLayer
         hiddenState = MATH.addVectors(inputHiddenState, hiddenState);
 
         // Normalisation
-        hiddenState = MATH.layerNorm(hiddenState, vector(ATT_NORM_WEIGHT), vector(ATT_NORM_BIAS), epsilon);
+        hiddenState = MATH.layerNorm(hiddenState, vector(NORM_WEIGHT), vector(NORM_BIAS), epsilon);
 
         return hiddenState;
     }
@@ -48,8 +58,8 @@ public class GPT1AttentionLayer extends BaseAttentionLayer
     private Vector attention(Vector hiddenState)
     {
         // Calculate the query-key-value vectors for the actual token
-        Vector queryKeyValue = MATH.mulVectorByMatrix(hiddenState, matrix(ATT_COMBINED_WEIGHT));
-        queryKeyValue = MATH.addVectors(queryKeyValue, vector(ATT_COMBINED_BIAS));
+        Vector queryKeyValue = MATH.mulVectorByMatrix(hiddenState, matrix(QUERY_KEY_VALUE_WEIGHT));
+        queryKeyValue = MATH.addVectors(queryKeyValue, vector(QUERY_KEY_VALUE_BIAS));
 
         // Split the query/key/value
         Matrix split = MATH.splitVector(queryKeyValue, 3);
@@ -103,8 +113,8 @@ public class GPT1AttentionLayer extends BaseAttentionLayer
         hiddenState = MATH.flattenMatrix(valueAggregate);
 
         // Projection neural layer
-        hiddenState = MATH.mulVectorByMatrix(hiddenState, matrix(ATT_PROJ_WEIGHT));
-        hiddenState = MATH.addVectors(hiddenState, vector(ATT_PROJ_BIAS));
+        hiddenState = MATH.mulVectorByMatrix(hiddenState, matrix(PROJECTION_WEIGHT));
+        hiddenState = MATH.addVectors(hiddenState, vector(PROJECTION_BIAS));
 
         return hiddenState;
     }

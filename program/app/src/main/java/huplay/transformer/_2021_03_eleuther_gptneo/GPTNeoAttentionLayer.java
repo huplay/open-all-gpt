@@ -1,10 +1,12 @@
 package huplay.transformer._2021_03_eleuther_gptneo;
 
+import huplay.config.Parameter;
 import huplay.dataType.matrix.Matrix;
 import huplay.transformer.BaseAttentionLayer;
 import huplay.dataType.vector.Vector;
 
 import static huplay.MathUtilProvider.*;
+import static huplay.config.Parameter.par;
 import static huplay.config.ParameterType.*;
 
 /**
@@ -14,17 +16,26 @@ import static huplay.config.ParameterType.*;
  */
 public class GPTNeoAttentionLayer extends BaseAttentionLayer
 {
-    private int maxAttentionSize;
+    // Declare the used parameters (id, parameter type):
+    Parameter NORM_WEIGHT = par("ln_1.weight", NORMALIZATION_WEIGHT);
+    Parameter NORM_BIAS = par("ln_1.bias", NORMALIZATION_BIAS);
+    Parameter QUERY_WEIGHT = par("attn.attention.q_proj.weight", VERTICAL_WEIGHT);
+    Parameter KEY_WEIGHT = par("attn.attention.k_proj.weight", VERTICAL_WEIGHT);
+    Parameter VALUE_WEIGHT = par("attn.attention.v_proj.weight", VERTICAL_WEIGHT);
+    Parameter PROJECTION_WEIGHT = par("attn.attention.out_proj.weight", VERTICAL_WEIGHT);
+    Parameter PROJECTION_BIAS = par("attn.attention.out_proj.bias", BIAS);
+
+    int maxAttentionSize;
 
     public void loadParameters()
     {
-        loadVector(ATT_NORM_WEIGHT, "ln_1.weight", hiddenSize);
-        loadVector(ATT_NORM_BIAS, "ln_1.bias", hiddenSize);
-        loadMatrix(ATT_QUERY_WEIGHT, "attn.attention.q_proj.weight", hiddenSize, hiddenSize);
-        loadMatrix(ATT_KEY_WEIGHT, "attn.attention.k_proj.weight", hiddenSize, hiddenSize);
-        loadMatrix(ATT_VALUE_WEIGHT, "attn.attention.v_proj.weight", hiddenSize, hiddenSize);
-        loadMatrix(ATT_PROJ_WEIGHT, "attn.attention.out_proj.weight", hiddenSize, hiddenSize);
-        loadVector(ATT_PROJ_BIAS, "attn.attention.out_proj.bias", hiddenSize);
+        loadVector(NORM_WEIGHT, hiddenSize);
+        loadVector(NORM_BIAS, hiddenSize);
+        loadMatrix(QUERY_WEIGHT, hiddenSize, hiddenSize);
+        loadMatrix(KEY_WEIGHT, hiddenSize, hiddenSize);
+        loadMatrix(VALUE_WEIGHT, hiddenSize, hiddenSize);
+        loadMatrix(PROJECTION_WEIGHT, hiddenSize, hiddenSize);
+        loadVector(PROJECTION_BIAS, hiddenSize);
 
         maxAttentionSize = 256; // TODO: Move sparse attention to logic, not as config
     }
@@ -32,7 +43,7 @@ public class GPTNeoAttentionLayer extends BaseAttentionLayer
     public Vector process(Vector inputHiddenState, boolean isInputOnly)
     {
         // Normalisation
-        Vector hiddenState = MATH.layerNorm(inputHiddenState, vector(ATT_NORM_WEIGHT), vector(ATT_NORM_BIAS), epsilon);
+        Vector hiddenState = MATH.layerNorm(inputHiddenState, vector(NORM_WEIGHT), vector(NORM_BIAS), epsilon);
 
         // Attention
         hiddenState = attention(hiddenState);
@@ -49,9 +60,9 @@ public class GPTNeoAttentionLayer extends BaseAttentionLayer
     private Vector attention(Vector hiddenState)
     {
         // Calculate the query, key and value vectors for the actual token
-        Vector query = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_QUERY_WEIGHT));
-        Vector key = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_KEY_WEIGHT));
-        Vector value = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_VALUE_WEIGHT));
+        Vector query = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(QUERY_WEIGHT));
+        Vector key = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(KEY_WEIGHT));
+        Vector value = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(VALUE_WEIGHT));
 
         // Split the query, key and value vectors into pieces for all heads
         Matrix queryByHead = MATH.splitVector(query, headCount);
@@ -104,8 +115,8 @@ public class GPTNeoAttentionLayer extends BaseAttentionLayer
         hiddenState = MATH.flattenMatrix(valueAggregate);
 
         // Projection neural layer
-        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(ATT_PROJ_WEIGHT));
-        hiddenState = MATH.addVectors(hiddenState, vector(ATT_PROJ_BIAS));
+        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(PROJECTION_WEIGHT));
+        hiddenState = MATH.addVectors(hiddenState, vector(PROJECTION_BIAS));
 
         return hiddenState;
     }
