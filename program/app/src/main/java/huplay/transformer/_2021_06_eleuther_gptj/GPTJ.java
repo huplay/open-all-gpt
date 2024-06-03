@@ -5,7 +5,6 @@ import huplay.transformer.BaseTransformer;
 import huplay.dataType.vector.Vector;
 
 import static huplay.MathUtilProvider.MATH;
-import static huplay.config.Parameter.par;
 import static huplay.config.ParameterType.*;
 
 /**
@@ -31,25 +30,21 @@ import static huplay.config.ParameterType.*;
  */
 public class GPTJ extends BaseTransformer
 {
-    // Declare the used parameters (id, parameter type):
-    Parameter TOKEN_EMBEDDINGS = par("lm_head.weight", EMBEDDINGS);
-    Parameter TOKEN_EMBEDDING_BIAS = par("lm_head.bias", EMBEDDINGS_BIAS);
-    Parameter NORM_WEIGHT = par("transformer.ln_f.weight", NORMALIZATION_WEIGHT);
-    Parameter NORM_BIAS = par("transformer.ln_f.bias", NORMALIZATION_BIAS);
+    Parameter TOKEN_EMBEDDINGS, TOKEN_EMBEDDING_BIAS, NORM_WEIGHT, NORM_BIAS;
 
     public void loadParameters()
     {
-        loadMatrix(TOKEN_EMBEDDINGS, tokenCount, hiddenSize);
-        loadVector(TOKEN_EMBEDDING_BIAS, tokenCount); // TODO: This is new
-        loadVector(NORM_WEIGHT, hiddenSize);
-        loadVector(NORM_BIAS, hiddenSize);
+        TOKEN_EMBEDDINGS = loadMatrix("lm_head.weight", EMBEDDINGS, tokenCount, hiddenSize);
+        TOKEN_EMBEDDING_BIAS = loadVector("lm_head.bias", EMBEDDINGS_BIAS, tokenCount);
+        NORM_WEIGHT = loadVector("transformer.ln_f.weight", NORMALIZATION_WEIGHT, hiddenSize);
+        NORM_BIAS = loadVector("transformer.ln_f.bias", NORMALIZATION_BIAS, hiddenSize);
     }
 
     public Vector preProcessToken(int pos, int token)
     {
         // Find the embeddings of the token
-        return matrix(TOKEN_EMBEDDINGS).getRow(token);
-        //hiddenState = UTIL.addVectors(hiddenState, vector(TOKEN_EMBEDDING_BIAS));
+        Vector hiddenState = matrix(TOKEN_EMBEDDINGS).getRow(token);
+        return MATH.addVectors(hiddenState, vector(TOKEN_EMBEDDING_BIAS));
     }
 
     public int generateToken(Vector hiddenState, int topK)

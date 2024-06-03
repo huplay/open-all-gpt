@@ -6,7 +6,6 @@ import huplay.transformer.BaseAttentionLayer;
 import huplay.dataType.vector.Vector;
 
 import static huplay.MathUtilProvider.*;
-import static huplay.config.Parameter.par;
 import static huplay.config.ParameterType.*;
 
 /**
@@ -16,26 +15,19 @@ import static huplay.config.ParameterType.*;
  */
 public class GPTNeoAttentionLayer extends BaseAttentionLayer
 {
-    // Declare the used parameters (id, parameter type):
-    Parameter NORM_WEIGHT = par("ln_1.weight", NORMALIZATION_WEIGHT);
-    Parameter NORM_BIAS = par("ln_1.bias", NORMALIZATION_BIAS);
-    Parameter QUERY_WEIGHT = par("attn.attention.q_proj.weight", VERTICAL_WEIGHT);
-    Parameter KEY_WEIGHT = par("attn.attention.k_proj.weight", VERTICAL_WEIGHT);
-    Parameter VALUE_WEIGHT = par("attn.attention.v_proj.weight", VERTICAL_WEIGHT);
-    Parameter PROJECTION_WEIGHT = par("attn.attention.out_proj.weight", VERTICAL_WEIGHT);
-    Parameter PROJECTION_BIAS = par("attn.attention.out_proj.bias", BIAS);
+    Parameter NORM_WEIGHT, NORM_BIAS, QUERY_WEIGHT, KEY_WEIGHT, VALUE_WEIGHT, PROJECTION_WEIGHT, PROJECTION_BIAS;
 
     int maxAttentionSize;
 
     public void loadParameters()
     {
-        loadVector(NORM_WEIGHT, hiddenSize);
-        loadVector(NORM_BIAS, hiddenSize);
-        loadMatrix(QUERY_WEIGHT, hiddenSize, hiddenSize);
-        loadMatrix(KEY_WEIGHT, hiddenSize, hiddenSize);
-        loadMatrix(VALUE_WEIGHT, hiddenSize, hiddenSize);
-        loadMatrix(PROJECTION_WEIGHT, hiddenSize, hiddenSize);
-        loadVector(PROJECTION_BIAS, hiddenSize);
+        NORM_WEIGHT = loadVector("ln_1.weight", NORMALIZATION_WEIGHT, hiddenSize);
+        NORM_BIAS = loadVector("ln_1.bias", NORMALIZATION_BIAS, hiddenSize);
+        QUERY_WEIGHT = loadMatrix("attn.attention.q_proj.weight", VERTICAL_WEIGHT, hiddenSize, hiddenSize);
+        KEY_WEIGHT = loadMatrix("attn.attention.k_proj.weight", VERTICAL_WEIGHT, hiddenSize, hiddenSize);
+        VALUE_WEIGHT = loadMatrix("attn.attention.v_proj.weight", VERTICAL_WEIGHT, hiddenSize, hiddenSize);
+        PROJECTION_WEIGHT = loadMatrix("attn.attention.out_proj.weight", VERTICAL_WEIGHT, hiddenSize, hiddenSize);
+        PROJECTION_BIAS = loadVector("attn.attention.out_proj.bias", BIAS, hiddenSize);
 
         maxAttentionSize = 256; // TODO: Move sparse attention to logic, not as config
     }

@@ -4,7 +4,6 @@ import huplay.config.Parameter;
 import huplay.transformer.BaseTransformer;
 import huplay.dataType.vector.Vector;
 
-import static huplay.config.Parameter.par;
 import static huplay.config.ParameterType.*;
 import static huplay.MathUtilProvider.MATH;
 
@@ -18,14 +17,12 @@ import static huplay.MathUtilProvider.MATH;
  */
 public class GPT1 extends BaseTransformer
 {
-    // Declare the used parameters (id, parameter type):
-    Parameter TOKEN_EMBEDDINGS = par("tokens_embed.weight", EMBEDDINGS);
-    Parameter POSITION_EMBEDDINGS = par("positions_embed.weight", EMBEDDINGS);
+    Parameter TOKEN_EMBEDDINGS, POSITION_EMBEDDINGS;
 
     public void loadParameters()
     {
-        loadMatrix(TOKEN_EMBEDDINGS, tokenCount, hiddenSize);
-        loadMatrix(POSITION_EMBEDDINGS, contextSize, hiddenSize);
+        TOKEN_EMBEDDINGS = loadMatrix("tokens_embed.weight", EMBEDDINGS, tokenCount, hiddenSize);
+        POSITION_EMBEDDINGS = loadMatrix("positions_embed.weight", EMBEDDINGS, contextSize, hiddenSize);
     }
 
     public Vector preProcessToken(int pos, int token)

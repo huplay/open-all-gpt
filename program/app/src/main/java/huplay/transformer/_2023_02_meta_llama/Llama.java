@@ -5,7 +5,6 @@ import huplay.transformer.BaseTransformer;
 import huplay.dataType.vector.Vector;
 
 import static huplay.MathUtilProvider.MATH;
-import static huplay.config.Parameter.par;
 import static huplay.config.ParameterType.*;
 
 /**
@@ -25,14 +24,12 @@ import static huplay.config.ParameterType.*;
  */
 public class Llama extends BaseTransformer
 {
-    // Declare the used parameters (id, parameter type):
-    Parameter TOKEN_EMBEDDINGS = par("embed_tokens.weight", EMBEDDINGS);
-    Parameter NORM_WEIGHT = par("norm.weight", NORMALIZATION_WEIGHT);
+    Parameter TOKEN_EMBEDDINGS, NORM_WEIGHT;
 
     public void loadParameters()
     {
-        loadMatrix(TOKEN_EMBEDDINGS, embeddingCount, hiddenSize);
-        loadVector(NORM_WEIGHT, hiddenSize);
+        TOKEN_EMBEDDINGS = loadMatrix("embed_tokens.weight", EMBEDDINGS, embeddingCount, hiddenSize);
+        NORM_WEIGHT = loadVector("norm.weight", NORMALIZATION_WEIGHT, hiddenSize);
     }
 
     public Vector preProcessToken(int pos, int token)

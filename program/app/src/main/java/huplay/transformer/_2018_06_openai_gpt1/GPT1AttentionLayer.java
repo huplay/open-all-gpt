@@ -6,7 +6,6 @@ import huplay.transformer.BaseAttentionLayer;
 import huplay.dataType.vector.Vector;
 
 import static huplay.MathUtilProvider.*;
-import static huplay.config.Parameter.par;
 import static huplay.config.ParameterType.*;
 import static huplay.math.BasicMathUtility.sqrt;
 
@@ -17,22 +16,16 @@ import static huplay.math.BasicMathUtility.sqrt;
  */
 public class GPT1AttentionLayer extends BaseAttentionLayer
 {
-    // Declare the used parameters (id, parameter type):
-    Parameter NORM_WEIGHT = par("ln_1.weight", NORMALIZATION_WEIGHT);
-    Parameter NORM_BIAS = par("ln_1.bias", NORMALIZATION_BIAS);
-    Parameter QUERY_KEY_VALUE_WEIGHT = par("attn.c_attn.weight", HORIZONTAL_WEIGHT);
-    Parameter QUERY_KEY_VALUE_BIAS = par("attn.c_attn.bias", BIAS);
-    Parameter PROJECTION_WEIGHT = par("attn.c_proj.weight", HORIZONTAL_WEIGHT);
-    Parameter PROJECTION_BIAS = par("attn.c_proj.bias", BIAS);
+    Parameter NORM_WEIGHT, NORM_BIAS, QUERY_KEY_VALUE_WEIGHT, QUERY_KEY_VALUE_BIAS, PROJECTION_WEIGHT, PROJECTION_BIAS;
 
     public void loadParameters()
     {
-        loadVector(NORM_WEIGHT, hiddenSize);
-        loadVector(NORM_BIAS, hiddenSize);
-        loadMatrix(QUERY_KEY_VALUE_WEIGHT, hiddenSize, hiddenSize * 3);
-        loadVector(QUERY_KEY_VALUE_BIAS, hiddenSize * 3);
-        loadMatrix(PROJECTION_WEIGHT, hiddenSize, hiddenSize);
-        loadVector(PROJECTION_BIAS, hiddenSize);
+        NORM_WEIGHT = loadVector("ln_1.weight", NORMALIZATION_WEIGHT, hiddenSize);
+        NORM_BIAS = loadVector("ln_1.bias", NORMALIZATION_BIAS, hiddenSize);
+        QUERY_KEY_VALUE_WEIGHT = loadMatrix("attn.c_attn.weight", HORIZONTAL_WEIGHT, hiddenSize, hiddenSize * 3);
+        QUERY_KEY_VALUE_BIAS = loadVector("attn.c_attn.bias", BIAS, hiddenSize * 3);
+        PROJECTION_WEIGHT = loadMatrix("attn.c_proj.weight", HORIZONTAL_WEIGHT, hiddenSize, hiddenSize);
+        PROJECTION_BIAS = loadVector("attn.c_proj.bias", BIAS, hiddenSize);
 
         // Calculate the attention dividend
         attentionDividend = sqrt(headSize);

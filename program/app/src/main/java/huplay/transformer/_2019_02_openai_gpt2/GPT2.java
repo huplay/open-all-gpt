@@ -5,7 +5,6 @@ import huplay.transformer.BaseTransformer;
 import huplay.dataType.vector.Vector;
 
 import static huplay.MathUtilProvider.*;
-import static huplay.config.Parameter.par;
 import static huplay.config.ParameterType.*;
 
 /**
@@ -21,18 +20,14 @@ import static huplay.config.ParameterType.*;
  */
 public class GPT2 extends BaseTransformer
 {
-    // Declare the used parameters (id, parameter type):
-    Parameter TOKEN_EMBEDDINGS = par("wte.weight", EMBEDDINGS);
-    Parameter POSITION_EMBEDDINGS = par("wpe.weight", EMBEDDINGS);
-    Parameter NORM_WEIGHT = par("ln_f.weight", NORMALIZATION_WEIGHT);
-    Parameter NORM_BIAS = par("ln_f.bias", NORMALIZATION_BIAS);
+    Parameter TOKEN_EMBEDDINGS, POSITION_EMBEDDINGS, NORM_WEIGHT, NORM_BIAS;
 
     public void loadParameters()
     {
-        loadMatrix(TOKEN_EMBEDDINGS, tokenCount, hiddenSize);
-        loadMatrix(POSITION_EMBEDDINGS, contextSize, hiddenSize);
-        loadVector(NORM_WEIGHT, hiddenSize);
-        loadVector(NORM_BIAS, hiddenSize);
+        TOKEN_EMBEDDINGS = loadMatrix("wte.weight", EMBEDDINGS, tokenCount, hiddenSize);
+        POSITION_EMBEDDINGS = loadMatrix("wpe.weight", EMBEDDINGS, contextSize, hiddenSize);
+        NORM_WEIGHT = loadVector("ln_f.weight", NORMALIZATION_WEIGHT, hiddenSize);
+        NORM_BIAS = loadVector("ln_f.bias", NORMALIZATION_BIAS, hiddenSize);
     }
 
     public Vector preProcessToken(int pos, int token)

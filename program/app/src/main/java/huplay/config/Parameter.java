@@ -11,11 +11,6 @@ public class Parameter
         this.parameterType = parameterType;
     }
 
-    public static Parameter par(String id, ParameterType parameterType)
-    {
-        return new Parameter(id, parameterType);
-    }
-
     // Getters
     public String getId() {return id;}
     public ParameterType getParameterType() {return parameterType;}

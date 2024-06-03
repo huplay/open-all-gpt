@@ -6,7 +6,6 @@ import huplay.transformer.BaseAttentionLayer;
 import huplay.dataType.vector.Vector;
 
 import static huplay.MathUtilProvider.*;
-import static huplay.config.Parameter.par;
 import static huplay.config.ParameterType.NORMALIZATION_WEIGHT;
 import static huplay.config.ParameterType.VERTICAL_WEIGHT;
 import static huplay.math.BasicMathUtility.*;
@@ -18,30 +17,25 @@ import static huplay.math.BasicMathUtility.*;
  */
 public class LlamaAttentionLayer extends BaseAttentionLayer
 {
-    // Declare the used parameters (id, parameter type):
-    Parameter QUERY_WEIGHT = par("self_attn.q_proj.weight", VERTICAL_WEIGHT);
-    Parameter KEY_WEIGHT = par("self_attn.k_proj.weight", VERTICAL_WEIGHT);
-    Parameter VALUE_WEIGHT = par("self_attn.v_proj.weight", VERTICAL_WEIGHT);
-    Parameter NORM_WEIGHT = par("input_layernorm.weight", NORMALIZATION_WEIGHT);
-    Parameter PROJECTION_WEIGHT = par("self_attn.o_proj.weight", VERTICAL_WEIGHT);
+    Parameter QUERY_WEIGHT, KEY_WEIGHT, VALUE_WEIGHT, NORM_WEIGHT, PROJECTION_WEIGHT;
 
     int kvHeadCount;
     int kvHeadSize;
 
     public void loadParameters()
     {
-        loadMatrix(QUERY_WEIGHT, hiddenSize, hiddenSize);
+        QUERY_WEIGHT = loadMatrix("self_attn.q_proj.weight", VERTICAL_WEIGHT, hiddenSize, hiddenSize);
 
         // Read the optional config for the "key/value head" count
         // (At the original attention (MHA) there was only a single kind of head. Call it "query head" from now on.)
         // If the "query head" is different to the "key/value head" count, we are using Grouped Query Attention (GQA)
         kvHeadCount = config.getIntOptional("num_key_value_heads", headCount);
         kvHeadSize = headCount / kvHeadCount;
-        loadMatrix(KEY_WEIGHT, hiddenSize, hiddenSize / kvHeadSize);
-        loadMatrix(VALUE_WEIGHT, hiddenSize, hiddenSize / kvHeadSize);
+        KEY_WEIGHT = loadMatrix("self_attn.k_proj.weight", VERTICAL_WEIGHT, hiddenSize, hiddenSize / kvHeadSize);
+        VALUE_WEIGHT = loadMatrix("self_attn.v_proj.weight", VERTICAL_WEIGHT, hiddenSize, hiddenSize / kvHeadSize);
 
-        loadVector(NORM_WEIGHT, hiddenSize);
-        loadMatrix(PROJECTION_WEIGHT, hiddenSize, hiddenSize);
+        NORM_WEIGHT = loadVector("input_layernorm.weight", NORMALIZATION_WEIGHT, hiddenSize);
+        PROJECTION_WEIGHT = loadMatrix("self_attn.o_proj.weight", VERTICAL_WEIGHT, hiddenSize, hiddenSize);
 
         // Calculate the attention dividend
         this.attentionDividend = sqrt(headSize);

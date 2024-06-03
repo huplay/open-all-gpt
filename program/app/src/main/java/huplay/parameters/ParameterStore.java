@@ -47,16 +47,13 @@ public abstract class ParameterStore
     /**
      * Loads a vector parameter (Currently quantization isn't supported for vectors, only for matrices)
      */
-    protected void loadVector(Parameter parameter, int size)
+    protected Parameter loadVector(String parameterId, ParameterType parameterType, int size)
     {
-        var parameterType = parameter.getParameterType();
-        var parameterId = parameter.getId();
-
         // Get the parameter loader (standard or a quantizer, but non-of the quantizers supports vectors)
         var parameterLoader = getParameterLoader(parameterType, parameterId);
 
         // Resolve the final name of the parameter
-        var finalParameterId = getFinalParameterId(parameter.getId());
+        var finalParameterId = getFinalParameterId(parameterId);
 
         // Calculate size
         parameterSize += size;
@@ -67,17 +64,16 @@ public abstract class ParameterStore
             // Load and store the vector
             vectorParams.put(parameterId, parameterLoader.loadVector(reader, finalParameterId, size));
         }
+
+        return new Parameter(parameterId, parameterType);
     }
 
     /**
      * Loads a matrix parameter (standard or quantized)
      * Optionally it can de-quantize a quantized or quantize a non-quantized parameter
      */
-    protected void loadMatrix(Parameter parameter, int rows, int cols)
+    protected Parameter loadMatrix(String parameterId, ParameterType parameterType, int rows, int cols)
     {
-        var parameterType = parameter.getParameterType();
-        var parameterId = parameter.getId();
-
         // Get the parameter loader (standard or a quantizer)
         var parameterLoader = getParameterLoader(parameterType, parameterId);
 
@@ -116,6 +112,8 @@ public abstract class ParameterStore
             // Store the matrix
             matrixParams.put(parameterId, matrix);
         }
+
+        return new Parameter(parameterId, parameterType);
     }
 
     private ParameterLoader getParameterLoader(ParameterType parameterType, String parameterId)

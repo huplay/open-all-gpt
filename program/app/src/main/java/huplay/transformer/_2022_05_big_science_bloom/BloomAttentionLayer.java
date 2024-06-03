@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static huplay.MathUtilProvider.*;
-import static huplay.config.Parameter.par;
 import static huplay.config.ParameterType.*;
 import static huplay.math.BasicMathUtility.sqrt;
 
@@ -20,13 +19,7 @@ import static huplay.math.BasicMathUtility.sqrt;
  */
 public class BloomAttentionLayer extends BaseAttentionLayer
 {
-    // Declare the used parameters (id, parameter type):
-    Parameter NORM_WEIGHT = par("input_layernorm.weight", NORMALIZATION_WEIGHT);
-    Parameter NORM_BIAS = par("input_layernorm.bias", NORMALIZATION_BIAS);
-    Parameter QUERY_KEY_VALUE_WEIGHT = par("self_attention.query_key_value.weight", VERTICAL_WEIGHT);
-    Parameter QUERY_KEY_VALUE_BIAS = par("self_attention.query_key_value.bias", BIAS);
-    Parameter PROJECTION_WEIGHT = par("self_attention.dense.weight", VERTICAL_WEIGHT);
-    Parameter PROJECTION_BIAS = par("self_attention.dense.bias", BIAS);
+    Parameter NORM_WEIGHT, NORM_BIAS, QUERY_KEY_VALUE_WEIGHT, QUERY_KEY_VALUE_BIAS, PROJECTION_WEIGHT, PROJECTION_BIAS;
 
     private float[] positionSlope;
 
@@ -35,19 +28,19 @@ public class BloomAttentionLayer extends BaseAttentionLayer
 
     public void loadParameters()
     {
+        // Load parameters
+        NORM_WEIGHT = loadVector("input_layernorm.weight", NORMALIZATION_WEIGHT, hiddenSize);
+        NORM_BIAS = loadVector("input_layernorm.bias", NORMALIZATION_BIAS, hiddenSize);
+        QUERY_KEY_VALUE_WEIGHT = loadMatrix("self_attention.query_key_value.weight", VERTICAL_WEIGHT,  hiddenSize * 3, hiddenSize);
+        QUERY_KEY_VALUE_BIAS = loadVector("self_attention.query_key_value.bias", BIAS, hiddenSize * 3);
+        PROJECTION_WEIGHT = loadMatrix("self_attention.dense.weight", VERTICAL_WEIGHT, hiddenSize, hiddenSize);
+        PROJECTION_BIAS = loadVector("self_attention.dense.bias", BIAS, hiddenSize);
+
         for (int i = 0; i < headCount; i++)
         {
             storedKeys.add(new ArrayList<>());
             storedValues.add(new ArrayList<>());
         }
-
-        // Load parameters
-        loadVector(NORM_WEIGHT, hiddenSize);
-        loadVector(NORM_BIAS, hiddenSize);
-        loadMatrix(QUERY_KEY_VALUE_WEIGHT,  hiddenSize * 3, hiddenSize);
-        loadVector(QUERY_KEY_VALUE_BIAS, hiddenSize * 3);
-        loadMatrix(PROJECTION_WEIGHT, hiddenSize, hiddenSize);
-        loadVector(PROJECTION_BIAS, hiddenSize);
 
         // Calculate the attention dividend
         attentionDividend = sqrt(headSize);

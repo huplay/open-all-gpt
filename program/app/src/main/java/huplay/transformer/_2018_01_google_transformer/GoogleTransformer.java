@@ -6,7 +6,6 @@ import huplay.transformer.BaseTransformer;
 import huplay.dataType.vector.Vector;
 
 import static huplay.MathUtilProvider.MATH;
-import static huplay.config.Parameter.par;
 import static huplay.config.ParameterType.*;
 import static huplay.math.BasicMathUtility.exp;
 
@@ -38,17 +37,12 @@ import static huplay.math.BasicMathUtility.exp;
  */
 public class GoogleTransformer extends BaseTransformer
 {
-    // Declare the used parameter (id, parameter type):
-    Parameter TOKEN_EMBEDDINGS = par("tokens_embed.weight", EMBEDDINGS);
-
-    private Matrix positionMatrix;
+    Parameter TOKEN_EMBEDDINGS;
+    private Matrix positionMatrix = calculatePositionMatrix();
 
     public void loadParameters()
     {
-        loadMatrix(TOKEN_EMBEDDINGS, tokenCount, hiddenSize);
-
-        // Calculates the sinusoidal transform matrix for the position embedding
-        this.positionMatrix = calculatePositionMatrix();
+        TOKEN_EMBEDDINGS = loadMatrix("tokens_embed.weight", EMBEDDINGS, tokenCount, hiddenSize);
     }
 
     public Vector preProcessToken(int pos, int token)

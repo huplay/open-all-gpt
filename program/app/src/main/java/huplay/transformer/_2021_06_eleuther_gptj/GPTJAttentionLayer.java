@@ -6,7 +6,6 @@ import huplay.transformer.BaseAttentionLayer;
 import huplay.dataType.vector.Vector;
 
 import static huplay.MathUtilProvider.*;
-import static huplay.config.Parameter.par;
 import static huplay.config.ParameterType.*;
 import static huplay.math.BasicMathUtility.*;
 
@@ -17,25 +16,19 @@ import static huplay.math.BasicMathUtility.*;
  */
 public class GPTJAttentionLayer extends BaseAttentionLayer
 {
-    // Declare the used parameters (id, parameter type):
-    Parameter NORM_WEIGHT = par("ln_1.weight", NORMALIZATION_WEIGHT);
-    Parameter NORM_BIAS = par("ln_1.bias", NORMALIZATION_BIAS);
-    Parameter QUERY_WEIGHT = par("attn.q_proj.weight", VERTICAL_WEIGHT);
-    Parameter KEY_WEIGHT = par("attn.k_proj.weight", VERTICAL_WEIGHT);
-    Parameter VALUE_WEIGHT = par("attn.v_proj.weight", VERTICAL_WEIGHT);
-    Parameter PROJECTION_WEIGHT = par("attn.out_proj.weight", VERTICAL_WEIGHT);
+    Parameter NORM_WEIGHT, NORM_BIAS, QUERY_WEIGHT, KEY_WEIGHT, VALUE_WEIGHT, PROJECTION_WEIGHT;
 
     int maxAttentionSize;
 
     public void loadParameters()
     {
         // attn.bias BOOL: 1x1x2048x2048
-        loadVector(NORM_WEIGHT, hiddenSize);
-        loadVector(NORM_BIAS, hiddenSize);
-        loadMatrix(QUERY_WEIGHT, hiddenSize, hiddenSize);
-        loadMatrix(KEY_WEIGHT, hiddenSize, hiddenSize);
-        loadMatrix(VALUE_WEIGHT, hiddenSize, hiddenSize);
-        loadMatrix(PROJECTION_WEIGHT, hiddenSize, hiddenSize);
+        NORM_WEIGHT = loadVector("ln_1.weight", NORMALIZATION_WEIGHT, hiddenSize);
+        NORM_BIAS = loadVector("ln_1.bias", NORMALIZATION_BIAS, hiddenSize);
+        QUERY_WEIGHT = loadMatrix("attn.q_proj.weight", VERTICAL_WEIGHT, hiddenSize, hiddenSize);
+        KEY_WEIGHT = loadMatrix("attn.k_proj.weight", VERTICAL_WEIGHT, hiddenSize, hiddenSize);
+        VALUE_WEIGHT = loadMatrix("attn.v_proj.weight", VERTICAL_WEIGHT, hiddenSize, hiddenSize);
+        PROJECTION_WEIGHT = loadMatrix("attn.out_proj.weight", VERTICAL_WEIGHT, hiddenSize, hiddenSize);
 
         maxAttentionSize = 256; // TODO: Move sparse attention to logic, not as config
     }

@@ -5,7 +5,6 @@ import huplay.transformer.BaseTransformer;
 import huplay.dataType.vector.Vector;
 
 import static huplay.MathUtilProvider.MATH;
-import static huplay.config.Parameter.par;
 import static huplay.config.ParameterType.*;
 
 /**
@@ -23,21 +22,15 @@ import static huplay.config.ParameterType.*;
  */
 public class Bloom extends BaseTransformer
 {
-    // Declare the used parameters (id, parameter type):
-    Parameter TOKEN_EMBEDDINGS = par("word_embeddings.weight", EMBEDDINGS);
-    Parameter INPUT_NORM_WEIGHT = par("word_embeddings_layernorm.weight", NORMALIZATION_WEIGHT);
-    Parameter INPUT_NORM_BIAS = par("word_embeddings_layernorm.bias", NORMALIZATION_BIAS);
-    Parameter OUTPUT_NORM_WEIGHT = par("ln_f.weight", NORMALIZATION_WEIGHT);
-    Parameter OUTPUT_NORM_BIAS = par("ln_f.bias", NORMALIZATION_BIAS);
+    Parameter TOKEN_EMBEDDINGS, INPUT_NORM_WEIGHT, INPUT_NORM_BIAS, OUTPUT_NORM_WEIGHT, OUTPUT_NORM_BIAS;
 
-    // TODO: Maybe something isn't perfect here, the output looks good, but very ofter repeats itself.
     public void loadParameters()
     {
-        loadMatrix(TOKEN_EMBEDDINGS, tokenCount, hiddenSize);
-        loadVector(INPUT_NORM_WEIGHT, hiddenSize);
-        loadVector(INPUT_NORM_BIAS, hiddenSize);
-        loadVector(OUTPUT_NORM_WEIGHT, hiddenSize);
-        loadVector(OUTPUT_NORM_BIAS, hiddenSize);
+        TOKEN_EMBEDDINGS = loadMatrix("word_embeddings.weight", EMBEDDINGS, tokenCount, hiddenSize);
+        INPUT_NORM_WEIGHT = loadVector("word_embeddings_layernorm.weight", NORMALIZATION_WEIGHT, hiddenSize);
+        INPUT_NORM_BIAS = loadVector("word_embeddings_layernorm.bias", NORMALIZATION_BIAS, hiddenSize);
+        OUTPUT_NORM_WEIGHT = loadVector("ln_f.weight", NORMALIZATION_WEIGHT, hiddenSize);
+        OUTPUT_NORM_BIAS = loadVector("ln_f.bias", NORMALIZATION_BIAS, hiddenSize);
     }
 
     public Vector preProcessToken(int pos, int token)

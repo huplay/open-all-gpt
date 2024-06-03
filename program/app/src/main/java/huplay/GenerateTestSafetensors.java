@@ -29,9 +29,10 @@ public class GenerateTestSafetensors
 {
     public static void main(String... args) throws IOException
     {
-        var testEntries = getTestEntriesGPT1();
+        //var testEntries = getTestEntriesGPT1();
         //var testEntries = getTestEntriesGPT2();
         //var testEntries = getTestEntriesGPTNEO();
+        var testEntries = getTestEntriesGPTJ();
 
         generate("d:/test", "model.safetensors", "test.safetensors", testEntries);
     }
@@ -122,6 +123,36 @@ public class GenerateTestSafetensors
         testEntries.put("transformer.h.0.mlp.c_fc.bias", new int[] {feedForwardSize});
         testEntries.put("transformer.h.0.mlp.c_proj.weight", new int[] {feedForwardSize, hiddenSize});
         testEntries.put("transformer.h.0.mlp.c_proj.bias", new int[] {hiddenSize});
+
+        return testEntries;
+    }
+
+    private static LinkedHashMap<String, int[]> getTestEntriesGPTJ()
+    {
+        var tokenCount = 10;
+        var hiddenSize = 12;
+        var feedForwardSize = hiddenSize * 4;
+
+        var testEntries = new LinkedHashMap<String, int[]>();
+
+        testEntries.put("lm_head.weight", new int[] {tokenCount, hiddenSize});
+        testEntries.put("lm_head.bias", new int[] {tokenCount});
+        testEntries.put("transformer.ln_f.weight", new int[] {hiddenSize});
+        testEntries.put("transformer.ln_f.bias", new int[] {hiddenSize});
+
+        testEntries.put("transformer.h.0.ln_1.weight", new int[] {hiddenSize});
+        testEntries.put("transformer.h.0.ln_1.bias", new int[] {hiddenSize});
+        testEntries.put("transformer.h.0.attn.q_proj.weight", new int[] {hiddenSize, hiddenSize});
+        testEntries.put("transformer.h.0.attn.k_proj.weight", new int[] {hiddenSize, hiddenSize});
+        testEntries.put("transformer.h.0.attn.v_proj.weight", new int[] {hiddenSize, hiddenSize});
+        testEntries.put("transformer.h.0.attn.out_proj.weight", new int[] {hiddenSize, hiddenSize});
+
+        testEntries.put("transformer.h.0.ln_f.weight", new int[] {hiddenSize});
+        testEntries.put("transformer.h.0.ln_f.bias", new int[] {hiddenSize});
+        testEntries.put("transformer.h.0.mlp.fc_in.weight", new int[] {hiddenSize, feedForwardSize});
+        testEntries.put("transformer.h.0.mlp.fc_in.bias", new int[] {feedForwardSize});
+        testEntries.put("transformer.h.0.mlp.fc_out.weight", new int[] {feedForwardSize, hiddenSize});
+        testEntries.put("transformer.h.0.mlp.fc_out.bias", new int[] {hiddenSize});
 
         return testEntries;
     }
