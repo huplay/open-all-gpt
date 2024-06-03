@@ -14,30 +14,30 @@ public interface ParameterReader
 {
     Map<String, SafetensorsHeader> getParameterHeaders();
 
-    String readString(String id);
+    String readString(String parameterId);
 
-    int[] readIntArray(String id, int size);
-    int[][] readIntArray2D(String id, int rows, int cols);
+    int[] readIntArray(String parameterId, int size);
+    int[][] readIntArray2D(String parameterId, int rows, int cols);
 
-    byte[] readByteArray(String id, int size);
-    byte[][] readByteArray2D(String id, int rows, int cols);
+    byte[] readByteArray(String parameterId, int size);
+    byte[][] readByteArray2D(String parameterId, int rows, int cols);
 
-    float[] readFloatArray(String id, int size);
-    float[][] readFloatArray2D(String id, int rows, int cols);
+    float[] readFloatArray(String parameterId, int size);
+    float[][] readFloatArray2D(String parameterId, int rows, int cols);
 
-    short[] readShortArray(String id, int size);
-    short[][] readShortArray2D(String id, int rows, int cols);
+    short[] readShortArray(String parameterId, int size);
+    short[][] readShortArray2D(String parameterId, int rows, int cols);
 
-    Vector readFloat32Vector(String id, int size);
-    Matrix readFloat32Matrix(String id, int rows, int cols);
+    Vector readFloat32Vector(String parameterId, int size);
+    Matrix readFloat32Matrix(String parameterId, int rows, int cols);
 
-    Vector readFloat16Vector(String id, int size);
-    Matrix readFloat16Matrix(String id, int rows, int cols);
+    Vector readFloat16Vector(String parameterId, int size);
+    Matrix readFloat16Matrix(String parameterId, int rows, int cols);
 
-    Vector readBrainFloat16Vector(String id, int size);
-    Matrix readBrainFloat16Matrix(String id, int rows, int cols);
+    Vector readBrainFloat16Vector(String parameterId, int size);
+    Matrix readBrainFloat16Matrix(String parameterId, int rows, int cols);
 
-    DataType getDataType(String id);
+    DataType getDataType(String parameterId);
 
-    long getBits(String id);
+    long getBits(String parameterId);
 }

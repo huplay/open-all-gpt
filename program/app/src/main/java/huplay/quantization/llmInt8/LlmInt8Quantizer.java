@@ -39,11 +39,11 @@ public class LlmInt8Quantizer extends AbstractQuantizer
     }
 
     @Override
-    public Matrix load(ParameterReader reader, ParameterType parameterType, String id, int rows, int cols)
+    public Matrix load(ParameterReader reader, ParameterType parameterType, String parameterId, int rows, int cols)
     {
-        float[] scb = reader.readFloatArray(getFinalId(id, SCB_KEY), cols);
+        float[] scb = reader.readFloatArray(getFinalParameterId(parameterId, SCB_KEY), cols);
 
-        byte[][] weights = reader.readByteArray2D(getFinalId(id, WEIGHTS_KEY), cols, rows);
+        byte[][] weights = reader.readByteArray2D(getFinalParameterId(parameterId, WEIGHTS_KEY), cols, rows);
 
         if (parameterType.isHorizontal())
         {

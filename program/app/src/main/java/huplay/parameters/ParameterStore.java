@@ -42,7 +42,7 @@ public abstract class ParameterStore
         return Matrix.emptyMatrix(internalFloatType, rows, cols);
     }
 
-    protected abstract String formatName(String file);
+    protected abstract String getFinalParameterId(String file);
 
     /**
      * Loads a vector parameter (Currently quantization isn't supported for vectors, only for matrices)
@@ -56,16 +56,16 @@ public abstract class ParameterStore
         var parameterLoader = getParameterLoader(parameterType, parameterId);
 
         // Resolve the final name of the parameter
-        var name = formatName(parameter.getId());
+        var finalParameterId = getFinalParameterId(parameter.getId());
 
         // Calculate size
         parameterSize += size;
-        parameterByteSize += parameterLoader.calculateByteSize(reader, name, size);
+        parameterByteSize += parameterLoader.calculateByteSize(reader, finalParameterId, size);
 
         if (!config.isCalculationOnly())
         {
             // Load and store the vector
-            vectorParams.put(parameter.getId(), parameterLoader.loadVector(reader, name, size));
+            vectorParams.put(parameterId, parameterLoader.loadVector(reader, finalParameterId, size));
         }
     }
 
@@ -82,16 +82,16 @@ public abstract class ParameterStore
         var parameterLoader = getParameterLoader(parameterType, parameterId);
 
         // Resolve the final name of the parameter
-        var name = formatName(parameterId);
+        var finalParameterId = getFinalParameterId(parameterId);
 
         // Calculate size
         parameterSize += (long) rows * cols;
-        parameterByteSize += parameterLoader.calculateByteSize(reader, name, rows * cols);
+        parameterByteSize += parameterLoader.calculateByteSize(reader, finalParameterId, rows * cols);
 
         if (!config.isCalculationOnly())
         {
             // Load the matrix parameter (it can result a standard VectorArrayMatrix, or a quantized matrix as well
-            var matrix = parameterLoader.loadMatrix(reader, parameterType, name, rows, cols);
+            var matrix = parameterLoader.loadMatrix(reader, parameterType, finalParameterId, rows, cols);
 
             if (matrix instanceof QuantizedMatrix quantizedMatrix)
             {
@@ -118,10 +118,10 @@ public abstract class ParameterStore
         }
     }
 
-    private ParameterLoader getParameterLoader(ParameterType parameterType, String id)
+    private ParameterLoader getParameterLoader(ParameterType parameterType, String parameterId)
     {
         var quantizationConfig = config.getQuantizationConfig();
-        if (quantizationConfig == null || !quantizationConfig.isQuantized(parameterType, id))
+        if (quantizationConfig == null || !quantizationConfig.isQuantized(parameterType, parameterId))
         {
             // Get the standard parameter loader to load non-quantized parameters
             return new StandardParameterLoader(config);

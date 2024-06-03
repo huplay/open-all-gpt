@@ -175,14 +175,14 @@ public class SafetensorsReader implements ParameterReader
     }
 
     @Override
-    public long getBits(String id)
+    public long getBits(String parameterId)
     {
-       return getDataType(id).getBits();
+       return getDataType(parameterId).getBits();
     }
 
-    public DataType getDataType(String id)
+    public DataType getDataType(String parameterId)
     {
-        return parameterHeaders.get(id).getDataType().getDataType();
+        return parameterHeaders.get(parameterId).getDataType().getDataType();
     }
 
     private void checkSize(SafetensorsHeader header, long[] expectedShape)
@@ -198,7 +198,7 @@ public class SafetensorsReader implements ParameterReader
         if (expectedSize != actualSize)
         {
             System.out.println("WARNING: The parameter tensor has different size to the expected.\n" +
-                    "         Id: " + header.getId() + "\n" +
+                    "         Id: " + header.getParameterId() + "\n" +
                     "         Expected size: " + expectedSize + ", shape: [" + shapeToString(expectedShape) + "]\n" +
                     "         Actual size:   " + actualSize + ", shape: [" + shapeToString(header.getShape()) + "]");
         }
@@ -207,7 +207,7 @@ public class SafetensorsReader implements ParameterReader
             if (expectedShape.length != header.getShape().size())
             {
                 System.out.println("WARNING: The parameter tensor has the same size, but different shape to the expected.\n" +
-                        "         Id: " + header.getId() + "\n" +
+                        "         Id: " + header.getParameterId() + "\n" +
                         "         Expected shape: [" + shapeToString(expectedShape) + "]\n" +
                         "         Actual shape: [" + shapeToString(header.getShape()) + "]\n");
             }
@@ -228,12 +228,12 @@ public class SafetensorsReader implements ParameterReader
                 .collect(Collectors.joining(", "));
     }
 
-    private SafetensorsHeader getHeader(String id, long[] shape)
+    private SafetensorsHeader getHeader(String parameterId, long[] shape)
     {
-        var header = parameterHeaders.get(id);
+        var header = parameterHeaders.get(parameterId);
         if (header == null)
         {
-            throw new IdentifiedException("Header not found for key: " + id);
+            throw new IdentifiedException("Header not found for key: " + parameterId);
         }
 
         checkSize(header, shape);
@@ -241,99 +241,99 @@ public class SafetensorsReader implements ParameterReader
         return header;
     }
 
-    public String readString(String id)
+    public String readString(String parameterId)
     {
-        var header = parameterHeaders.get(id);
+        var header = parameterHeaders.get(parameterId);
         try (var stream = new FileInputStream(header.getFileName()))
         {
-            var size = header.getShape().get(0);
+            var size = header.getShape().getFirst();
             return new String(readChannelAsByte(stream, header.getOffset(), size), StandardCharsets.UTF_8);
         }
         catch (Exception e)
         {
-            throw new IdentifiedException("Error reading String parameter " + id, e);
+            throw new IdentifiedException("Error reading String parameter " + parameterId, e);
         }
     }
 
     @Override
-    public int[] readIntArray(String id, int size)
+    public int[] readIntArray(String parameterId, int size)
     {
-        var header = getHeader(id, new long[] {size});
+        var header = getHeader(parameterId, new long[] {size});
         try (var stream = new FileInputStream(header.getFileName()))
         {
             return readChannelAsInt(stream, header.getOffset(), size);
         }
         catch (IOException e)
         {
-            throw new IdentifiedException("Error reading int array parameter " + id, e);
+            throw new IdentifiedException("Error reading int array parameter " + parameterId, e);
         }
     }
 
     @Override
-    public byte[] readByteArray(String id, int size)
+    public byte[] readByteArray(String parameterId, int size)
     {
-        var header = getHeader(id, new long[] {size});
+        var header = getHeader(parameterId, new long[] {size});
         try (var stream = new FileInputStream(header.getFileName()))
         {
             return readChannelAsByte(stream, header.getOffset(), size);
         }
         catch (IOException e)
         {
-            throw new IdentifiedException("Error reading byte array parameter " + id, e);
+            throw new IdentifiedException("Error reading byte array parameter " + parameterId, e);
         }
     }
 
     @Override
-    public float[] readFloatArray(String id, int size)
+    public float[] readFloatArray(String parameterId, int size)
     {
-        var header = getHeader(id, new long[] {size});
+        var header = getHeader(parameterId, new long[] {size});
         try (var stream = new FileInputStream(header.getFileName()))
         {
             return readChannelAsFloat(stream, header.getOffset(), size);
         }
         catch (IOException e)
         {
-            throw new IdentifiedException("Error reading float array parameter " + id, e);
+            throw new IdentifiedException("Error reading float array parameter " + parameterId, e);
         }
     }
 
-    public short[] readShortArray(String id, int size)
+    public short[] readShortArray(String parameterId, int size)
     {
-        var header = getHeader(id, new long[] {size});
+        var header = getHeader(parameterId, new long[] {size});
         try (var stream = new FileInputStream(header.getFileName()))
         {
             return readChannelAsShort(stream, header.getOffset(), size);
         }
         catch (IOException e)
         {
-            throw new IdentifiedException("Error reading short (or float16) array parameter " + id, e);
+            throw new IdentifiedException("Error reading short (or float16) array parameter " + parameterId, e);
         }
     }
 
     @Override
-    public Vector readFloat32Vector(String id, int size)
+    public Vector readFloat32Vector(String parameterId, int size)
     {
-        return new Float32Vector(readFloatArray(id, size));
+        return new Float32Vector(readFloatArray(parameterId, size));
     }
 
     @Override
-    public Vector readFloat16Vector(String id, int size)
+    public Vector readFloat16Vector(String parameterId, int size)
     {
-        return new Float16Vector(readShortArray(id, size));
+        return new Float16Vector(readShortArray(parameterId, size));
     }
 
     @Override
-    public Vector readBrainFloat16Vector(String id, int size)
+    public Vector readBrainFloat16Vector(String parameterId, int size)
     {
-        return new BrainFloat16Vector(readShortArray(id, size));
+        return new BrainFloat16Vector(readShortArray(parameterId, size));
     }
 
     @Override
-    public int[][] readIntArray2D(String id, int rows, int cols)
+    public int[][] readIntArray2D(String parameterId, int rows, int cols)
     {
         var matrix = new int[rows][cols];
 
-        var header = getHeader(id, new long[] {rows, cols});
+        var header = getHeader(parameterId, new long[] {rows, cols});
         try (var stream = new FileInputStream(header.getFileName()))
         {
             var rowOffset = 0;
@@ -347,18 +347,18 @@ public class SafetensorsReader implements ParameterReader
         }
         catch (IOException e)
         {
-            throw new IdentifiedException("Error reading int 2D array parameter " + id, e);
+            throw new IdentifiedException("Error reading int 2D array parameter " + parameterId, e);
         }
 
         return matrix;
     }
 
     @Override
-    public byte[][] readByteArray2D(String id, int rows, int cols)
+    public byte[][] readByteArray2D(String parameterId, int rows, int cols)
     {
         var matrix = new byte[rows][cols];
 
-        var header = getHeader(id, new long[] {rows, cols});
+        var header = getHeader(parameterId, new long[] {rows, cols});
         try (var stream = new FileInputStream(header.getFileName()))
         {
             var rowOffset = 0;
@@ -373,18 +373,18 @@ public class SafetensorsReader implements ParameterReader
         }
         catch (IOException e)
         {
-            throw new IdentifiedException("Error reading byte 2D array parameter " + id + e.getMessage(), e);
+            throw new IdentifiedException("Error reading byte 2D array parameter " + parameterId + e.getMessage(), e);
         }
 
         return matrix;
     }
 
     @Override
-    public float[][] readFloatArray2D(String id, int rows, int cols)
+    public float[][] readFloatArray2D(String parameterId, int rows, int cols)
     {
         var matrix = new float[rows][cols];
 
-        var header = getHeader(id, new long[] {rows, cols});
+        var header = getHeader(parameterId, new long[] {rows, cols});
         try (var stream = new FileInputStream(header.getFileName()))
         {
             var rowOffset = 0;
@@ -398,18 +398,18 @@ public class SafetensorsReader implements ParameterReader
         }
         catch (IOException e)
         {
-            throw new IdentifiedException("Error reading float 2D array parameter " + id, e);
+            throw new IdentifiedException("Error reading float 2D array parameter " + parameterId, e);
         }
 
         return matrix;
     }
 
     @Override
-    public short[][] readShortArray2D(String id, int rows, int cols)
+    public short[][] readShortArray2D(String parameterId, int rows, int cols)
     {
         var matrix = new short[rows][cols];
 
-        var header = getHeader(id, new long[] {rows, cols});
+        var header = getHeader(parameterId, new long[] {rows, cols});
         try (var stream = new FileInputStream(header.getFileName()))
         {
             var rowOffset = 0;
@@ -423,18 +423,18 @@ public class SafetensorsReader implements ParameterReader
         }
         catch (IOException e)
         {
-            throw new IdentifiedException("Error reading short 2D array parameter " + id, e);
+            throw new IdentifiedException("Error reading short 2D array parameter " + parameterId, e);
         }
 
         return matrix;
     }
 
     @Override
-    public Matrix readFloat32Matrix(String id, int rows, int cols)
+    public Matrix readFloat32Matrix(String parameterId, int rows, int cols)
     {
         var matrix = new VectorArrayMatrix(DataType.FLOAT_32, rows, cols);
 
-        var header = getHeader(id, new long[] {rows, cols});
+        var header = getHeader(parameterId, new long[] {rows, cols});
         try (var stream = new FileInputStream(header.getFileName()))
         {
             var rowOffset = 0;
@@ -449,16 +449,16 @@ public class SafetensorsReader implements ParameterReader
         }
         catch (IOException e)
         {
-            throw new IdentifiedException("Error reading float 32 matrix parameter " + id, e);
+            throw new IdentifiedException("Error reading float 32 matrix parameter " + parameterId, e);
         }
 
         return matrix;
     }
 
     @Override
-    public Matrix readFloat16Matrix(String id, int rows, int cols)
+    public Matrix readFloat16Matrix(String parameterId, int rows, int cols)
     {
-        var header = getHeader(id, new long[] {rows, cols});
+        var header = getHeader(parameterId, new long[] {rows, cols});
         try (var stream = new FileInputStream(header.getFileName()))
         {
             var matrix = new VectorArrayMatrix(DataType.FLOAT_16, rows, cols);
@@ -477,14 +477,14 @@ public class SafetensorsReader implements ParameterReader
         }
         catch (IOException e)
         {
-            throw new IdentifiedException("Error reading float 16 matrix parameter " + id, e);
+            throw new IdentifiedException("Error reading float 16 matrix parameter " + parameterId, e);
         }
     }
 
     @Override
-    public Matrix readBrainFloat16Matrix(String id, int rows, int cols)
+    public Matrix readBrainFloat16Matrix(String parameterId, int rows, int cols)
     {
-        var header = getHeader(id, new long[] {rows * cols});
+        var header = getHeader(parameterId, new long[] {(long) rows * cols});
         try (var stream = new FileInputStream(header.getFileName()))
         {
             var matrix = new VectorArrayMatrix(DataType.BRAIN_FLOAT_16, rows, cols);
@@ -503,7 +503,7 @@ public class SafetensorsReader implements ParameterReader
         }
         catch (IOException e)
         {
-            throw new IdentifiedException("Error reading brain float 16 matrix parameter " + id, e);
+            throw new IdentifiedException("Error reading brain float 16 matrix parameter " + parameterId, e);
         }
     }
 

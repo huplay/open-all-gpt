@@ -15,9 +15,9 @@ public abstract class AbstractQuantizer extends ParameterLoader implements hupla
     }
 
     @Override
-    public Matrix loadMatrix(ParameterReader reader, ParameterType parameterType, String id, int rows, int cols)
+    public Matrix loadMatrix(ParameterReader reader, ParameterType parameterType, String parameterId, int rows, int cols)
     {
-        return load(reader, parameterType, id, rows, cols);
+        return load(reader, parameterType, parameterId, rows, cols);
     }
 
     @Override

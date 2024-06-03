@@ -34,24 +34,24 @@ public abstract class ParameterLoader
 
     public abstract long calculateByteSize(ParameterReader reader, String name, int size);
 
-    protected String getFinalId(String id, String name)
+    protected String getFinalParameterId(String parameterId, String name)
     {
         var naming = config.getQuantizationConfig().getNaming();
 
         name = naming != null ? naming.get(name) : defaultNamingMap.get(name);
 
-        name = name.replace("{name}", id);
+        name = name.replace("{name}", parameterId);
 
         if (name.contains("{name-1}"))
         {
-            if (id.contains("."))
+            if (parameterId.contains("."))
             {
-                var lastIndex = id.lastIndexOf(".");
-                name = name.replace("{name-1}", id.substring(0, lastIndex));
+                var lastIndex = parameterId.lastIndexOf(".");
+                name = name.replace("{name-1}", parameterId.substring(0, lastIndex));
             }
             else
             {
-                name = name.replace("{name-1}", id);
+                name = name.replace("{name-1}", parameterId);
             }
         }
 

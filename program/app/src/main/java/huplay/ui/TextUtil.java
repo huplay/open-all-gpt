@@ -94,7 +94,7 @@ public class TextUtil
 
         for (var irrelevantChar : irrelevantChars)
         {
-            if (value != null && !value.equals(""))
+            if (value != null && !value.isEmpty())
             {
                 value = value.replace(irrelevantChar, "");
             }

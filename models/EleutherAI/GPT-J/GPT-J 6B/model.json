@@ -4,7 +4,7 @@
   "repo": "https://huggingface.co/EleutherAI/gpt-j-6b",
   "branch": "refs/pr/40",
   "files": ["config.json", "model.safetensors"],
-  "parameterNaming": "transformer.h.{decoderId}.{name}",
+  "decoderParameterNaming": "transformer.h.{decoderId}.{name}",
   "parameterNameOverrides": {
     "transformer.h.0.ln_f.weight": "transformer.ln_f.weight",
     "transformer.h.1.ln_f.weight": "transformer.ln_f.weight",
@@ -63,5 +63,13 @@
     "transformer.h.26.ln_f.bias": "transformer.ln_f.bias",
     "transformer.h.27.ln_f.bias": "transformer.ln_f.bias"
   },
-  "memorySize": 32528
+  "memorySize": 32528,
+  "quantize": {
+    "quantizationType": "QLoRA",
+    "outputFloatType": "FLOAT_16",
+    "config": {
+      "variant": "fp4",
+      "blockSize": 128
+    }
+  }
 }

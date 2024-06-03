@@ -31,9 +31,9 @@ public class SafetensorsModel
     public Map<String, String> getMetadata() {return metadata;}
 
     @JsonAnySetter
-    public void addTensor(String id, TensorModel tensor)
+    public void addTensor(String parameterId, TensorModel tensor)
     {
-        tensors.put(id, tensor);
+        tensors.put(parameterId, tensor);
     }
 
     @JsonAnyGetter

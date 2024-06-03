@@ -75,7 +75,7 @@ public class QloraQuantizer extends AbstractQuantizer
     }
 
     @Override
-    public Matrix load(ParameterReader reader, ParameterType parameterType, String id, int rows, int cols)
+    public Matrix load(ParameterReader reader, ParameterType parameterType, String parameterId, int rows, int cols)
     {
         try
         {
@@ -84,7 +84,7 @@ public class QloraQuantizer extends AbstractQuantizer
             var outputFloatType = quantizationConfig.getOutputFloatType();
 
             // Read the QuantState, which iss a special JSON parameter, containing the settings of the quantization
-            QloraQuantState quantState = readQuantState(reader, variant, id);
+            QloraQuantState quantState = readQuantState(reader, variant, parameterId);
             int blockSize = quantState.getBlockSize();
 
             if (!equalsIgnoreCase(variant, quantState.getQuantType()))
@@ -95,7 +95,7 @@ public class QloraQuantizer extends AbstractQuantizer
 
             // Read the quantization map for the 16 different values (which can be stored in 4 bit)
             // This is the real difference between the variants. Different variants use different set of quantiles
-            float[] quantMap = reader.readFloatArray(getFinalId(id, QUANT_MAP_KEY), 16);
+            float[] quantMap = reader.readFloatArray(getFinalParameterId(parameterId, QUANT_MAP_KEY), 16);
 
             var nestedBlockSize = quantState.getNestedBlockSize();
             if (nestedBlockSize != null)
@@ -104,15 +104,15 @@ public class QloraQuantizer extends AbstractQuantizer
                 var nestedOffset = quantState.getNestedOffset();
 
                 // Read the stored parameters for double quantized weights
-                float[] nestedQuantMap = reader.readFloatArray(getFinalId(id, NESTED_QUANT_MAP_KEY), 256);
-                float[] nestedAbsMax = reader.readFloatArray(getFinalId(id, NESTED_ABS_MAX_KEY), rows * cols / blockSize / nestedBlockSize);
-                byte[] quantizedAbsMax = reader.readByteArray(getFinalId(id, QUANTIZED_ABS_MAX_KEY), cols * rows / blockSize);
+                float[] nestedQuantMap = reader.readFloatArray(getFinalParameterId(parameterId, NESTED_QUANT_MAP_KEY), 256);
+                float[] nestedAbsMax = reader.readFloatArray(getFinalParameterId(parameterId, NESTED_ABS_MAX_KEY), rows * cols / blockSize / nestedBlockSize);
+                byte[] quantizedAbsMax = reader.readByteArray(getFinalParameterId(parameterId, QUANTIZED_ABS_MAX_KEY), cols * rows / blockSize);
 
                 if (parameterType.isHorizontal())
                 {
                     // QLoRA stores the parameters in vertical format
                     // In the case our model expects it in horizontal, transpose it...
-                    var weights = reader.readByteArray2D(id, cols, rows / 2); // Swapped row and col sizes
+                    var weights = reader.readByteArray2D(parameterId, cols, rows / 2); // Swapped row and col sizes
                     weights = MATH.transposeByteMatrix(weights);
 
                     return new QloraMatrixDQTransposed(outputFloatType, blockSize, nestedBlockSize, nestedOffset,
@@ -120,7 +120,7 @@ public class QloraQuantizer extends AbstractQuantizer
                 }
                 else
                 {
-                    var weights = reader.readByteArray2D(id, rows, cols / 2);
+                    var weights = reader.readByteArray2D(parameterId, rows, cols / 2);
 
                     return new QloraMatrixDQ(outputFloatType, blockSize, nestedBlockSize, nestedOffset,
                             quantMap, nestedQuantMap, nestedAbsMax, quantizedAbsMax, weights);
@@ -129,20 +129,20 @@ public class QloraQuantizer extends AbstractQuantizer
             else
             {
                 // Simple quantization
-                float[] absMax = reader.readFloatArray(getFinalId(id, ABS_MAX_KEY), rows * cols / blockSize);
+                float[] absMax = reader.readFloatArray(getFinalParameterId(parameterId, ABS_MAX_KEY), rows * cols / blockSize);
 
                 if (parameterType.isHorizontal())
                 {
                     // QLoRA stores the parameters in vertical format
                     // In the case our model expects it in horizontal, transpose it...
-                    var weights = reader.readByteArray2D(id, cols, rows / 2); // Swapped row and col sizes
+                    var weights = reader.readByteArray2D(parameterId, cols, rows / 2); // Swapped row and col sizes
                     weights = MATH.transposeByteMatrix(weights);
 
                     return new QloraMatrixSimpleTransposed(outputFloatType, blockSize, quantMap, absMax, weights);
                 }
                 else
                 {
-                    var weights = reader.readByteArray2D(id, rows, cols / 2);
+                    var weights = reader.readByteArray2D(parameterId, rows, cols / 2);
 
                     return new QloraMatrixSimple(outputFloatType, blockSize, quantMap, absMax, weights);
                 }
@@ -173,16 +173,16 @@ public class QloraQuantizer extends AbstractQuantizer
         return "nf4";
     }
 
-    private QloraQuantState readQuantState(ParameterReader reader, String variant, String id) throws JsonProcessingException
+    private QloraQuantState readQuantState(ParameterReader reader, String variant, String parameterId) throws JsonProcessingException
     {
-        id = getFinalId(id, QUANT_STATE_KEY).replace("{variant}", variant.toLowerCase(Locale.ROOT));
+        parameterId = getFinalParameterId(parameterId, QUANT_STATE_KEY).replace("{variant}", variant.toLowerCase(Locale.ROOT));
 
-        var quantStateJson = reader.readString(id);
+        var quantStateJson = reader.readString(parameterId);
         return new ObjectMapper().readValue(quantStateJson, QloraQuantState.class);
     }
 
     @Override
-    public long calculateByteSize(ParameterReader reader, String id, int size)
+    public long calculateByteSize(ParameterReader reader, String parameterId, int size)
     {
         // TODO: Calculate
         return 0;

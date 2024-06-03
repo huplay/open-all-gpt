@@ -84,7 +84,6 @@ public abstract class BaseHttpServer implements HttpHandler
         }
         catch (Exception e)
         {
-            e.printStackTrace();
             System.out.println("ERROR during handling request: " + e.getMessage());
             sendResponse(received, "ERROR during handling request" + e.getMessage(), 500);
         }

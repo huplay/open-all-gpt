@@ -131,23 +131,23 @@ public abstract class BaseTransformer extends ParameterStore
     }
 
     @Override
-    protected String formatName(String name)
+    protected String getFinalParameterId(String parameterId)
     {
         if (config.getParameterNameOverrides() != null)
         {
-            var override = config.getParameterNameOverrides().get(name);
+            var override = config.getParameterNameOverrides().get(parameterId);
             if (override != null)
             {
-                name = override;
+                parameterId = override;
             }
         }
 
         if (config.getParameterNaming() != null)
         {
-            name = config.getParameterNaming().replace("{name}", name);
+            parameterId = config.getParameterNaming().replace("{name}", parameterId);
         }
 
-        return name;
+        return parameterId;
     }
 
     @Override

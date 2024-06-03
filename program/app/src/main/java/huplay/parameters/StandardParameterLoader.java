@@ -15,47 +15,47 @@ public class StandardParameterLoader extends ParameterLoader
     }
 
     @Override
-    public long calculateByteSize(ParameterReader reader, String id, int size)
+    public long calculateByteSize(ParameterReader reader, String parameterId, int size)
     {
-        return ((long)size) * reader.getBits(id) / 8;
+        return ((long)size) * reader.getBits(parameterId) / 8;
     }
 
     @Override
-    public Vector loadVector(ParameterReader reader, String file, int size)
+    public Vector loadVector(ParameterReader reader, String parameterId, int size)
     {
-        return read(reader, file, size);
+        return read(reader, parameterId, size);
     }
 
     @Override
-    public Matrix loadMatrix(ParameterReader reader, ParameterType parameterType, String id, int rows, int cols)
+    public Matrix loadMatrix(ParameterReader reader, ParameterType parameterType, String parameterId, int rows, int cols)
     {
-        DataType floatType = reader.getDataType(id);
-        return readMatrix(reader, floatType, id, rows, cols);
+        DataType floatType = reader.getDataType(parameterId);
+        return readMatrix(reader, floatType, parameterId, rows, cols);
     }
 
-    private Matrix readMatrix(ParameterReader reader, DataType floatType, String id, int rows, int cols)
+    private Matrix readMatrix(ParameterReader reader, DataType floatType, String parameterId, int rows, int cols)
     {
         return switch (floatType)
         {
-            case FLOAT_16 -> reader.readFloat16Matrix(id, rows, cols);
-            case BRAIN_FLOAT_16 -> reader.readBrainFloat16Matrix(id, rows, cols);
-            case FLOAT_32 -> reader.readFloat32Matrix(id, rows, cols);
+            case FLOAT_16 -> reader.readFloat16Matrix(parameterId, rows, cols);
+            case BRAIN_FLOAT_16 -> reader.readBrainFloat16Matrix(parameterId, rows, cols);
+            case FLOAT_32 -> reader.readFloat32Matrix(parameterId, rows, cols);
             default ->
-                    throw new IdentifiedException("Not supported data type: " + floatType + ", key: " + id);
+                    throw new IdentifiedException("Not supported data type: " + floatType + ", key: " + parameterId);
         };
     }
 
-    private Vector read(ParameterReader reader, String id, int size)
+    private Vector read(ParameterReader reader, String parameterId, int size)
     {
-        DataType FloatType = reader.getDataType(id);
+        DataType FloatType = reader.getDataType(parameterId);
 
         return switch (FloatType)
         {
-            case FLOAT_16           -> reader.readFloat16Vector(id, size);
-            case BRAIN_FLOAT_16     -> reader.readBrainFloat16Vector(id, size);
-            case FLOAT_32           -> reader.readFloat32Vector(id, size);
+            case FLOAT_16           -> reader.readFloat16Vector(parameterId, size);
+            case BRAIN_FLOAT_16     -> reader.readBrainFloat16Vector(parameterId, size);
+            case FLOAT_32           -> reader.readFloat32Vector(parameterId, size);
             default ->
-                    throw new IdentifiedException("Not supported data type: " + FloatType + ", key: " + id);
+                    throw new IdentifiedException("Not supported data type: " + FloatType + ", key: " + parameterId);
         };
     }
 }

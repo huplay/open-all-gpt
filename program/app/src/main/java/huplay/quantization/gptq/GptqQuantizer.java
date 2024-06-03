@@ -49,7 +49,7 @@ public class GptqQuantizer extends AbstractQuantizer
     }
 
     @Override
-    public Matrix load(ParameterReader reader, ParameterType parameterType, String id, int rows, int cols)
+    public Matrix load(ParameterReader reader, ParameterType parameterType, String parameterId, int rows, int cols)
     {
         try
         {
@@ -66,7 +66,7 @@ public class GptqQuantizer extends AbstractQuantizer
                 realCols = rows;
             }
 
-            var matrix = readMatrixInternal(gptqConfig, reader, id, realRows, realCols);
+            var matrix = readMatrixInternal(gptqConfig, reader, parameterId, realRows, realCols);
 
             if (parameterType.isVertical())
             {
@@ -174,7 +174,7 @@ public class GptqQuantizer extends AbstractQuantizer
     private int[] readGroupIndexes(ParameterReader reader, String id, int rows)
     {
         // GroupIndex, int32 (Interestingly, isn't packed. A whole int32 is used to store few different values)
-        return reader.readIntArray(getFinalId(id, GROUP_INDEX_KEY), rows);
+        return reader.readIntArray(getFinalParameterId(id, GROUP_INDEX_KEY), rows);
     }
 
     private int[][] readZeros(GptqConfig gptqConfig, ParameterReader reader, String id, int rows, int cols)
@@ -184,7 +184,7 @@ public class GptqQuantizer extends AbstractQuantizer
         var zerosRows = rows / gptqConfig.getGroupSize();
         var zerosCols = cols / valuesPerInt32;
 
-        int[][] zerosMatrix = reader.readIntArray2D(getFinalId(id, ZEROS_KEY), zerosRows, zerosCols);
+        int[][] zerosMatrix = reader.readIntArray2D(getFinalParameterId(id, ZEROS_KEY), zerosRows, zerosCols);
         return unpack4bitsFromIntMatrixByRow(zerosMatrix); // TODO: Only 4 bits is supported here
     }
 
@@ -192,10 +192,10 @@ public class GptqQuantizer extends AbstractQuantizer
     {
         // Scales, FLOAT 16
         var scalesRows = rows / gptqConfig.getGroupSize();
-        return reader.readFloat16Matrix(getFinalId(id, SCALES_KEY), scalesRows, cols);
+        return reader.readFloat16Matrix(getFinalParameterId(id, SCALES_KEY), scalesRows, cols);
     }
 
-    private int[][] readQuantizedWeights(GptqConfig gptqConfig, ParameterReader reader, String id, int rows, int cols)
+    private int[][] readQuantizedWeights(GptqConfig gptqConfig, ParameterReader reader, String parameterId, int rows, int cols)
     {
         var bits = gptqConfig.getBits();
         var valuesPerInt32 = 32 / bits;
@@ -205,7 +205,7 @@ public class GptqQuantizer extends AbstractQuantizer
                    into a single 32-bit word using bit-shifting operations."*/
             // Quantized weights, packed ints
             var weightRows = rows / valuesPerInt32;
-            int[][] quantizedWeightsMatrix = reader.readIntArray2D(getFinalId(id, WEIGHTS_KEY), weightRows, cols);
+            int[][] quantizedWeightsMatrix = reader.readIntArray2D(getFinalParameterId(parameterId, WEIGHTS_KEY), weightRows, cols);
 
             return unpackIntMatrixByCol(quantizedWeightsMatrix, valuesPerInt32, bits);
         }

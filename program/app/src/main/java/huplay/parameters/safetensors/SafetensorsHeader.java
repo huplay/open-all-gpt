@@ -5,7 +5,7 @@ import java.util.List;
 public class SafetensorsHeader
 {
     private final String fileName;
-    private final String id;
+    private final String parameterId;
     private final long dataOffset;
     private final String format;
     private final SafetensorsDataType dataType;
@@ -13,11 +13,11 @@ public class SafetensorsHeader
     private final long startOffset;
     private final long endOffset;
 
-    public SafetensorsHeader(String fileName, String id, long dataOffset, String format, SafetensorsDataType dataType,
+    public SafetensorsHeader(String fileName, String parameterId, long dataOffset, String format, SafetensorsDataType dataType,
                              List<Integer> shape, long startOffset, long endOffset)
     {
         this.fileName = fileName;
-        this.id = id;
+        this.parameterId = parameterId;
         this.dataOffset = dataOffset;
         this.format = format;
         this.dataType = dataType;
@@ -32,7 +32,7 @@ public class SafetensorsHeader
     }
 
     // Getters
-    public String getId() {return id;}
+    public String getParameterId() {return parameterId;}
     public long getDataOffset() {return dataOffset;}
     public String getFormat() {return format;}
     public SafetensorsDataType getDataType() {return dataType;}
@@ -55,7 +55,7 @@ public class SafetensorsHeader
     {
         return "ParameterDescriptor{" +
                 "fileName='" + fileName + '\'' +
-                ", id='" + id + '\'' +
+                ", parameterId='" + parameterId + '\'' +
                 ", dataOffset=" + dataOffset +
                 ", format='" + format + '\'' +
                 ", dataType=" + dataType +

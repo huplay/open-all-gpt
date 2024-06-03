@@ -8,7 +8,6 @@ import huplay.transformer.TransformerFlow;
 import huplay.transformer.TransformerType;
 
 import java.io.*;
-import java.util.Arrays;
 
 import static huplay.parameters.FileUtil.checkFiles;
 import static huplay.MathUtilProvider.MATH;
@@ -31,20 +30,8 @@ public class AppStandaloneMain
 
             new AppStandaloneMain().start(args);
         }
-        catch (IdentifiedException e)
-        {
-            OUT.println("ERROR: " + e.getMessage());
-        }
         catch (Throwable e)
         {
-            var stackTraceElements = e.getStackTrace();
-            if (stackTraceElements != null)
-            {
-                for (var element : stackTraceElements)
-                {
-                    OUT.println(element.toString());
-                }
-            }
             OUT.println("ERROR: " + e.getMessage());
         }
     }

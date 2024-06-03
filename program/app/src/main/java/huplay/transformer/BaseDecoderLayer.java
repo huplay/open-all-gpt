@@ -25,32 +25,32 @@ public abstract class BaseDecoderLayer extends ParameterStore
     }
 
     @Override
-    protected String formatName(String name)
+    protected String getFinalParameterId(String parameterId)
     {
         if (config.getParameterNameOverrides() != null)
         {
-            var override = config.getParameterNameOverrides().get(name);
+            var override = config.getParameterNameOverrides().get(parameterId);
             if (override != null)
             {
-                name = override;
+                parameterId = override;
             }
         }
 
         var decoder = "" + decoderId;
-        name = name.replace("{decoderId}", decoder);
+        parameterId = parameterId.replace("{decoderId}", decoder);
 
-        var formattedName = config.getDecoderNameFormat().replace("{decoderId}", decoder);
-        formattedName = formattedName.replace("{name}", name);
+        var finalParameterId = config.getDecoderNameFormat().replace("{decoderId}", decoder);
+        finalParameterId = finalParameterId.replace("{name}", parameterId);
 
         if (config.getParameterNameOverrides() != null)
         {
-            var override = config.getParameterNameOverrides().get(formattedName);
+            var override = config.getParameterNameOverrides().get(finalParameterId);
             if (override != null)
             {
-                formattedName = override;
+                finalParameterId = override;
             }
         }
 
-        return formattedName;
+        return finalParameterId;
     }
 }
