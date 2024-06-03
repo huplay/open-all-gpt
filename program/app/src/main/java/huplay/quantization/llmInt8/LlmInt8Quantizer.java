@@ -96,21 +96,17 @@ public class LlmInt8Quantizer extends AbstractQuantizer
         }
 
         return new LlmInt8Matrix(DataType.FLOAT_16, scb, values);
-
-        /*if (parameterType.isVertical())
-        {
-            return new LlmInt8Matrix(DataType.FLOAT_16, scb, values);
-        }
-        else
-        {
-            return new LlmInt8MatrixTransposed(DataType.FLOAT_16, scb, values);
-        }*/
     }
 
     @Override
-    public long calculateByteSize(ParameterReader reader, String id, int size)
+    public long calculateByteSize(ParameterReader reader, String parameterId, int size)
     {
-        // TODO: Calculate
-        return size;
+        return size + 4;
+    }
+
+    @Override
+    public long calculateByteSize(ParameterReader reader, String parameterId, int rows, int cols)
+    {
+        return rows * (cols + 4L);
     }
 }

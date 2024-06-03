@@ -182,13 +182,6 @@ public class QloraQuantizer extends AbstractQuantizer
     }
 
     @Override
-    public long calculateByteSize(ParameterReader reader, String parameterId, int size)
-    {
-        // TODO: Calculate
-        return 0;
-    }
-
-    @Override
     public QuantizedMatrix quantize(ParameterType parameterType, Matrix matrix)
     {
         var quantMap = new float[] {
@@ -241,7 +234,8 @@ public class QloraQuantizer extends AbstractQuantizer
                     var lowerValue = findNearest(quantMap, block[i * 2] * quantConstant);
                     var upperValue = findNearest(quantMap, block[i * 2 + 1] * quantConstant);
 
-                    values[rowId][i + blockIndex * blockSize / 2] = pack(lowerValue, upperValue);
+                    values[rowId][i + blockIndex * blockSize / 2] =
+                            (byte)(((lowerValue & 0b1111) << 4) + (upperValue & 0b1111));
                 }
 
                 blockId++;
@@ -269,8 +263,43 @@ public class QloraQuantizer extends AbstractQuantizer
         return nearest;
     }
 
-    private byte pack(int lowerValue, int upperValue)
+    @Override
+    public long calculateByteSize(ParameterReader reader, String parameterId, int size)
     {
-        return (byte)(((lowerValue & 0b1111) << 4) + (upperValue & 0b1111));
+        try
+        {
+            var variant = determineVariant(reader);
+            QloraQuantState quantState = readQuantState(reader, variant, parameterId);
+            int blockSize = quantState.getBlockSize();
+
+            if (quantState.getNestedBlockSize() == null)
+            {
+                // Simple matrix
+                return 12L + // int blockSize, blocksPerRow; float maxQuantMap
+                        16L * 4L + // float[] quantMap
+                        (size / blockSize * 4L) + // float[] absMax
+                        (size / 2); // byte[][] values
+            }
+            else
+            {
+                // Double quantized matrix
+                return 24L + // int blockSize, nestedBlockSize, blocksPerRow; float nestedOffset, maxQuantMap, maxNestedQuantMap
+                        16L * 4L + // float[] quantMap
+                        256L * 4L + // float[] nestedQuantMap
+                        (size / blockSize / quantState.getNestedBlockSize() * 4L) + // float[] nestedAbsMax
+                        (size / blockSize / 2) + // float[] quantizedAbsMax
+                        (size / 2); // byte[][] values
+            }
+        }
+        catch (Exception e)
+        {
+            throw new IdentifiedException("Error at calculating byte size. Id: " + parameterId, e);
+        }
+    }
+
+    @Override
+    public long calculateByteSize(ParameterReader reader, String parameterId, int rows, int cols)
+    {
+        return calculateByteSize(reader, parameterId, rows * cols);
     }
 }

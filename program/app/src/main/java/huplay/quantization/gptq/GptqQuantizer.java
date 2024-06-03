@@ -219,8 +219,16 @@ public class GptqQuantizer extends AbstractQuantizer
     }
 
     @Override
-    public long calculateByteSize(ParameterReader reader, String id, int size)
+    public long calculateByteSize(ParameterReader reader, String parameterId, int size)
     {
+        // TODO: Calculate
+        return 0;
+    }
+
+    @Override
+    public long calculateByteSize(ParameterReader reader, String parameterId, int rows, int cols)
+    {
+        // TODO: Calculate
         return 0;
     }
 }

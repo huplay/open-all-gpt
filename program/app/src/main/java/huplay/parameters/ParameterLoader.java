@@ -32,7 +32,9 @@ public abstract class ParameterLoader
 
     public abstract Matrix loadMatrix(ParameterReader reader, ParameterType parameterType, String file, int rows, int cols);
 
-    public abstract long calculateByteSize(ParameterReader reader, String name, int size);
+    public abstract long calculateByteSize(ParameterReader reader, String parameterId, int size);
+
+    public abstract long calculateByteSize(ParameterReader reader, String parameterId, int rows, int cols);
 
     protected String getFinalParameterId(String parameterId, String name)
     {

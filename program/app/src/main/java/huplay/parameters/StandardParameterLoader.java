@@ -15,12 +15,6 @@ public class StandardParameterLoader extends ParameterLoader
     }
 
     @Override
-    public long calculateByteSize(ParameterReader reader, String parameterId, int size)
-    {
-        return ((long)size) * reader.getBits(parameterId) / 8;
-    }
-
-    @Override
     public Vector loadVector(ParameterReader reader, String parameterId, int size)
     {
         return read(reader, parameterId, size);
@@ -57,5 +51,17 @@ public class StandardParameterLoader extends ParameterLoader
             default ->
                     throw new IdentifiedException("Not supported data type: " + FloatType + ", key: " + parameterId);
         };
+    }
+
+    @Override
+    public long calculateByteSize(ParameterReader reader, String parameterId, int size)
+    {
+        return ((long)size) * reader.getBits(parameterId) / 8;
+    }
+
+    @Override
+    public long calculateByteSize(ParameterReader reader, String parameterId, int rows, int cols)
+    {
+        return rows * (cols * reader.getBits(parameterId) / 8);
     }
 }

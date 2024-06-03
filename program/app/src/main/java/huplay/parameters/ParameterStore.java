@@ -86,7 +86,7 @@ public abstract class ParameterStore
 
         // Calculate size
         parameterSize += (long) rows * cols;
-        parameterByteSize += parameterLoader.calculateByteSize(reader, finalParameterId, rows * cols);
+        parameterByteSize += parameterLoader.calculateByteSize(reader, finalParameterId, rows, cols);
 
         if (!config.isCalculationOnly())
         {
