@@ -48,76 +48,33 @@ You can use a browser instead of the text-based client, just target the server i
 
    `http://serverhost:port/open-all-gpt`
 
+## Usage (Standalone version) ##
+
+Actually there are two applications. The launcher app implements the model selection, which opens the main app in a separate window.
+
+It is necessary to set the correct heap size (memory) for the main app, which depends on the selected model.
+
+The main app shows a prompt, where you can provide a text:
+
+```Input text:```
+
+You can leave it empty, or type something, which will be continued by the system. While the input tokens are processed a `.` character is displayed. (One for every token.)
+After that the system prints the generated tokens (one by one). If the maximum length is reached, or the response finished by an `END-OF-TEXT` token, a new prompt will be given.
+
+Normally every prompt starts a completely new session (the state is cleared), but if you want to remain in the same context, start your input text by `+`.
+If you use only a single `+` character, without more content, the system will continue the text as it would do without the limit of the max length.
+
+To quit press Ctrl + C.
+
+If the response contained special unicode characters, where a single character is constructed using multiple tokens, then the "one by one" printing solution will show "?" characters. But after the text is fully generated the whole text will be printed again to show the correct characters. (Only at cases when the original print wasn't perfect.)
+
 ## Trained parameters ##
 
 The parameter files should be in `safetensors` format. The app can download these from the configured repository.
 
 Above the 32-bit float (which is the same as the standard Java float), 16-bit float values are also supported. (FLOAT16 and BFLOAT16). There's no 16-bit float data type in Java, so those parameters are converted to Java short, which is an integer data type in theory, but with a conversion trick it can be used. This conversion needs extra computation, but at least it doesn't occupy more memory than necessary. (At calculation, we always use 32-bit float arithmetic.)
 
-## Quantization ##
-
-Quantized models are also supported. The app can load models in quantized format, which will be stored in a special matrix object, occupying as less memory as possible. The values will be de-quantized when accessed, so the intermediate objects (created as a result of a calculation) will use FLOAT 32 values, but most of it will be removed by the garbage collector, so it will be in the memory only temporarily, not permanently as the quantized parameters.
-
-Every calculation is performed on the standard 32-bit float data type, and every result (intermediate of final) will be stored in the memory as 32 or 16-bit float values. (Usually only weights are quantized: the query/key/value, the attention projection weights, and the weights of the neural net.)
-
-Not only the de-quantization is possible, this app can quantize a non-quantized model on the fly (during the load). Furthermore, that is also possible to de-quantize an already quantized model. (The quantization and de-quantization happens only in-memory, it isn't saved.)
-
-Supported quantization methods:
-
-### LLM.int8() ###
-This is an 8-bit quantization method. (One of the first used at LLMs.)
-The values are quantized using a simple interpolation, so in practice every value is rounded to the nearest of 256 possible values. (Grouped by rows.)
-
-### QLoRA ###
-It is one of the first 4-bit quantization method used at LLMs.
-It also uses a simple interpolation, but it has only 16 possible values. The same team implemented it which created the LLM.int8(), but there are some differences. It uses smaller groups (not a whole row), and it has different variants, like `fp4` or `nf4`, etc. (With or without double quantization.) 
-
-The variant type is automatically determined at load. But you have to specify when the quantization is requested. 
-
-- Default parameter names:
-    - `absMax`: `{name}.absmax` (The FLOAT 32 absMax values at simple quantization)
-    - `quantMap`: `{name}.quant_map` (The quantiles used at quantization)
-    - `nestedAbsMax`: `{name}.nested_absmax` (The nested absMax values at double quantization, so the absMaxes of the absMaxes)
-    - `nestedQuantMap`: `{name}.nested_quant_map"` (The quantiles used at double quantization for the absMaxes)
-    - `quantizedAbsMax`: `{name}.absmax` (The quantized absMax values at double quantization)
-
-- LLM.int8() (8-bit)
-- QLoRA (4-bit)
-- In progress: GPTQ (4-bit)
-
-Specialities of the quantization methods:
-
-QLoRA:
-- There are different QLoRA variants, like `fp4` or `nf4`, etc. (With or without double quantization.) It is automatically determined based on the collection name. (There's a `quant_state.bitsandbytes__{variant}` collection. If some reason it had a different name, it can be specified in the naming section with the `QUANT_STATE_KEY_PREFIX` key.)
-- Default parameter names:
-    - `absMax`: `{name}.absmax` (The FLOAT 32 absMax values at simple quantization)
-    - `quantMap`: `{name}.quant_map` (The quantiles used at quantization)
-    - `nestedAbsMax`: `{name}.nested_absmax` (The nested absMax values at double quantization, so the absMaxes of the absMaxes)
-    - `nestedQuantMap`: `{name}.nested_quant_map"` (The quantiles used at double quantization for the absMaxes)
-    - `quantizedAbsMax`: `{name}.absmax` (The quantized absMax values at double quantization)
-
-GPTQ:
-- The `quantize.json` file should be added to the `files` list at the `model.json` to download it with the other files
-- Default parameter names:
-    - `groupIndex`: `{name-1}.g_idx`
-    - `zeros`: `{name-1}.qzeros`
-    - `scales`: `{name-1}.scales`
-    - `weights`: `{name-1}.qweight`
-
-###Loading 
-
-The quantization type of an already quantized model should be configured in the `quantization` section of the `model.json`:
-- `quantizationType`: The name of the quantization method (QLORA or GPTQ)
-- `outputFloatType`: The float type used when the values are unpacked. (FLOAT32/FLOAT16/BFLOAT16)
-- `parameters`: List of parameters where the quantization happened. If it is missing the WEIGHT parameters are expected to be quantized 
-- `naming`: Mappings (key-value pairs) to override the default parameter names
-- `deQuantizeOnLoad`: Set to true to de-quantize the model at load. It will lost its advantage to occupy less memory, and the performance remains degraded, but if the memory size isn't a problem, the execution will be faster.
-
-The `naming` mapping can contain placeholders:
-- `{name}` will be replaced by the final name of the parameter.
-- `{name-1}` will be replaced by the final name of the parameter, but the last segment removed (segments are separated by '.').
-
-## Configuration ##
+## Model configuration ##
 
 Every ported model has a subfolder within the `models` folder. (Organised in subfolders.)
 
@@ -148,7 +105,6 @@ The `tranformerType` and `tokenizerType` values are necessary, all other values 
 
 It is possible to provide a `folders.json` file in the parent folders tell the recommended displaying order or to make a model disabled.
 
-
 ## Supported Transformer types ##
 
 The Transformer implementations can be found in the `transformer` package. Path: `app/src/main/java/huplay/transformer`.
@@ -162,7 +118,7 @@ The following transformer architectures are implemented:
 - `ORIGINAL_TRANSFORMER`: The first transformer, created by Google Brain in 2017. Described in the `Attention Is All You Need` paper. (The trained parameters are not published.)
 - `OPENAI_GPT_1`: The first GPT created by OpenAI, released in June 2018. (Based on the Google's unpublished model, described in the `Attention Is All You Need` paper)
 - `OPENAI_GPT_2`: The second GPT created by OpenAI, limited release in Feb 2019, full access in Nov 2019. Minor differences to GPT-1, only related to the normalization.
-- `ELEUTHERAI_GPT_NEO`: First GPT implementation by EleutherAI, released in 2021. Almost the same as GPT-2 and GPT-3, few unimportant differences. 
+- `ELEUTHERAI_GPT_NEO`: First GPT implementation by EleutherAI, released in 2021. Almost the same as GPT-2 and GPT-3, few unimportant differences.
 - `ELEUTHERAI_GPT_J`: Second GPT implementation by EleutherAI, released in 2022. The biggest change to the previous architecture is the Rotational Position Embedding (RoPE).
 - `BIG_SCIENCE_BLOOM`: Created by an open community organised by Hugging Face to create a similar model to GPT-3. Released in March-July 2022. The main difference to GPT-2/GPT-3 is the Alibi position embedding.
 - `META_LLAMA`: Created by Meta (Facebook), released in Feb 2023. Currently only the original architecture is supported, but the latest models use Grouped Query Attention. Changes to GPT-2: Rotary position embedding, 3 layered MLP block, Swiglu activation function, RSM normalisation.
@@ -184,36 +140,108 @@ The transformer architecture has a frame, and within that a series of decoders. 
 Methods:
 
 Main:
-  - `loadParameters()`: Loads the main parameters into memory. This is called once, before the inference.
-  - `preProcessToken()`: This is the beginning of the execution. Accepts a token and executes the pre process steps, like position embedding and normalization
-  - //// The stack of decoders are called between the preProcessToken() and generateToken() ////
-  - `generateToken()`: This is the end of the execution. Accepts the result of the decoder stack and generates a token.
+- `loadParameters()`: Loads the main parameters into memory. This is called once, before the inference.
+- `preProcessToken()`: This is the beginning of the execution. Accepts a token and executes the pre process steps, like position embedding and normalization
+- //// The stack of decoders are called between the preProcessToken() and generateToken() ////
+- `generateToken()`: This is the end of the execution. Accepts the result of the decoder stack and generates a token.
 
 Attention layer:
-   - `loadParameters()`: Loads the parameters for this block into memory. This is called once, before the inference.
-   - `process()`: The frame of the attention block. Contains normalization, residual connection and calls the attention implementation.
-   - `attention()`: The implementation of the attention mechanism.
+- `loadParameters()`: Loads the parameters for this block into memory. This is called once, before the inference.
+- `process()`: The frame of the attention block. Contains normalization, residual connection and calls the attention implementation.
+- `attention()`: The implementation of the attention mechanism.
 
 Neural net layer:
-   - `loadParameters()`: Loads the parameters for this block into memory. This is called once, before the inference.
-   - `process()`: The frame of the neural net (MLP) block. Contains normalization, residual connection and calls the core neural net implementation.
-   - `neuralNet()`: The implementation of the core neural net layers.
+- `loadParameters()`: Loads the parameters for this block into memory. This is called once, before the inference.
+- `process()`: The frame of the neural net (MLP) block. Contains normalization, residual connection and calls the core neural net implementation.
+- `neuralNet()`: The implementation of the core neural net layers.
 
 If you take a look you can see all methods are very simple, only the attention mechanism is more complicated. Although, these uses some inherited methods from the parent (base) classes, and utility methods implementing the core mathematical algorithms, but those are also very simple codes, and everything is included in this repo.
 
 Code of the main class:
+
 <img src="static/java-main.png" height="300"/>
 
-Code of the attention block (first part):
-<img src="static/java-attention1.png" height="300"/>
+Code of the attention block):
 
-Code of the attention block (attention method):
-<img src="static/java-attention2.png" height="300"/>
+<img src="static/java-attention.png" height="300"/>
 
 Code of the neural net block:
+
 <img src="static/java-neural-net.png" height="300"/>
 
-## For developers ##
+## Quantization ##
+
+Quantized models are also supported. The app can load models in quantized format, which will be stored in a special matrix object, occupying as less memory as possible. The values will be de-quantized when accessed, so the intermediate objects (created as a result of a calculation) will use FLOAT 32 values, but most of it will be removed by the garbage collector, so it will be in the memory only temporarily, not permanently as the quantized parameters.
+
+Not only the de-quantization is possible, this app can quantize a non-quantized model on the fly (during the load). Furthermore, that is also possible to de-quantize an already quantized model. (The quantization and de-quantization happens only in-memory, it isn't saved.)
+
+To load a quantized model the `model.config` file should contain a `quantization` section:
+- `quantizationType`: The name of the quantization method (QLORA or GPTQ)
+- `outputFloatType`: The float type used when the values are unpacked. (FLOAT32/FLOAT16/BFLOAT16)
+- `parameters`: List of parameters where the quantization happened. If it is missing the WEIGHT parameters are expected to be quantized
+- `naming`: Mappings (key-value pairs) to override the default parameter names
+- `deQuantizeOnLoad`: Set to true to de-quantize the model at load. It will lost its advantage to occupy less memory, and the performance remains degraded, but if the memory size isn't a problem, the execution will be faster.
+
+The `naming` mapping can contain placeholders:
+- `{name}` will be replaced by the final name of the parameter.
+- `{name-1}` will be replaced by the final name of the parameter, but the last segment removed (segments are separated by '.').
+
+For example:
+
+"quantization":
+{
+    "quantizationType": "LLM_INT_8",
+    "outputFloatType": "FLOAT_16"
+}
+
+To quantize at load a non-quantized model, the `model.config` should contain a `quantize` section:
+- `quantizationType`: The name of the quantization method (QLORA or GPTQ)
+- `outputFloatType`: The float type used when the values are unpacked. (FLOAT32/FLOAT16/BFLOAT16)
+- `config`: Configuration of the specific quantization method
+
+For example:
+
+"quantize": {
+    "quantizationType": "QLoRA",
+    "outputFloatType": "FLOAT_16",
+    "config": {
+        "variant": "nf4",
+        "blockSize": 128,
+        "nestedBlockSize": 256,
+        "nestedOffset": 1.0
+    }
+}
+
+Supported quantization methods:
+
+### LLM.int8() ###
+This is an 8-bit quantization method. (One of the first used at LLMs.)
+The values are quantized using a simple interpolation, so in practice every value is rounded to the nearest of 256 possible values. (Grouped by rows.)
+
+### QLoRA ###
+It is one of the first 4-bit quantization method used at LLMs.
+It also uses a simple interpolation, but it has only 16 possible values. The same team implemented it which created the LLM.int8(), but there are some differences. It uses smaller groups (not a whole row), and it has different variants, like `fp4` or `nf4`, etc. (With or without double quantization.) 
+
+The variant type is automatically determined at load. But you have to specify when the quantization is requested. 
+
+- Default parameter names:
+    - `absMax`: `{name}.absmax` (The FLOAT 32 absMax values at simple quantization)
+    - `quantMap`: `{name}.quant_map` (The quantiles used at quantization)
+    - `nestedAbsMax`: `{name}.nested_absmax` (The nested absMax values at double quantization, so the absMaxes of the absMaxes)
+    - `nestedQuantMap`: `{name}.nested_quant_map"` (The quantiles used at double quantization for the absMaxes)
+    - `quantizedAbsMax`: `{name}.absmax` (The quantized absMax values at double quantization)
+
+### GPTQ ###
+(In progress)
+
+- The `quantize.json` file should be added to the `files` list at the `model.json` to download it with the other files
+- Default parameter names:
+    - `groupIndex`: `{name-1}.g_idx`
+    - `zeros`: `{name-1}.qzeros`
+    - `scales`: `{name-1}.scales`
+    - `weights`: `{name-1}.qweight`
+
+## Rebuild ##
 
 Steps is you want to modify and rebuild the app:
 
@@ -259,27 +287,6 @@ This is necessary because the Vector API isn't ready (as of Java 20), added only
 Example:
 
 `run GPT2/XL -max=1024 -topk=100`
-
-## Usage (Standalone version) ##
-
-Actually there are two applications. The launcher app implements the model selection, which opens the main app in a separate window.
-
-It is necessary to set the correct heap size (memory) for the main app, which depends on the selected model.
-
-The main app shows a prompt, where you can provide a text:
-
-```Input text:```
-
-You can leave it empty, or type something, which will be continued by the system. While the input tokens are processed a `.` character is displayed. (One for every token.)
-After that the system prints the generated tokens (one by one). If the maximum length is reached, or the response finished by an `END-OF-TEXT` token, a new prompt will be given.
-
-Normally every prompt starts a completely new session (the state is cleared), but if you want to remain in the same context, start your input text by `+`.
-If you use only a single `+` character, without more content, the system will continue the text as it would do without the limit of the max length.
-
-To quit press Ctrl + C.
-
-If the response contained special unicode characters, where a single character is constructed using multiple tokens, then the "one by one" printing solution will show "?" characters. But after the text is fully generated the whole text will be printed again to show the correct characters. (Only at cases when the original print wasn't perfect.) 
-
 
 ## Tokenizer ##
 

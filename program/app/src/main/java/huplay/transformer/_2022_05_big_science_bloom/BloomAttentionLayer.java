@@ -19,22 +19,22 @@ import static huplay.math.BasicMathUtility.sqrt;
  */
 public class BloomAttentionLayer extends BaseAttentionLayer
 {
-    Parameter NORM_WEIGHT, NORM_BIAS, QUERY_KEY_VALUE_WEIGHT, QUERY_KEY_VALUE_BIAS, PROJECTION_WEIGHT, PROJECTION_BIAS;
-
     private float[] positionSlope;
 
     protected final List<List<Vector>> storedKeys = new ArrayList<>(headCount);
     protected final List<List<Vector>> storedValues = new ArrayList<>(headCount);
 
+    Parameter normWeight, normBias, queryKeyValueWeight, queryKeyValueBias, projectionWeight, projectionBias;
+
     public void loadParameters()
     {
         // Load parameters
-        NORM_WEIGHT = loadVector("input_layernorm.weight", NORMALIZATION_WEIGHT, hiddenSize);
-        NORM_BIAS = loadVector("input_layernorm.bias", NORMALIZATION_BIAS, hiddenSize);
-        QUERY_KEY_VALUE_WEIGHT = loadMatrix("self_attention.query_key_value.weight", VERTICAL_WEIGHT,  hiddenSize * 3, hiddenSize);
-        QUERY_KEY_VALUE_BIAS = loadVector("self_attention.query_key_value.bias", BIAS, hiddenSize * 3);
-        PROJECTION_WEIGHT = loadMatrix("self_attention.dense.weight", VERTICAL_WEIGHT, hiddenSize, hiddenSize);
-        PROJECTION_BIAS = loadVector("self_attention.dense.bias", BIAS, hiddenSize);
+        normWeight          = loadVector(NORM_WEIGHT,     "input_layernorm.weight",                hiddenSize);
+        normBias            = loadVector(NORM_BIAS,       "input_layernorm.bias",                  hiddenSize);
+        queryKeyValueWeight = loadMatrix(VERTICAL_WEIGHT, "self_attention.query_key_value.weight", hiddenSize * 3, hiddenSize);
+        queryKeyValueBias   = loadVector(BIAS,            "self_attention.query_key_value.bias",   hiddenSize * 3);
+        projectionWeight    = loadMatrix(VERTICAL_WEIGHT, "self_attention.dense.weight",           hiddenSize, hiddenSize);
+        projectionBias      = loadVector(BIAS,            "self_attention.dense.bias",             hiddenSize);
 
         for (int i = 0; i < headCount; i++)
         {
@@ -57,7 +57,7 @@ public class BloomAttentionLayer extends BaseAttentionLayer
     public Vector process(Vector inputHiddenState, boolean isInputOnly)
     {
         // Normalisation
-        Vector hiddenState = MATH.layerNorm(inputHiddenState, vector(NORM_WEIGHT), vector(NORM_BIAS), epsilon);
+        Vector hiddenState = MATH.layerNorm(inputHiddenState, vector(normWeight), vector(normBias), epsilon);
 
         // Attention
         hiddenState = attention(hiddenState);
@@ -74,8 +74,8 @@ public class BloomAttentionLayer extends BaseAttentionLayer
     private Vector attention(Vector hiddenState)
     {
         // Calculate the query-key-value vectors for the actual token
-        Vector queryKeyValue = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(QUERY_KEY_VALUE_WEIGHT));
-        queryKeyValue = MATH.addVectors(queryKeyValue, vector(QUERY_KEY_VALUE_BIAS));
+        Vector queryKeyValue = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(queryKeyValueWeight));
+        queryKeyValue = MATH.addVectors(queryKeyValue, vector(queryKeyValueBias));
 
         // Split the query, key and value vectors into pieces for all heads
         Matrix queryKeyValuesByHead = MATH.splitVector(queryKeyValue, headCount);
@@ -132,8 +132,8 @@ public class BloomAttentionLayer extends BaseAttentionLayer
         hiddenState = MATH.flattenMatrix(valueAggregate);
 
         // Projection neural layer
-        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(PROJECTION_WEIGHT));
-        hiddenState = MATH.addVectors(hiddenState, vector(PROJECTION_BIAS));
+        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(projectionWeight));
+        hiddenState = MATH.addVectors(hiddenState, vector(projectionBias));
 
         return hiddenState;
     }

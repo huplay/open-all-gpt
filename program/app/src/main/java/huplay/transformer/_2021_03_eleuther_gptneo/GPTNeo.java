@@ -21,33 +21,33 @@ import static huplay.config.ParameterType.*;
  */
 public class GPTNeo extends BaseTransformer
 {
-    Parameter TOKEN_EMBEDDINGS, POSITION_EMBEDDINGS, NORM_WEIGHT, NORM_BIAS;
+    Parameter tokenEmbeddings, positionEmbeddings, normWeight, normBias;
 
     public void loadParameters()
     {
-        TOKEN_EMBEDDINGS = loadMatrix("wte.weight", EMBEDDINGS, tokenCount, hiddenSize);
-        POSITION_EMBEDDINGS = loadMatrix("wpe.weight", EMBEDDINGS, contextSize, hiddenSize);
-        NORM_WEIGHT = loadVector("ln_f.weight", NORMALIZATION_WEIGHT, hiddenSize);
-        NORM_BIAS = loadVector("ln_f.bias", NORMALIZATION_BIAS, hiddenSize);
+        tokenEmbeddings    = loadMatrix(EMBEDDING,   "wte.weight",  tokenCount, hiddenSize);
+        positionEmbeddings = loadMatrix(EMBEDDING,   "wpe.weight",  contextSize, hiddenSize);
+        normWeight         = loadVector(NORM_WEIGHT, "ln_f.weight", hiddenSize);
+        normBias           = loadVector(NORM_BIAS,   "ln_f.bias",   hiddenSize);
     }
 
     public Vector preProcessToken(int pos, int token)
     {
         // Find the embeddings of the token
-        Vector hiddenState = matrix(TOKEN_EMBEDDINGS).getRow(token);
+        Vector hiddenState = matrix(tokenEmbeddings).getRow(token);
 
         // Position embedding
-        return MATH.addVectors(hiddenState, matrix(POSITION_EMBEDDINGS).getRow(pos));
+        return MATH.addVectors(hiddenState, matrix(positionEmbeddings).getRow(pos));
     }
 
     public int generateToken(Vector hiddenState, int topK)
     {
         // Final normalization
-        hiddenState = MATH.layerNorm(hiddenState, vector(NORM_WEIGHT), vector(NORM_BIAS), epsilon);
+        hiddenState = MATH.layerNorm(hiddenState, vector(normWeight), vector(normBias), epsilon);
 
         // Multiply (dot product) the output with all token embeddings.
         // It will give a higher value if the output is more similar to the token embedding
-        float[] logits = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(TOKEN_EMBEDDINGS)).getValues();
+        float[] logits = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(tokenEmbeddings)).getValues();
 
         return selectBestToken(logits, topK);
     }

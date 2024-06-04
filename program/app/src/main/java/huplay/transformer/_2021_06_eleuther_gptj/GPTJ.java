@@ -30,31 +30,30 @@ import static huplay.config.ParameterType.*;
  */
 public class GPTJ extends BaseTransformer
 {
-    Parameter TOKEN_EMBEDDINGS, TOKEN_EMBEDDING_BIAS, NORM_WEIGHT, NORM_BIAS;
+    Parameter tokenEmbeddings, tokenEmbeddingsBias, normWeight, normBias;
 
     public void loadParameters()
     {
-        TOKEN_EMBEDDINGS = loadMatrix("lm_head.weight", EMBEDDINGS, tokenCount, hiddenSize);
-        TOKEN_EMBEDDING_BIAS = loadVector("lm_head.bias", EMBEDDINGS_BIAS, tokenCount);
-        NORM_WEIGHT = loadVector("transformer.ln_f.weight", NORMALIZATION_WEIGHT, hiddenSize);
-        NORM_BIAS = loadVector("transformer.ln_f.bias", NORMALIZATION_BIAS, hiddenSize);
+        tokenEmbeddings     = loadMatrix(EMBEDDING,      "lm_head.weight",          tokenCount, hiddenSize);
+        tokenEmbeddingsBias = loadVector(EMBEDDING_BIAS, "lm_head.bias",            tokenCount);
+        normWeight          = loadVector(NORM_WEIGHT,    "transformer.ln_f.weight", hiddenSize);
+        normBias            = loadVector(NORM_BIAS,      "transformer.ln_f.bias",   hiddenSize);
     }
 
     public Vector preProcessToken(int pos, int token)
     {
         // Find the embeddings of the token
-        Vector hiddenState = matrix(TOKEN_EMBEDDINGS).getRow(token);
-        return MATH.addVectors(hiddenState, vector(TOKEN_EMBEDDING_BIAS));
+        return matrix(tokenEmbeddings).getRow(token);
     }
 
     public int generateToken(Vector hiddenState, int topK)
     {
         // Final normalization
-        hiddenState = MATH.layerNorm(hiddenState, vector(NORM_WEIGHT), vector(NORM_BIAS), epsilon);
+        hiddenState = MATH.layerNorm(hiddenState, vector(normWeight), vector(normBias), epsilon);
 
         // Multiply (dot product) the output with all token embeddings.
         // It will give a higher value if the output is more similar to the token embedding
-        float[] logits = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(TOKEN_EMBEDDINGS)).getValues();
+        float[] logits = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(tokenEmbeddings)).getValues();
 
         return selectBestToken(logits, topK);
     }

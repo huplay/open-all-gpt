@@ -47,7 +47,7 @@ public abstract class ParameterStore
     /**
      * Loads a vector parameter (Currently quantization isn't supported for vectors, only for matrices)
      */
-    protected Parameter loadVector(String parameterId, ParameterType parameterType, int size)
+    protected Parameter loadVector(ParameterType parameterType, String parameterId, int size)
     {
         // Get the parameter loader (standard or a quantizer, but non-of the quantizers supports vectors)
         var parameterLoader = getParameterLoader(parameterType, parameterId);
@@ -65,14 +65,14 @@ public abstract class ParameterStore
             vectorParams.put(parameterId, parameterLoader.loadVector(reader, finalParameterId, size));
         }
 
-        return new Parameter(parameterId, parameterType);
+        return new Parameter(parameterType, parameterId);
     }
 
     /**
      * Loads a matrix parameter (standard or quantized)
      * Optionally it can de-quantize a quantized or quantize a non-quantized parameter
      */
-    protected Parameter loadMatrix(String parameterId, ParameterType parameterType, int rows, int cols)
+    protected Parameter loadMatrix(ParameterType parameterType, String parameterId, int rows, int cols)
     {
         // Get the parameter loader (standard or a quantizer)
         var parameterLoader = getParameterLoader(parameterType, parameterId);
@@ -113,7 +113,7 @@ public abstract class ParameterStore
             matrixParams.put(parameterId, matrix);
         }
 
-        return new Parameter(parameterId, parameterType);
+        return new Parameter(parameterType, parameterId);
     }
 
     private ParameterLoader getParameterLoader(ParameterType parameterType, String parameterId)

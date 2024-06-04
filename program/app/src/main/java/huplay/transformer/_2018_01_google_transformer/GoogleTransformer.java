@@ -37,18 +37,18 @@ import static huplay.math.BasicMathUtility.exp;
  */
 public class GoogleTransformer extends BaseTransformer
 {
-    Parameter TOKEN_EMBEDDINGS;
-    private Matrix positionMatrix = calculatePositionMatrix();
+    Parameter tokenEmbeddings;
+    Matrix positionMatrix = calculatePositionMatrix();
 
     public void loadParameters()
     {
-        TOKEN_EMBEDDINGS = loadMatrix("tokens_embed.weight", EMBEDDINGS, tokenCount, hiddenSize);
+        tokenEmbeddings = loadMatrix(EMBEDDING, "tokens_embed.weight", tokenCount, hiddenSize);
     }
 
     public Vector preProcessToken(int pos, int token)
     {
         // Find the embeddings of the token
-        Vector hiddenState = matrix(TOKEN_EMBEDDINGS).getRow(token);
+        Vector hiddenState = matrix(tokenEmbeddings).getRow(token);
 
         // Position embedding
         for (int i = 0; i < hiddenState.size(); i++)
@@ -63,7 +63,7 @@ public class GoogleTransformer extends BaseTransformer
     {
         // Multiply (dot product) the output with all token embeddings.
         // It will give a higher value if the output is more similar to the token embedding
-        float[] logits = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(TOKEN_EMBEDDINGS)).getValues();
+        float[] logits = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(tokenEmbeddings)).getValues();
 
         return selectBestToken(logits, topK);
     }

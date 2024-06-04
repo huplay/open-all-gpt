@@ -14,27 +14,25 @@ import static huplay.MathUtilProvider.MATH;
  */
 public class GPTJNeuralNetLayer extends BaseNeuralNetLayer
 {
-    Parameter NORM_WEIGHT, NORM_BIAS, LAYER_1_WEIGHT, LAYER_1_BIAS, LAYER_2_WEIGHT, LAYER_2_BIAS;
-
-    int maxAttentionSize;
+    Parameter normWeight, normBias, layer1Weight, layer1Bias, layer2Weight, layer2Bias;
 
     public void loadParameters()
     {
-        NORM_WEIGHT = loadVector("ln_f.weight", NORMALIZATION_WEIGHT, hiddenSize);
-        NORM_BIAS = loadVector("ln_f.bias", NORMALIZATION_BIAS, hiddenSize);
-        LAYER_1_WEIGHT = loadMatrix("mlp.fc_in.weight", VERTICAL_WEIGHT, hiddenSize, feedForwardSize);
-        LAYER_1_BIAS = loadVector("mlp.fc_in.bias", BIAS, feedForwardSize);
-        LAYER_2_WEIGHT = loadMatrix("mlp.fc_out.weight", VERTICAL_WEIGHT, feedForwardSize, hiddenSize);
-        LAYER_2_BIAS = loadVector("mlp.fc_out.bias", BIAS, hiddenSize);
+        normWeight   = loadVector(NORM_WEIGHT,     "ln_f.weight",       hiddenSize);
+        normBias     = loadVector(NORM_BIAS,       "ln_f.bias",         hiddenSize);
+        layer1Weight = loadMatrix(VERTICAL_WEIGHT, "mlp.fc_in.weight",  hiddenSize, feedForwardSize);
+        layer1Bias   = loadVector(BIAS,            "mlp.fc_in.bias",    feedForwardSize);
+        layer2Weight = loadMatrix(VERTICAL_WEIGHT, "mlp.fc_out.weight", feedForwardSize, hiddenSize);
+        layer2Bias   = loadVector(BIAS,            "mlp.fc_out.bias",   hiddenSize);
     }
 
     public Vector process(Vector inputHiddenState)
     {
         // Normalisation
-        //float[] hiddenState = layerNorm(inputHiddenState, vector(NORM_WEIGHT), vector(NORM_BIAS), epsilon);
+        Vector hiddenState = MATH.layerNorm(inputHiddenState, vector(normWeight), vector(normBias), epsilon);
 
         // Neural layers
-        Vector hiddenState = neuralNet(inputHiddenState);
+        hiddenState = neuralNet(hiddenState);
 
         // Residual connection
         hiddenState = MATH.addVectors(inputHiddenState, hiddenState);
@@ -45,8 +43,8 @@ public class GPTJNeuralNetLayer extends BaseNeuralNetLayer
     private Vector neuralNet(Vector hiddenState)
     {
         // Layer 1: <mlpSize> neurons (usually 4 * <hiddenSize>) (using a gelu activation function)
-        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(LAYER_1_WEIGHT));
-        hiddenState = MATH.addVectors(hiddenState, vector(LAYER_1_BIAS));
+        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(layer1Weight));
+        hiddenState = MATH.addVectors(hiddenState, vector(layer1Bias));
 
         for (int neuron = 0; neuron < feedForwardSize; neuron++)
         {
@@ -54,8 +52,8 @@ public class GPTJNeuralNetLayer extends BaseNeuralNetLayer
         }
 
         // Layer 2: <hiddenSize> neurons (without activation function)
-        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(LAYER_2_WEIGHT));
-        hiddenState = MATH.addVectors(hiddenState, vector(LAYER_2_BIAS));
+        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(layer2Weight));
+        hiddenState = MATH.addVectors(hiddenState, vector(layer2Bias));
 
         return hiddenState;
     }

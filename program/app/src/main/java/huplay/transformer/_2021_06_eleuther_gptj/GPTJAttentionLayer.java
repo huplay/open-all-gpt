@@ -16,19 +16,19 @@ import static huplay.math.BasicMathUtility.*;
  */
 public class GPTJAttentionLayer extends BaseAttentionLayer
 {
-    Parameter NORM_WEIGHT, NORM_BIAS, QUERY_WEIGHT, KEY_WEIGHT, VALUE_WEIGHT, PROJECTION_WEIGHT;
+    Parameter normWeight, normBias, queryWeight, keyWeight, valueWeight, projectionWeight;
 
     int maxAttentionSize;
 
     public void loadParameters()
     {
         // attn.bias BOOL: 1x1x2048x2048
-        NORM_WEIGHT = loadVector("ln_1.weight", NORMALIZATION_WEIGHT, hiddenSize);
-        NORM_BIAS = loadVector("ln_1.bias", NORMALIZATION_BIAS, hiddenSize);
-        QUERY_WEIGHT = loadMatrix("attn.q_proj.weight", VERTICAL_WEIGHT, hiddenSize, hiddenSize);
-        KEY_WEIGHT = loadMatrix("attn.k_proj.weight", VERTICAL_WEIGHT, hiddenSize, hiddenSize);
-        VALUE_WEIGHT = loadMatrix("attn.v_proj.weight", VERTICAL_WEIGHT, hiddenSize, hiddenSize);
-        PROJECTION_WEIGHT = loadMatrix("attn.out_proj.weight", VERTICAL_WEIGHT, hiddenSize, hiddenSize);
+        normWeight       = loadVector(NORM_WEIGHT,     "ln_1.weight",          hiddenSize);
+        normBias         = loadVector(NORM_BIAS,       "ln_1.bias",            hiddenSize);
+        queryWeight      = loadMatrix(VERTICAL_WEIGHT, "attn.q_proj.weight",   hiddenSize, hiddenSize);
+        keyWeight        = loadMatrix(VERTICAL_WEIGHT, "attn.k_proj.weight",   hiddenSize, hiddenSize);
+        valueWeight      = loadMatrix(VERTICAL_WEIGHT, "attn.v_proj.weight",   hiddenSize, hiddenSize);
+        projectionWeight = loadMatrix(VERTICAL_WEIGHT, "attn.out_proj.weight", hiddenSize, hiddenSize);
 
         maxAttentionSize = 256; // TODO: Move sparse attention to logic, not as config
     }
@@ -36,7 +36,7 @@ public class GPTJAttentionLayer extends BaseAttentionLayer
     public Vector process(Vector inputHiddenState, boolean isInputOnly)
     {
         // Normalisation
-        Vector hiddenState = MATH.layerNorm(inputHiddenState, vector(NORM_WEIGHT), vector(NORM_BIAS), epsilon);
+        Vector hiddenState = MATH.layerNorm(inputHiddenState, vector(normWeight), vector(normBias), epsilon);
 
         // Attention
         hiddenState = attention(hiddenState);
@@ -53,9 +53,9 @@ public class GPTJAttentionLayer extends BaseAttentionLayer
     private Vector attention(Vector hiddenState)
     {
         // Calculate the query, key and value vectors for the actual token
-        Vector query = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(QUERY_WEIGHT));
-        Vector key = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(KEY_WEIGHT));
-        Vector value = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(VALUE_WEIGHT));
+        Vector query = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(queryWeight));
+        Vector key = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(keyWeight));
+        Vector value = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(valueWeight));
 
         // Split the query, key and value vectors into pieces for all heads
         Matrix queryByHead = MATH.splitVector(query, headCount);
@@ -111,7 +111,7 @@ public class GPTJAttentionLayer extends BaseAttentionLayer
         hiddenState = MATH.flattenMatrix(valueAggregate);
 
         // Projection neural layer
-        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(PROJECTION_WEIGHT));
+        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(projectionWeight));
         //hiddenState = UTIL.addVectors(hiddenState, vector(ATT_PROJ_BIAS));
 
         return hiddenState;

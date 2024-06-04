@@ -22,34 +22,34 @@ import static huplay.config.ParameterType.*;
  */
 public class Bloom extends BaseTransformer
 {
-    Parameter TOKEN_EMBEDDINGS, INPUT_NORM_WEIGHT, INPUT_NORM_BIAS, OUTPUT_NORM_WEIGHT, OUTPUT_NORM_BIAS;
+    Parameter tokenEmbeddings, inputNormWeight, inputNormBias, outputNormWeight, outputNormBias;
 
     public void loadParameters()
     {
-        TOKEN_EMBEDDINGS = loadMatrix("word_embeddings.weight", EMBEDDINGS, tokenCount, hiddenSize);
-        INPUT_NORM_WEIGHT = loadVector("word_embeddings_layernorm.weight", NORMALIZATION_WEIGHT, hiddenSize);
-        INPUT_NORM_BIAS = loadVector("word_embeddings_layernorm.bias", NORMALIZATION_BIAS, hiddenSize);
-        OUTPUT_NORM_WEIGHT = loadVector("ln_f.weight", NORMALIZATION_WEIGHT, hiddenSize);
-        OUTPUT_NORM_BIAS = loadVector("ln_f.bias", NORMALIZATION_BIAS, hiddenSize);
+        tokenEmbeddings  = loadMatrix(EMBEDDING,   "word_embeddings.weight",           tokenCount, hiddenSize);
+        inputNormWeight  = loadVector(NORM_WEIGHT, "word_embeddings_layernorm.weight", hiddenSize);
+        inputNormBias    = loadVector(NORM_BIAS,   "word_embeddings_layernorm.bias",   hiddenSize);
+        outputNormWeight = loadVector(NORM_WEIGHT, "ln_f.weight",                      hiddenSize);
+        outputNormBias   = loadVector(NORM_BIAS,   "ln_f.bias",                        hiddenSize);
     }
 
     public Vector preProcessToken(int pos, int token)
     {
         // Find the embeddings of the token
-        Vector hiddenState = matrix(TOKEN_EMBEDDINGS).getRow(token);
+        Vector hiddenState = matrix(tokenEmbeddings).getRow(token);
 
         // Input normalization
-        return MATH.layerNorm(hiddenState, vector(INPUT_NORM_WEIGHT), vector(INPUT_NORM_BIAS), epsilon);
+        return MATH.layerNorm(hiddenState, vector(inputNormWeight), vector(inputNormBias), epsilon);
     }
 
     public int generateToken(Vector hiddenState, int topK)
     {
         // Final normalization
-        hiddenState = MATH.layerNorm(hiddenState, vector(OUTPUT_NORM_WEIGHT), vector(OUTPUT_NORM_BIAS), epsilon);
+        hiddenState = MATH.layerNorm(hiddenState, vector(outputNormWeight), vector(outputNormBias), epsilon);
 
         // Multiply (dot product) the output with all token embeddings.
         // It will give a higher value if the output is more similar to the token embedding
-        float[] logits = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(TOKEN_EMBEDDINGS)).getValues();
+        float[] logits = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(tokenEmbeddings)).getValues();
 
         return selectBestToken(logits, topK);
     }

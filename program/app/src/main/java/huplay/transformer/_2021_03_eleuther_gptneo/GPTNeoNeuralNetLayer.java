@@ -14,24 +14,22 @@ import static huplay.config.ParameterType.*;
  */
 public class GPTNeoNeuralNetLayer extends BaseNeuralNetLayer
 {
-    Parameter NORM_WEIGHT, NORM_BIAS, LAYER_1_WEIGHT, LAYER_1_BIAS, LAYER_2_WEIGHT, LAYER_2_BIAS;
-
-    int maxAttentionSize;
+    Parameter normWeight, normBias, layer1Weight, layer1Bias, layer2Weight, layer2Bias;
 
     public void loadParameters()
     {
-        NORM_WEIGHT = loadVector("ln_2.weight", NORMALIZATION_WEIGHT, hiddenSize);
-        NORM_BIAS = loadVector("ln_2.bias", NORMALIZATION_BIAS, hiddenSize);
-        LAYER_1_WEIGHT = loadMatrix("mlp.c_fc.weight", VERTICAL_WEIGHT, feedForwardSize, hiddenSize);
-        LAYER_1_BIAS = loadVector("mlp.c_fc.bias", BIAS, feedForwardSize);
-        LAYER_2_WEIGHT = loadMatrix("mlp.c_proj.weight", VERTICAL_WEIGHT, hiddenSize, feedForwardSize);
-        LAYER_2_BIAS = loadVector("mlp.c_proj.bias", BIAS, hiddenSize);
+        normWeight   = loadVector(NORM_WEIGHT,     "ln_2.weight",       hiddenSize);
+        normBias     = loadVector(NORM_BIAS,       "ln_2.bias",         hiddenSize);
+        layer1Weight = loadMatrix(VERTICAL_WEIGHT, "mlp.c_fc.weight",   feedForwardSize, hiddenSize);
+        layer1Bias   = loadVector(BIAS,            "mlp.c_fc.bias",     feedForwardSize);
+        layer2Weight = loadMatrix(VERTICAL_WEIGHT, "mlp.c_proj.weight", hiddenSize, feedForwardSize);
+        layer2Bias   = loadVector(BIAS,            "mlp.c_proj.bias",   hiddenSize);
     }
 
     public Vector process(Vector inputHiddenState)
     {
         // Normalisation
-        Vector hiddenState = MATH.layerNorm(inputHiddenState, vector(NORM_WEIGHT), vector(NORM_BIAS), epsilon);
+        Vector hiddenState = MATH.layerNorm(inputHiddenState, vector(normWeight), vector(normBias), epsilon);
 
         // Neural layers
         hiddenState = neuralNet(hiddenState);
@@ -45,8 +43,8 @@ public class GPTNeoNeuralNetLayer extends BaseNeuralNetLayer
     private Vector neuralNet(Vector hiddenState)
     {
         // Layer 1: <mlpSize> neurons (usually 4 * <hiddenSize>) (using a gelu activation function)
-        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(LAYER_1_WEIGHT));
-        hiddenState = MATH.addVectors(hiddenState, vector(LAYER_1_BIAS));
+        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(layer1Weight));
+        hiddenState = MATH.addVectors(hiddenState, vector(layer1Bias));
 
         for (int neuron = 0; neuron < feedForwardSize; neuron++)
         {
@@ -54,8 +52,8 @@ public class GPTNeoNeuralNetLayer extends BaseNeuralNetLayer
         }
 
         // Layer 2: <hiddenSize> neurons (without activation function)
-        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(LAYER_2_WEIGHT));
-        hiddenState = MATH.addVectors(hiddenState, vector(LAYER_2_BIAS));
+        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(layer2Weight));
+        hiddenState = MATH.addVectors(hiddenState, vector(layer2Bias));
 
         return hiddenState;
     }

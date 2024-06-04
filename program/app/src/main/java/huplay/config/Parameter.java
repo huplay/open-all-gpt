@@ -2,16 +2,16 @@ package huplay.config;
 
 public class Parameter
 {
-    private final String id;
     private final ParameterType parameterType;
+    private final String id;
 
-    public Parameter(String id, ParameterType parameterType)
+    public Parameter(ParameterType parameterType, String id)
     {
-        this.id = id;
         this.parameterType = parameterType;
+        this.id = id;
     }
 
     // Getters
-    public String getId() {return id;}
     public ParameterType getParameterType() {return parameterType;}
+    public String getId() {return id;}
 }

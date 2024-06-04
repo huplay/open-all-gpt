@@ -2,13 +2,13 @@ package huplay.config;
 
 public enum ParameterType
 {
-    EMBEDDINGS,
-    EMBEDDINGS_BIAS,
+    EMBEDDING,
+    EMBEDDING_BIAS,
     HORIZONTAL_WEIGHT,
     VERTICAL_WEIGHT,
     BIAS,
-    NORMALIZATION_WEIGHT,
-    NORMALIZATION_BIAS;
+    NORM_WEIGHT,
+    NORM_BIAS;
 
     /**
      * Marks if a parameter is a "classic" weight parameter.

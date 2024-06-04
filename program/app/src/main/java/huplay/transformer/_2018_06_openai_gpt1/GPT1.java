@@ -17,28 +17,28 @@ import static huplay.MathUtilProvider.MATH;
  */
 public class GPT1 extends BaseTransformer
 {
-    Parameter TOKEN_EMBEDDINGS, POSITION_EMBEDDINGS;
+    Parameter tokenEmbeddings, positionEmbeddings;
 
     public void loadParameters()
     {
-        TOKEN_EMBEDDINGS = loadMatrix("tokens_embed.weight", EMBEDDINGS, tokenCount, hiddenSize);
-        POSITION_EMBEDDINGS = loadMatrix("positions_embed.weight", EMBEDDINGS, contextSize, hiddenSize);
+        tokenEmbeddings    = loadMatrix(EMBEDDING, "tokens_embed.weight",    tokenCount, hiddenSize);
+        positionEmbeddings = loadMatrix(EMBEDDING, "positions_embed.weight", contextSize, hiddenSize);
     }
 
     public Vector preProcessToken(int pos, int token)
     {
         // Find the embeddings of the token
-        Vector hiddenState = matrix(TOKEN_EMBEDDINGS).getRow(token);
+        Vector hiddenState = matrix(tokenEmbeddings).getRow(token);
 
         // Add the position embedding to hidden state
-        return MATH.addVectors(hiddenState, matrix(POSITION_EMBEDDINGS).getRow(pos));
+        return MATH.addVectors(hiddenState, matrix(positionEmbeddings).getRow(pos));
     }
 
     public int generateToken(Vector hiddenState, int topK)
     {
         // Multiply (dot product) the output with all token embeddings.
         // It will give a higher value if the output is more similar to the token embedding
-        float[] logits = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(TOKEN_EMBEDDINGS)).getValues();
+        float[] logits = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(tokenEmbeddings)).getValues();
 
         return selectBestToken(logits, topK);
     }

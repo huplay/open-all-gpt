@@ -24,28 +24,28 @@ import static huplay.config.ParameterType.*;
  */
 public class Llama extends BaseTransformer
 {
-    Parameter TOKEN_EMBEDDINGS, NORM_WEIGHT;
+    Parameter tokenEmbeddings, normWeight;
 
     public void loadParameters()
     {
-        TOKEN_EMBEDDINGS = loadMatrix("embed_tokens.weight", EMBEDDINGS, embeddingCount, hiddenSize);
-        NORM_WEIGHT = loadVector("norm.weight", NORMALIZATION_WEIGHT, hiddenSize);
+        tokenEmbeddings = loadMatrix(EMBEDDING,   "embed_tokens.weight", embeddingCount, hiddenSize);
+        normWeight      = loadVector(NORM_WEIGHT, "norm.weight",         hiddenSize);
     }
 
     public Vector preProcessToken(int pos, int token)
     {
         // Find the embeddings of the token
-        return matrix(TOKEN_EMBEDDINGS).getRow(token);
+        return matrix(tokenEmbeddings).getRow(token);
     }
 
     public int generateToken(Vector hiddenState, int topK)
     {
         // Final normalization
-        hiddenState = MATH.RMSLayerNorm(hiddenState, vector(NORM_WEIGHT), epsilon);
+        hiddenState = MATH.RMSLayerNorm(hiddenState, vector(normWeight), epsilon);
 
         // Multiply (dot product) the output with all token embeddings.
         // It will give a higher value if the output is more similar to the token embedding
-        float[] logits = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(TOKEN_EMBEDDINGS)).getValues();
+        float[] logits = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(tokenEmbeddings)).getValues();
 
         return selectBestToken(logits, topK);
     }
