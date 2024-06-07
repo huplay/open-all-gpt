@@ -8,7 +8,8 @@ public enum ParameterType
     VERTICAL_WEIGHT,
     BIAS,
     NORM_WEIGHT,
-    NORM_BIAS;
+    NORM_BIAS,
+    BOOL_ARRAY;
 
     /**
      * Marks if a parameter is a "classic" weight parameter.

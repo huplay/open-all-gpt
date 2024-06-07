@@ -62,11 +62,12 @@ public class BloomAttentionLayer extends BaseAttentionLayer
         // Attention
         hiddenState = attention(hiddenState);
 
-        if (isInputOnly && lastDecoder) // During input token processing at the last decoder...
-            return null; // ...we don't need the result (only the stored state at attention), unnecessary to do the rest
-
-        // Residual connection
-        hiddenState = MATH.addVectors(inputHiddenState, hiddenState);
+        // Not necessary to do the remaining if processing an input token (except the last) and it is the last decoder
+        if ( !(isInputOnly && lastDecoder) )
+        {
+            // Residual connection
+            hiddenState = MATH.addVectors(inputHiddenState, hiddenState);
+        }
 
         return hiddenState;
     }

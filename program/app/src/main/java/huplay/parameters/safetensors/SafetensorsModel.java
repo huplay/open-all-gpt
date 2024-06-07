@@ -5,10 +5,7 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SafetensorsModel
@@ -16,7 +13,7 @@ public class SafetensorsModel
     @JsonProperty("__metadata__")
     private Map<String, String> metadata;
 
-    private final Map<String, TensorModel> tensors = new HashMap<>();
+    private final Map<String, TensorModel> tensors = new LinkedHashMap<>();
 
     public SafetensorsModel()
     {
@@ -58,9 +55,9 @@ public class SafetensorsModel
         {
         }
 
-        public TensorModel(String dataType, List<Integer> shape, Long startOffset, long endOffset)
+        public TensorModel(SafetensorsDataType dataType, List<Integer> shape, long startOffset, long endOffset)
         {
-            this.dataType = dataType;
+            this.dataType = dataType.name();
             this.shape = shape;
             this.dataOffsets = new ArrayList<>(2);
             this.dataOffsets.add(startOffset);

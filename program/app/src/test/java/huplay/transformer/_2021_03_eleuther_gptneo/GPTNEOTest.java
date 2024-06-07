@@ -1,7 +1,6 @@
 package huplay.transformer._2021_03_eleuther_gptneo;
 
 import huplay.transformer.BaseTransformerTest;
-import huplay.transformer.TransformerFlow;
 import org.junit.Test;
 
 public class GPTNEOTest extends BaseTransformerTest
@@ -10,10 +9,12 @@ public class GPTNEOTest extends BaseTransformerTest
     public void testTransformer()
     {
         var config = getTestConfig("transformer/_2021_03_eleuther_gptneo");
-        var flow = new TransformerFlow(config, null, new GPTNeo());
+        var transformer = new GPTNeo();
+        transformer.init(config);
+        transformer.initDecoders();
 
         // First run (no previously stored tokens)
-        var result1 = flow.processTokenMain(0, 0, false);
+        var result1 = transformer.processTokenMain(0, 0, false);
 
         var expected = new float[] {
                 0.5569178f, -0.866098f, 0.2154375f, -0.3094095f, -0.8206209f, 0.23917273f,
@@ -22,7 +23,7 @@ public class GPTNEOTest extends BaseTransformerTest
         assertVectorEquals(expected, result1, 1e-6f);
 
         // Second run
-        var result2 = flow.processTokenMain(1, 1, false);
+        var result2 = transformer.processTokenMain(1, 1, false);
 
         expected = new float[] {
                 0.2945429f, 1.1000853f, -0.426582f, 0.013817161f, 0.46769962f, -0.34113365f,

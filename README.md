@@ -125,11 +125,17 @@ The following transformer architectures are implemented:
 
 ## Transformer implementation ##
 
+My main goal was to demonstrate the exact steps of the transformer architecture, so I wanted to create the most readable code, without any complex structures. At least at the core part. It's not only for Java developers, not only for developers!
+
 The transformer architecture is implemented multiple times. All variant placed in a separate package within the `transformer` package as you can see highlighted in the image below:
 
 <p align="center"><img src="static/transformer-packages.png" height="300"/></p>
 
-(Every package name contains the release date and the company as well.) On the screenshot the GPT2 package was opened, but all others contain three Java classes:
+Every package name contains the release date and the company.
+
+I tried to write the simplest Java code as possible. My main goal is that 
+
+All of these are very similar, containing three Java classes:
 
 - Main class (`GPT.java`)
 - Attention layer class (First block of a decoder, `GPT2AttentionLayer.java`)
@@ -296,3 +302,22 @@ Supported tokenizers:
    - GPT-1
    - GPT-2 (used by GPT-3 as well), and for BLOOM with different vocabulary
    - SentencePiece (used by Llama1 and Llama2)
+
+## Some comments about the implementation ##
+
+As I mentioned earlier, my main goal was to create a clean, readable code. Especially at the core parts. I look it as a language-agnostic pseudocode, not a cutting edge Java implementation.
+
+That's why I avoided to use generics, lambda expressions or any special language features in the transformer implementations. There's no parallelism and I removed every unnecessary modifiers. I even avoided to use constructors here. It would be possible to remove some type declarations as well (using only the "var" keyword), but I found that, declaring the type is possibly against the readability, but helps to understand the code. You can see always what kind of variable you are looking. (This is one thing that makes a Python code difficult to read. You have no idea what is a particular variable. Is it a number? A list? A tensor? Or something completely different?)
+
+I used the latest language features outside of the transformer package, so it's not an outdated, ugly Java code. I'm a professional Java developer. :-). But I preferred to use the least complicated implementation, which helps even an outsider to understand what is happening.
+
+The second goal was to be able to launch as many models as possible. Recently, the main bottleneck is the memory usage. We have to load billions of parameters into the memory. At the older models every parameter was stored in 4 bytes. How to load a model with tens of billions of parameters? Or hundreds? And where is the end? In theory, virtual memory could help, but it slows down the execution extremely, so in practice it isn't a good idea. (All the parameters are needed to process every token, so it's a huge amount of swapping from memory to disk and vice-versa.)
+
+To overcome on this problem, the first trick was to use 16-bit float values. At bigger models (above GPT-2) almost everybody moved to this direction. But in the recent programming languages there's no 16-bit float type, only 32 or 64 floats are available. This is a relatively new demand. (It's not only a Java issue, there's no native 16-bit floating point data type in Python or in C.) You can manage it somehow, using dedicated frameworks or little tricks, but the built-in functionality isn't enough. Instead of using the standard float arrays, I had to wrap my values into something, so I created the Vector and Matrix classes to hold 16-bit values without extra memory consumption. (In data types not designed to hold float values.) It needs some extra computation, but you won't run out of memory as quickly. And the use of wrapper classes allowed me to support the quantization. Which also helps to reduce the memory consumption. So it was a good opportunity to discover and show the different quantization methods!
+
+Not only the high-level transformer logic is implemented here, but every little step to compute a neural network, or process normalization, calculate softmax, etc. I wanted to create a mathematical utility which has no dependencies on external frameworks and as simple as possible. This is the MathUtility in the standard module. The ND4J and the Vector-API implementations are just extra alternatives, a little play with these technologies which can help to execute the calculation faster. 
+
+To be able to select which math utility to use I had to create multiple modules. The "math" module is the common part, which contains some general math functions and specifies that functionality, which is implemented by the math providers. (Three submodules: nd4j, standard, vectorAPI.)
+
+The networking also a not-necessary plus, but it can help to launch bigger models, which would be impossible on a single computer. To be able to split the tasks and to use the most available memory on all computers, I separated the attention and neural net blocks, so a decoder is implemented in two parts. Additionally, I had to create a structure where the different kind of parameters can be loaded independently/optionally. One computer can load only the main parameters, used by the frame (head and tail of the transformer), another computer can load few decoders, and maybe for the first decoder only the neural net block, for the last only the attention block will be used. The implementation was simpler without this possibility, but it also resulted in a shorter code at those three classes, because I had to move the wiring to a different class (to the parent classes), so it's maybe not only a good compromise, but something which helps the readability of the main parts.
+

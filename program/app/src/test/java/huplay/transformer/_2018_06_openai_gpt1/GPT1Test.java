@@ -1,7 +1,6 @@
 package huplay.transformer._2018_06_openai_gpt1;
 
 import huplay.transformer.BaseTransformerTest;
-import huplay.transformer.TransformerFlow;
 import org.junit.Test;
 
 public class GPT1Test extends BaseTransformerTest
@@ -10,10 +9,12 @@ public class GPT1Test extends BaseTransformerTest
     public void testTransformer()
     {
         var config = getTestConfig("transformer/_2018_06_openai_gpt1");
-        var flow = new TransformerFlow(config, null, new GPT1());
+        var transformer = new GPT1();
+        transformer.init(config);
+        transformer.initDecoders();
 
         // First run (no previously stored tokens)
-        var result1 = flow.processTokenMain(0, 0, false);
+        var result1 = transformer.processTokenMain(0, 0, false);
 
         var expected = new float[] {
                 0.30690542f, -0.9076174f, 0.506058f, 0.22302012f, 0.15793128f, -0.7363872f,
@@ -22,7 +23,7 @@ public class GPT1Test extends BaseTransformerTest
         assertVectorEquals(expected, result1, 1e-6f);
 
         // Second run
-        var result2 = flow.processTokenMain(1, 1, false);
+        var result2 = transformer.processTokenMain(1, 1, false);
 
         expected = new float[] {
                 0.009709928f, -0.8714771f, 0.20586778f, 0.40443808f, 0.24443056f, -0.52534175f,

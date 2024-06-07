@@ -28,9 +28,11 @@ public abstract class ParameterLoader
         defaultNamingMap.put(key, value);
     }
 
-    public abstract Vector loadVector(ParameterReader reader, String file, int size);
+    public abstract Vector loadVector(ParameterReader reader, String parameterId, int size);
 
-    public abstract Matrix loadMatrix(ParameterReader reader, ParameterType parameterType, String file, int rows, int cols);
+    public abstract Matrix loadMatrix(ParameterReader reader, ParameterType parameterType, String parameterId, int rows, int cols);
+
+    public abstract boolean[][] loadBoolArray(ParameterReader reader, String parameterId, int rows, int cols);
 
     public abstract long calculateByteSize(ParameterReader reader, String parameterId, int size);
 

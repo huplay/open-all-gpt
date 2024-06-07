@@ -28,6 +28,9 @@ public interface ParameterReader
     short[] readShortArray(String parameterId, int size);
     short[][] readShortArray2D(String parameterId, int rows, int cols);
 
+    boolean[] readBooleanArray(String parameterId, int size);
+    boolean[][] readBooleanArray2D(String parameterId, int rows, int cols);
+
     Vector readFloat32Vector(String parameterId, int size);
     Matrix readFloat32Matrix(String parameterId, int rows, int cols);
 

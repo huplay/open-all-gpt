@@ -18,19 +18,14 @@ public class GPTJAttentionLayer extends BaseAttentionLayer
 {
     Parameter normWeight, normBias, queryWeight, keyWeight, valueWeight, projectionWeight;
 
-    int maxAttentionSize;
-
     public void loadParameters()
     {
-        // attn.bias BOOL: 1x1x2048x2048
         normWeight       = loadVector(NORM_WEIGHT,     "ln_1.weight",          hiddenSize);
         normBias         = loadVector(NORM_BIAS,       "ln_1.bias",            hiddenSize);
         queryWeight      = loadMatrix(VERTICAL_WEIGHT, "attn.q_proj.weight",   hiddenSize, hiddenSize);
         keyWeight        = loadMatrix(VERTICAL_WEIGHT, "attn.k_proj.weight",   hiddenSize, hiddenSize);
         valueWeight      = loadMatrix(VERTICAL_WEIGHT, "attn.v_proj.weight",   hiddenSize, hiddenSize);
         projectionWeight = loadMatrix(VERTICAL_WEIGHT, "attn.out_proj.weight", hiddenSize, hiddenSize);
-
-        maxAttentionSize = 256; // TODO: Move sparse attention to logic, not as config
     }
 
     public Vector process(Vector inputHiddenState, boolean isInputOnly)
@@ -40,12 +35,6 @@ public class GPTJAttentionLayer extends BaseAttentionLayer
 
         // Attention
         hiddenState = attention(hiddenState);
-
-        if (isInputOnly && lastDecoder) // During input token processing at the last decoder...
-            return null; // ...we don't need the result (only the stored state at attention), unnecessary to do the rest
-
-        // Residual connection
-        hiddenState = MATH.addVectors(inputHiddenState, hiddenState);
 
         return hiddenState;
     }
@@ -63,20 +52,12 @@ public class GPTJAttentionLayer extends BaseAttentionLayer
         Matrix valueByHead = MATH.splitVector(value, headCount);
 
         // Position embedding (RoPE)
-        applyPosition(query, key);
+        applyRotaryPosition(query, key);
 
         // Store the keys and values (these will be available while the following tokens will be processed)
         storedKeys.add(keyByHead);
         storedValues.add(valueByHead);
         int storedSize = storedKeys.size();
-
-        // Used only at sparse attention:
-        /*if (storedSize > maxAttentionSize)
-        {
-            // Topping the maximum attention size we can drop the oldest stored values
-            storedKeys.remove(0);
-            storedValues.remove(0);
-        }*/
 
         // Matrix for collecting the attention results for all heads
         Matrix valueAggregate = emptyMatrix(headCount, headSize);
@@ -112,12 +93,11 @@ public class GPTJAttentionLayer extends BaseAttentionLayer
 
         // Projection neural layer
         hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(projectionWeight));
-        //hiddenState = UTIL.addVectors(hiddenState, vector(ATT_PROJ_BIAS));
 
         return hiddenState;
     }
 
-    protected void applyPosition(Vector query, Vector key)
+    protected void applyRotaryPosition(Vector query, Vector key)
     {
         for (int i = 0; i < hiddenSize; i += 2)
         {

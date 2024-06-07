@@ -20,10 +20,10 @@ public abstract class ParameterStore
     private long parameterByteSize;
     private DataType internalFloatType;
 
-    public SafetensorsReader reader;
+    protected SafetensorsReader reader;
 
-    public final Map<String, Vector> vectorParams = new HashMap<>();
-    public final Map<String, Matrix> matrixParams = new HashMap<>();
+    // Store float vectors and matrices
+    private final Map<String, Object> params = new HashMap<>();
 
     public void init(Config config)
     {
@@ -62,7 +62,7 @@ public abstract class ParameterStore
         if (!config.isCalculationOnly())
         {
             // Load and store the vector
-            vectorParams.put(parameterId, parameterLoader.loadVector(reader, finalParameterId, size));
+            params.put(parameterId, parameterLoader.loadVector(reader, finalParameterId, size));
         }
 
         return new Parameter(parameterType, parameterId);
@@ -110,8 +110,17 @@ public abstract class ParameterStore
             }
 
             // Store the matrix
-            matrixParams.put(parameterId, matrix);
+            params.put(parameterId, matrix);
         }
+
+        return new Parameter(parameterType, parameterId);
+    }
+
+    protected Parameter loadBoolArray(ParameterType parameterType, String parameterId, int rows, int cols)
+    {
+        var parameterLoader = getParameterLoader(ParameterType.BOOL_ARRAY, parameterId);
+        var array = parameterLoader.loadBoolArray(reader, parameterId, rows, cols);
+        params.put(parameterId, array);
 
         return new Parameter(parameterType, parameterId);
     }
@@ -133,12 +142,17 @@ public abstract class ParameterStore
 
     public Vector vector(Parameter parameter)
     {
-        return vectorParams.get(parameter.getId());
+        return (Vector)params.get(parameter.getId());
     }
 
     public Matrix matrix(Parameter parameter)
     {
-        return matrixParams.get(parameter.getId());
+        return (Matrix)params.get(parameter.getId());
+    }
+
+    public boolean[][] boolArray2D(Parameter parameter)
+    {
+        return (boolean[][])params.get(parameter.getId());
     }
 
     // Getters

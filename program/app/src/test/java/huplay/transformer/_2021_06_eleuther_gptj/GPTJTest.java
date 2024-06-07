@@ -1,7 +1,6 @@
 package huplay.transformer._2021_06_eleuther_gptj;
 
 import huplay.transformer.BaseTransformerTest;
-import huplay.transformer.TransformerFlow;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -12,10 +11,12 @@ public class GPTJTest extends BaseTransformerTest
     public void testTransformer()
     {
         var config = getTestConfig("transformer/_2021_06_eleuther_gptj");
-        var flow = new TransformerFlow(config, null, new GPTJ());
+        var transformer = new GPTJ();
+        transformer.init(config);
+        transformer.initDecoders();
 
         // First run (no previously stored tokens)
-        var result1 = flow.processTokenMain(0, 0, false);
+        var result1 = transformer.processTokenMain(0, 5, false);
 
         var expected = new float[] {
                 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
@@ -23,7 +24,7 @@ public class GPTJTest extends BaseTransformerTest
         assertVectorEquals(expected, result1, 1e-6f);
 
         // Second run
-        var result2 = flow.processTokenMain(1, 1, false);
+        var result2 = transformer.processTokenMain(1, 6, false);
 
         expected = new float[] {
                 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};

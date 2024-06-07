@@ -20,6 +20,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static huplay.math.TypeConversionUtility.bytesToBoolean;
 import static huplay.parameters.FileUtil.checkHeaderFiles;
 import static huplay.parameters.FileUtil.readTextFile;
 
@@ -310,6 +311,19 @@ public class SafetensorsReader implements ParameterReader
         }
     }
 
+    public boolean[] readBooleanArray(String parameterId, int size)
+    {
+        var header = getHeader(parameterId, new long[] {size});
+        try (var stream = new FileInputStream(header.getFileName()))
+        {
+            return readChannelAsBoolean(stream, header.getOffset(), size);
+        }
+        catch (IOException e)
+        {
+            throw new IdentifiedException("Error reading short (or float16) array parameter " + parameterId, e);
+        }
+    }
+
     @Override
     public Vector readFloat32Vector(String parameterId, int size)
     {
@@ -427,6 +441,16 @@ public class SafetensorsReader implements ParameterReader
         }
 
         return matrix;
+    }
+
+    @Override
+    public boolean[][] readBooleanArray2D(String parameterId, int rows, int cols)
+    {
+        var result = new boolean[1][rows * cols];
+
+        result[0] = readBooleanArray(parameterId, rows * cols);
+
+        return result;
     }
 
     @Override
@@ -549,5 +573,16 @@ public class SafetensorsReader implements ParameterReader
         buffer.asShortBuffer().get(array, 0, size);
 
         return array;
+    }
+
+    private boolean[] readChannelAsBoolean(FileInputStream stream, long position, int size) throws IOException
+    {
+        var array = new byte[size];
+
+        var buffer = stream.getChannel().map(FileChannel.MapMode.READ_ONLY, position, size);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+        buffer.get(array, 0, size);
+
+        return bytesToBoolean(array);
     }
 }

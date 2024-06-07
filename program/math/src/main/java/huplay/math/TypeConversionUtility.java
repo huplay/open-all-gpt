@@ -11,14 +11,14 @@ public class TypeConversionUtility
      */
     public static void unpack4bitsFromInt32(int value, int[] array, int offset)
     {
-        array[    offset] = ((value & 0b1111_0000_0000_0000_0000_0000_0000_0000) >>> 28) - 8;
-        array[1 + offset] = ((value & 0b0000_1111_0000_0000_0000_0000_0000_0000) >>> 24) - 8;
-        array[2 + offset] = ((value & 0b0000_0000_1111_0000_0000_0000_0000_0000) >>> 20) - 8;
-        array[3 + offset] = ((value & 0b0000_0000_0000_1111_0000_0000_0000_0000) >>> 16) - 8;
-        array[4 + offset] = ((value & 0b0000_0000_0000_0000_1111_0000_0000_0000) >>> 12) - 8;
-        array[5 + offset] = ((value & 0b0000_0000_0000_0000_0000_1111_0000_0000) >>> 8) - 8;
-        array[6 + offset] = ((value & 0b0000_0000_0000_0000_0000_0000_1111_0000) >>> 4) - 8;
-        array[7 + offset] = (value & 0b0000_0000_0000_0000_0000_0000_0000_1111) - 8;
+        array[offset    ] = ((value & 0b1111_0000_0000_0000_0000_0000_0000_0000) >>> 28) - 8;
+        array[offset + 1] = ((value & 0b0000_1111_0000_0000_0000_0000_0000_0000) >>> 24) - 8;
+        array[offset + 2] = ((value & 0b0000_0000_1111_0000_0000_0000_0000_0000) >>> 20) - 8;
+        array[offset + 3] = ((value & 0b0000_0000_0000_1111_0000_0000_0000_0000) >>> 16) - 8;
+        array[offset + 4] = ((value & 0b0000_0000_0000_0000_1111_0000_0000_0000) >>> 12) - 8;
+        array[offset + 5] = ((value & 0b0000_0000_0000_0000_0000_1111_0000_0000) >>>  8) - 8;
+        array[offset + 6] = ((value & 0b0000_0000_0000_0000_0000_0000_1111_0000) >>>  4) - 8;
+        array[offset + 7] =  (value & 0b0000_0000_0000_0000_0000_0000_0000_1111)         - 8;
     }
 
     public static int[][] unpack4bitsFromIntMatrixByRow(int[][] matrix)
@@ -62,6 +62,33 @@ public class TypeConversionUtility
         }
 
         return result;
+    }
+
+    public static boolean[] bytesToBoolean(byte[] values)
+    {
+        var result = new boolean[values.length];
+
+        for (int i = 0; i < values.length; i++)
+        {
+            result[i] = values[i] != -127;
+        }
+
+        return result;
+    }
+
+    public static byte booleansToByte(boolean[] values)
+    {
+        int result = 0;
+        if (values[0]) result += 128;
+        if (values[1]) result += 64;
+        if (values[2]) result += 32;
+        if (values[3]) result += 16;
+        if (values[4]) result += 8;
+        if (values[5]) result += 4;
+        if (values[6]) result += 2;
+        if (values[7]) result += 1;
+
+        return (byte)(result - 128);
     }
 
     public static long toLittleEndian(long value)

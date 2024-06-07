@@ -20,13 +20,13 @@ public class GPTJNeuralNetLayer extends BaseNeuralNetLayer
     {
         normWeight   = loadVector(NORM_WEIGHT,     "ln_f.weight",       hiddenSize);
         normBias     = loadVector(NORM_BIAS,       "ln_f.bias",         hiddenSize);
-        layer1Weight = loadMatrix(VERTICAL_WEIGHT, "mlp.fc_in.weight",  hiddenSize, feedForwardSize);
-        layer1Bias   = loadVector(BIAS,            "mlp.fc_in.bias",    feedForwardSize);
-        layer2Weight = loadMatrix(VERTICAL_WEIGHT, "mlp.fc_out.weight", feedForwardSize, hiddenSize);
+        layer1Weight = loadMatrix(VERTICAL_WEIGHT, "mlp.fc_in.weight",  intermediateSize, hiddenSize);
+        layer1Bias   = loadVector(BIAS,            "mlp.fc_in.bias",    intermediateSize);
+        layer2Weight = loadMatrix(VERTICAL_WEIGHT, "mlp.fc_out.weight", hiddenSize, intermediateSize);
         layer2Bias   = loadVector(BIAS,            "mlp.fc_out.bias",   hiddenSize);
     }
 
-    public Vector process(Vector inputHiddenState)
+    public Vector process(Vector inputHiddenState, Vector residualState)
     {
         // Normalisation
         Vector hiddenState = MATH.layerNorm(inputHiddenState, vector(normWeight), vector(normBias), epsilon);
@@ -35,20 +35,21 @@ public class GPTJNeuralNetLayer extends BaseNeuralNetLayer
         hiddenState = neuralNet(hiddenState);
 
         // Residual connection
-        hiddenState = MATH.addVectors(inputHiddenState, hiddenState);
+        hiddenState = MATH.addVectors(residualState, hiddenState);
 
         return hiddenState;
     }
 
     private Vector neuralNet(Vector hiddenState)
     {
-        // Layer 1: <mlpSize> neurons (usually 4 * <hiddenSize>) (using a gelu activation function)
+        // Layer 1: <intermediateSize> neurons (usually 4 * <hiddenSize>) (using gelu activation function)
         hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(layer1Weight));
         hiddenState = MATH.addVectors(hiddenState, vector(layer1Bias));
 
-        for (int neuron = 0; neuron < feedForwardSize; neuron++)
+        for (int i = 0; i < intermediateSize; i++)
         {
-            hiddenState.set(neuron, MATH.gelu(hiddenState.get(neuron)));
+            float activation =  MATH.gelu(hiddenState.get(i));
+            hiddenState.set(i, activation);
         }
 
         // Layer 2: <hiddenSize> neurons (without activation function)

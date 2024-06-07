@@ -56,7 +56,7 @@ public class MathUtility extends AbstractMathUtility
     @Override
     public Vector mulVectorByMatrix(Vector vector, Matrix matrix)
     {
-        Vector ret = emptyVector(vector.getFloatType(), matrix.getRow(0).size());
+        Vector ret = emptyVector(vector.getFloatType(), matrix.getColCount());
 
         for (int col = 0; col < matrix.getColCount(); col++)
         {

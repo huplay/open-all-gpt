@@ -27,15 +27,21 @@ public class StandardParameterLoader extends ParameterLoader
         return readMatrix(reader, floatType, parameterId, rows, cols);
     }
 
-    private Matrix readMatrix(ParameterReader reader, DataType floatType, String parameterId, int rows, int cols)
+    @Override
+    public boolean[][] loadBoolArray(ParameterReader reader, String parameterId, int rows, int cols)
     {
-        return switch (floatType)
+        return reader.readBooleanArray2D(parameterId, rows, cols);
+    }
+
+    private Matrix readMatrix(ParameterReader reader, DataType dataType, String parameterId, int rows, int cols)
+    {
+        return switch (dataType)
         {
             case FLOAT_16 -> reader.readFloat16Matrix(parameterId, rows, cols);
             case BRAIN_FLOAT_16 -> reader.readBrainFloat16Matrix(parameterId, rows, cols);
             case FLOAT_32 -> reader.readFloat32Matrix(parameterId, rows, cols);
             default ->
-                    throw new IdentifiedException("Not supported data type: " + floatType + ", key: " + parameterId);
+                    throw new IdentifiedException("Not supported data type: " + dataType + ", key: " + parameterId);
         };
     }
 

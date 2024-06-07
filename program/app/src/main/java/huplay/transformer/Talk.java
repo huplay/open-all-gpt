@@ -1,6 +1,5 @@
 package huplay.transformer;
 
-import huplay.Flow;
 import huplay.tokenizer.Tokenizer;
 
 import java.io.PrintStream;
@@ -12,7 +11,7 @@ import static huplay.ui.ConsoleUtil.input;
 
 public class Talk
 {
-    public static void talk(PrintStream OUT, Flow flow)
+    public static void talk(PrintStream OUT, TransformerFlow flow)
     {
         var pos = 0;
         var lastToken = flow.getEndOfTextToken();

@@ -61,19 +61,27 @@ public class WorkExecutionTask implements Runnable
                 hiddenState = transformer.preProcessToken(pos, token);
             }
 
+            var hasOutput = true;
             if (segmentType.hasLayer())
             {
                 for (var decoderBlock : workSegment.getDecoderBlocks())
                 {
                     if (decoderBlock.getBlockType().equals(DecoderBlockType.ATTENTION_LAYER))
                     {
-                        var attentionLayer = transformer.getAttentionLayers(decoderBlock.getDecoderId());
+                        var attentionLayer = transformer.getAttentionLayer(decoderBlock.getDecoderId());
                         hiddenState = attentionLayer.process(hiddenState, isInputOnly);
                     }
                     else if (decoderBlock.getBlockType().equals(DecoderBlockType.NEURAL_NET_LAYER))
                     {
-                        var neuralNetLayer = transformer.getNeuralNetLayers(decoderBlock.getDecoderId());
-                        hiddenState = neuralNetLayer.process(hiddenState, isInputOnly);
+                        if (isInputOnly && decoderBlock.getLastDecoder())
+                        {
+                            hasOutput = false;
+                        }
+                        else
+                        {
+                            var neuralNetLayer = transformer.getNeuralNetLayer(decoderBlock.getDecoderId());
+                            hiddenState = neuralNetLayer.process(hiddenState);
+                        }
                     }
                 }
             }
@@ -88,17 +96,24 @@ public class WorkExecutionTask implements Runnable
             if (segmentType.hasTail())
             {
                 if (isInputOnly)
+                {
                     output = new EmptyOutput();
+                }
                 else
+                {
                     output = new TokenOutput(token);
+                }
             }
             else
             {
-                if (hiddenState == null)
-                    output = new EmptyOutput();
-                else
+                if (hasOutput)
+                {
                     output = new HiddenStateOutput(hiddenState.getFloatType(), hiddenState.getValues());
-
+                }
+                else
+                {
+                    output = new EmptyOutput();
+                }
             }
 
             WorkResultMessage result = new WorkResultMessage(workMessage.getWorkUUID(), workSegment, output);

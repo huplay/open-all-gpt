@@ -20,9 +20,9 @@ public class BloomNeuralNetLayer extends BaseNeuralNetLayer
     {
         normWeight   = loadVector(NORM_WEIGHT,     "post_attention_layernorm.weight", hiddenSize);
         normBias     = loadVector(NORM_BIAS,       "post_attention_layernorm.bias",   hiddenSize);
-        layer1Weight = loadMatrix(VERTICAL_WEIGHT, "mlp.dense_h_to_4h.weight",        feedForwardSize, hiddenSize);
-        layer1Bias   = loadVector(BIAS,            "mlp.dense_h_to_4h.bias",          feedForwardSize);
-        layer2Weight = loadMatrix(VERTICAL_WEIGHT, "mlp.dense_4h_to_h.weight",        hiddenSize, feedForwardSize);
+        layer1Weight = loadMatrix(VERTICAL_WEIGHT, "mlp.dense_h_to_4h.weight",        intermediateSize, hiddenSize);
+        layer1Bias   = loadVector(BIAS,            "mlp.dense_h_to_4h.bias",          intermediateSize);
+        layer2Weight = loadMatrix(VERTICAL_WEIGHT, "mlp.dense_4h_to_h.weight",        hiddenSize, intermediateSize);
         layer2Bias   = loadVector(BIAS,            "mlp.dense_4h_to_h.bias",          hiddenSize);
     }
 
@@ -42,11 +42,11 @@ public class BloomNeuralNetLayer extends BaseNeuralNetLayer
 
     private Vector neuralNet(Vector hiddenState)
     {
-        // Layer 1: <mlpSize> neurons (usually 4 * <hiddenSize>) (using a gelu activation function)
+        // Layer 1: <intermediateSize> neurons (usually 4 * <hiddenSize>) (using gelu activation function)
         hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(layer1Weight));
         hiddenState = MATH.addVectors(hiddenState, vector(layer1Bias));
 
-        for (int neuron = 0; neuron < feedForwardSize; neuron++)
+        for (int neuron = 0; neuron < intermediateSize; neuron++)
         {
             hiddenState.set(neuron, MATH.gelu(hiddenState.get(neuron)));
         }

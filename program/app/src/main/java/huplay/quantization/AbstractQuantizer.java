@@ -21,9 +21,16 @@ public abstract class AbstractQuantizer extends ParameterLoader implements hupla
     }
 
     @Override
-    public Vector loadVector(ParameterReader reader, String file, int size)
+    public Vector loadVector(ParameterReader reader, String parameterId, int size)
     {
         System.out.println("WARNING: Reading quantized vector isn't supported. (Only matrix.)");
+        return null;
+    }
+
+    @Override
+    public boolean[][] loadBoolArray(ParameterReader reader, String parameterId, int rows, int cols)
+    {
+        System.out.println("WARNING: Reading quantized bool array isn't supported.");
         return null;
     }
 }

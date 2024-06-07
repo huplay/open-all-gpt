@@ -1,9 +1,7 @@
 package huplay.transformer;
 
-import huplay.Flow;
 import huplay.config.Config;
 import huplay.tokenizer.Tokenizer;
-import huplay.dataType.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,7 +12,7 @@ import static huplay.AppStandaloneMain.OUT;
 /**
  * Decoder-only Transformer implementation
  */
-public class TransformerFlow implements Flow
+public class TransformerFlow
 {
     private final Config config;
     private final Tokenizer tokenizer;
@@ -73,7 +71,10 @@ public class TransformerFlow implements Flow
             result.add(token);
 
             // Exit if the END_OF_TEXT token was chosen or the maximum length is reached
-            if (token == config.getEndOfTextToken()) break;
+            if (token == config.getEndOfTextToken())
+            {
+                break;
+            }
 
             // Exit if we reached the context size
             if (intputSize + result.size() + startPos >= config.getContextSize()) break;
@@ -82,39 +83,16 @@ public class TransformerFlow implements Flow
         return result;
     }
 
-    // TODO: Used only from tests, but it was moved to BaseTransformer
-    public Vector processTokenMain(int pos, int token, boolean isInputOnly)
-    {
-        Vector hiddenState = transformer.preProcessToken(pos, token);
-
-        for (var i = 0; i < transformer.attentionLayers.size(); i++)
-        {
-            // Attention layer
-            hiddenState = transformer.attentionLayers.get(i).process(hiddenState, isInputOnly);
-
-            if (isInputOnly && i == transformer.attentionLayers.size() - 1) // During input token processing at the last decoder...
-                return null; // ...we don't need the result (only the stored state at attention), unnecessary to do the rest
-
-            // Neural net layer
-            hiddenState = transformer.neuralNetLayers.get(i).process(hiddenState);
-        }
-
-        return hiddenState;
-    }
-
-    @Override
     public void clear()
     {
         transformer.clear();
     }
 
-    @Override
     public Tokenizer getTokenizer()
     {
         return tokenizer;
     }
 
-    @Override
     public int getEndOfTextToken()
     {
         return config.getEndOfTextToken();

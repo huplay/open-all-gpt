@@ -8,7 +8,7 @@
   "memorySize": 1024,
   "configOverride": {
     "hiddenSize": 768,
-    "feedForwardSize": 3072,
+    "intermediateSize": 3072,
     "decoderCount": 12,
     "headCount": 12,
     "epsilon": 1e-05,

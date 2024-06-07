@@ -36,14 +36,15 @@ public class GPT1AttentionLayer extends BaseAttentionLayer
         // Attention
         Vector hiddenState = attention(inputHiddenState);
 
-        if (isInputOnly && lastDecoder) // During input token processing at the last decoder...
-            return null; // ...we don't need the result (only the stored state at attention), unnecessary to do the rest
+        // Not necessary to do the remaining if processing an input token (except the last) and it is the last decoder
+        if ( !(isInputOnly && lastDecoder) )
+        {
+            // Residual connection
+            hiddenState = MATH.addVectors(inputHiddenState, hiddenState);
 
-        // Residual connection
-        hiddenState = MATH.addVectors(inputHiddenState, hiddenState);
-
-        // Normalisation
-        hiddenState = MATH.layerNorm(hiddenState, vector(normWeight), vector(normBias), epsilon);
+            // Normalisation
+            hiddenState = MATH.layerNorm(hiddenState, vector(normWeight), vector(normBias), epsilon);
+        }
 
         return hiddenState;
     }

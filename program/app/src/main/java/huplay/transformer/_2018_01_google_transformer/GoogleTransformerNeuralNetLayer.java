@@ -20,9 +20,9 @@ public class GoogleTransformerNeuralNetLayer extends BaseNeuralNetLayer
     {
         normWeight   = loadVector(NORM_WEIGHT,       "ln_2.weight",       hiddenSize);
         normBias     = loadVector(NORM_BIAS,         "ln_2.bias",         hiddenSize);
-        layer1Weight = loadMatrix(HORIZONTAL_WEIGHT, "mlp.c_fc.weight",   hiddenSize, feedForwardSize);
-        layer1Bias   = loadVector(BIAS,              "mlp.c_fc.bias",     feedForwardSize);
-        layer2Weight = loadMatrix(HORIZONTAL_WEIGHT, "mlp.c_proj.weight", feedForwardSize, hiddenSize);
+        layer1Weight = loadMatrix(HORIZONTAL_WEIGHT, "mlp.c_fc.weight",   hiddenSize, intermediateSize);
+        layer1Bias   = loadVector(BIAS,              "mlp.c_fc.bias",     intermediateSize);
+        layer2Weight = loadMatrix(HORIZONTAL_WEIGHT, "mlp.c_proj.weight", intermediateSize, hiddenSize);
         layer2Bias   = loadVector(BIAS,              "mlp.c_proj.bias",   hiddenSize);
     }
 
@@ -42,11 +42,11 @@ public class GoogleTransformerNeuralNetLayer extends BaseNeuralNetLayer
 
     private Vector neuralNet(Vector hiddenState)
     {
-        // Layer 1: <mlpSize> neurons (usually 4 * <hiddenSize>) (using a gelu activation function)
+        // Layer 1: <intermediateSize> neurons (4 * <hiddenSize>) (using gelu activation function)
         hiddenState = MATH.mulVectorByMatrix(hiddenState, matrix(layer1Weight));
         hiddenState = MATH.addVectors(hiddenState, vector(layer1Bias));
 
-        for (int neuron = 0; neuron < feedForwardSize; neuron++)
+        for (int neuron = 0; neuron < intermediateSize; neuron++)
         {
             hiddenState.set(neuron, MATH.gelu(hiddenState.get(neuron)));
         }

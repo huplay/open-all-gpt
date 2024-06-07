@@ -23,21 +23,26 @@ import static huplay.config.ParameterType.*;
 
   Differences to GPT-NEO:
     - Rotary Position Embedding (RoPE)
-    - Uses bias at token embeddings
-    - No bias at attention query/key/value matrices and projection (but has bias at the mlp component)
-    - Feed-forward normalization parameters are common in all decoders, and the same used at final normalization
+    - No bias at attention query/key/value matrices and projection (but has bias at the neural net component)
+    - Neural net normalization parameters are common in all decoders, and the same used at final normalization
+    - Usually there's only a single embedding matrix, but they used two parameters here:
+        The first matrix is used to look up the embeddings (wte)
+        The second matrix has not only weights, but biases as well (lm_head). This are used to calculate the logits.
+    - The attention block and the neural net block has the same input, so these can be executed parallel.
+        The residual connection is common for the two blocks. (No separate residual connections.)
  * @author Hunor Szegi
  */
 public class GPTJ extends BaseTransformer
 {
-    Parameter tokenEmbeddings, tokenEmbeddingsBias, normWeight, normBias;
+    Parameter tokenEmbeddings, embeddingWeight, embeddingBias, normWeight, normBias;
 
     public void loadParameters()
     {
-        tokenEmbeddings     = loadMatrix(EMBEDDING,      "lm_head.weight",          tokenCount, hiddenSize);
-        tokenEmbeddingsBias = loadVector(EMBEDDING_BIAS, "lm_head.bias",            tokenCount);
-        normWeight          = loadVector(NORM_WEIGHT,    "transformer.ln_f.weight", hiddenSize);
-        normBias            = loadVector(NORM_BIAS,      "transformer.ln_f.bias",   hiddenSize);
+        tokenEmbeddings = loadMatrix(EMBEDDING,      "transformer.wte.weight",  tokenCount, hiddenSize);
+        embeddingWeight = loadMatrix(EMBEDDING,      "lm_head.weight",          tokenCount, hiddenSize);
+        embeddingBias   = loadVector(EMBEDDING_BIAS, "lm_head.bias",            tokenCount);
+        normWeight      = loadVector(NORM_WEIGHT,    "transformer.ln_f.weight", hiddenSize);
+        normBias        = loadVector(NORM_BIAS,      "transformer.ln_f.bias",   hiddenSize);
     }
 
     public Vector preProcessToken(int pos, int token)
@@ -53,8 +58,9 @@ public class GPTJ extends BaseTransformer
 
         // Multiply (dot product) the output with all token embeddings.
         // It will give a higher value if the output is more similar to the token embedding
-        float[] logits = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(tokenEmbeddings)).getValues();
+        Vector logits = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(embeddingWeight));
+        logits = MATH.addVectors(logits, vector(embeddingBias));
 
-        return selectBestToken(logits, topK);
+        return selectBestToken(logits.getValues(), topK);
     }
 }

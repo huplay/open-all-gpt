@@ -33,7 +33,7 @@ public class Config
     private int hiddenSize;
 
     @JsonAlias({"intermediate_size", "n_inner"})
-    private Integer feedForwardSize;
+    private Integer intermediateSize;
 
     @JsonAlias({"n_layer", "num_hidden_layers", "num_layers"})
     private int decoderCount;
@@ -80,8 +80,8 @@ public class Config
                 config.isCalculationOnly = arguments.isCalculationOnly();
             }
 
-            // If the feed forward size isn't configured set it as 4 times of the hidden size
-            if (config.feedForwardSize == null) config.feedForwardSize = 4 * config.hiddenSize;
+            // If the intermediate size isn't configured set it as 4 times of the hidden size
+            if (config.intermediateSize == null) config.intermediateSize = 4 * config.hiddenSize;
 
             // At some models the context size is unlimited, so this value isn't configured. Set it to max possible.
             if (config.contextSize == 0) config.contextSize = Integer.MAX_VALUE;
@@ -147,7 +147,7 @@ public class Config
     public ModelConfig getModelConfig() {return modelConfig;}
     public SafetensorsReader getReader() {return reader;}
     public int getHiddenSize() {return hiddenSize;}
-    public int getFeedForwardSize() {return feedForwardSize;}
+    public int getIntermediateSize() {return intermediateSize;}
     public int getDecoderCount() {return decoderCount;}
     public int getHeadCount() {return headCount;}
     public float getEpsilon() {return epsilon;}

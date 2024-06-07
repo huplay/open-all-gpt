@@ -205,7 +205,9 @@ public class LoadModelPlanTask implements Runnable
             }
             freeMemory -= attentionRequirement;
 
-            workSegments.getLast().addDecoderBlock(new DecoderBlock(DecoderBlockType.ATTENTION_LAYER, i));
+            var lastDecoder = (i == decoderCount - 1);
+            var attentionBlock = new DecoderBlock(DecoderBlockType.ATTENTION_LAYER, i, lastDecoder);
+            workSegments.getLast().addDecoderBlock(attentionBlock);
 
             if (freeMemory < neuralNetRequirement)
             {
@@ -223,7 +225,8 @@ public class LoadModelPlanTask implements Runnable
             }
             freeMemory -= neuralNetRequirement;
 
-            workSegments.getLast().addDecoderBlock(new DecoderBlock(DecoderBlockType.NEURAL_NET_LAYER, i));
+            var neuralNetBlock = new DecoderBlock(DecoderBlockType.NEURAL_NET_LAYER, i, lastDecoder);
+            workSegments.getLast().addDecoderBlock(neuralNetBlock);
         }
 
         markWorkSegmentTypes(workSegments);

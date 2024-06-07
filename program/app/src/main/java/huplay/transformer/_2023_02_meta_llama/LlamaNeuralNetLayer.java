@@ -19,9 +19,9 @@ public class LlamaNeuralNetLayer extends BaseNeuralNetLayer
     public void loadParameters()
     {
         normWeight   = loadVector(NORM_WEIGHT,     "post_attention_layernorm.weight", hiddenSize);
-        layer1Weight = loadMatrix(VERTICAL_WEIGHT, "mlp.gate_proj.weight",            feedForwardSize, hiddenSize);
-        layer2Weight = loadMatrix(VERTICAL_WEIGHT, "mlp.up_proj.weight",              feedForwardSize, hiddenSize);
-        layer3Weight = loadMatrix(VERTICAL_WEIGHT, "mlp.down_proj.weight",            hiddenSize, feedForwardSize);
+        layer1Weight = loadMatrix(VERTICAL_WEIGHT, "mlp.gate_proj.weight",            intermediateSize, hiddenSize);
+        layer2Weight = loadMatrix(VERTICAL_WEIGHT, "mlp.up_proj.weight",              intermediateSize, hiddenSize);
+        layer3Weight = loadMatrix(VERTICAL_WEIGHT, "mlp.down_proj.weight",            hiddenSize, intermediateSize);
     }
 
     public Vector process(Vector inputHiddenState)
@@ -45,13 +45,13 @@ public class LlamaNeuralNetLayer extends BaseNeuralNetLayer
         Vector hiddenState2 = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(layer2Weight));
 
         // Use SwiGLU activation function on the gate layer (no activation function on the other)
-        for (int neuron = 0; neuron < feedForwardSize; neuron++)
+        for (int neuron = 0; neuron < intermediateSize; neuron++)
         {
             hiddenState1.set(neuron, MATH.swiglu(hiddenState1.get(neuron)));
         }
 
         // Multiply the two outputs
-        for (int neuron = 0; neuron < feedForwardSize; neuron++)
+        for (int neuron = 0; neuron < intermediateSize; neuron++)
         {
             hiddenState1.set(neuron, hiddenState1.get(neuron) * hiddenState2.get(neuron));
         }

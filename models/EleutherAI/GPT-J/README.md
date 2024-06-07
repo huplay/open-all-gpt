@@ -1,6 +1,6 @@
 # History of the Rotary Position Embedding
 
-EleutherAI GPT-J 6B was the first large model uses the Rotary Position Embedding (RoPE). It was implemented using Ben Wang's Mesh Tranformer JAX, which adopted the RoFormer position embedding, created by the ZhuiyiTechnology (Shenzhen, China). 
+EleutherAI GPT-J 6B was the first large model uses the Rotary Position Embedding (RoPE). It was implemented using Ben Wang's Mesh Transformer JAX, which adopted the RoFormer position embedding, created by the ZhuiyiTechnology (Shenzhen, China). 
 
 Original implementation:
 - Code (ZhuiyiTechnology, first commit in 22 Mar 2021): https://github.com/ZhuiyiTechnology/roformer
@@ -18,7 +18,7 @@ Later it was added to:
  - Transformers of Hugging Face (31 Aug 2021): https://github.com/huggingface/transformers/blob/v4.27.2/src/transformers/models/gptj/modeling_gptj.py
  - Hugging Face documentation (RoFormer): https://huggingface.co/docs/transformers/model_doc/roformer
 
-Later it was used in EleutherAI GPT-NEOX, Meta Llama and Google Gemini/Gemma as well
+Later it was used in EleutherAI GPT-NEOX, Meta Llama and Google Gemini/Gemma as well.
 
 
 
