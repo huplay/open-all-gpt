@@ -56,7 +56,7 @@ public class BloomAttentionLayer extends BaseAttentionLayer
 
     public Vector process(Vector inputHiddenState, boolean isInputOnly)
     {
-        // Normalisation
+        // Normalization
         Vector hiddenState = MATH.layerNorm(inputHiddenState, vector(normWeight), vector(normBias), epsilon);
 
         // Attention
@@ -87,13 +87,13 @@ public class BloomAttentionLayer extends BaseAttentionLayer
         // Score the previous tokens (including the actual), separately for all heads
         for (int head = 0; head < headCount; head++)
         {
-            Vector queryKeyValueByHead = queryKeyValuesByHead.getRow(head);
+            Vector queryKeyValueByHead = queryKeyValuesByHead.row(head);
 
             // Split the query/key/value
             Matrix split = MATH.splitVector(queryKeyValueByHead, 3);
-            Vector queryByHead = split.getRow(0);
-            Vector keyByHead = split.getRow(1);
-            Vector valueByHead = split.getRow(2);
+            Vector queryByHead = split.row(0);
+            Vector keyByHead = split.row(1);
+            Vector valueByHead = split.row(2);
 
             storedKeys.get(head).add(keyByHead);
             storedValues.get(head).add(valueByHead);
@@ -125,7 +125,7 @@ public class BloomAttentionLayer extends BaseAttentionLayer
             {
                 Vector relatedValue = storedValues.get(head).get(pos);
                 Vector multipliedValue = MATH.mulVectorByScalar(relatedValue, scores.get(pos));
-                valueAggregate.setRow(head, MATH.addVectors(valueAggregate.getRow(head), multipliedValue));
+                valueAggregate.setRow(head, MATH.addVectors(valueAggregate.row(head), multipliedValue));
             }
         }
 

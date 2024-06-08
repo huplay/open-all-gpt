@@ -17,7 +17,7 @@ import static huplay.config.ParameterType.*;
     - No attention dividend, so the score isn't divided by a fixed value
     - The weights are stored in transposed matrices (easier to execute the vector-matrix multiplication)
 
- * @author Hunor Szegi
+  @author Hunor Szegi
  */
 public class GPTNeo extends BaseTransformer
 {
@@ -31,13 +31,13 @@ public class GPTNeo extends BaseTransformer
         normBias           = loadVector(NORM_BIAS,   "ln_f.bias",   hiddenSize);
     }
 
-    public Vector preProcessToken(int pos, int token)
+    public Vector preProcessToken(int pos, int tokenId)
     {
         // Find the embeddings of the token
-        Vector hiddenState = matrix(tokenEmbeddings).getRow(token);
+        Vector hiddenState = matrix(tokenEmbeddings).row(tokenId);
 
         // Position embedding
-        return MATH.addVectors(hiddenState, matrix(positionEmbeddings).getRow(pos));
+        return MATH.addVectors(hiddenState, matrix(positionEmbeddings).row(pos));
     }
 
     public int generateToken(Vector hiddenState, int topK)

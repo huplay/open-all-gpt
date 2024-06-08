@@ -20,7 +20,7 @@ public abstract class QuantizedMatrix implements Matrix
         var result = new VectorArrayMatrix(getInternalFloatType(), getRowCount(), getColCount());
         for (var i = 0; i < getRowCount(); i++)
         {
-            result.setRow(i, getRow(i));
+            result.setRow(i, row(i));
         }
         return result;
     }
@@ -32,7 +32,7 @@ public abstract class QuantizedMatrix implements Matrix
     }
 
     @Override
-    public Vector getRow(int rowId)
+    public Vector row(int rowId)
     {
         var vector = Vector.emptyVector(getInternalFloatType(), getColCount());
 
@@ -42,6 +42,12 @@ public abstract class QuantizedMatrix implements Matrix
         }
 
         return vector;
+    }
+
+    @Override
+    public Vector getRow(int rowId)
+    {
+        return row(rowId);
     }
 
     @Override
@@ -57,7 +63,7 @@ public abstract class QuantizedMatrix implements Matrix
 
         for (int i = 0; i < getRowCount(); i++)
         {
-            vectorArray[i] = getRow(i);
+            vectorArray[i] = row(i);
         }
 
         return vectorArray;

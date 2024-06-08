@@ -14,6 +14,8 @@ public interface Vector
 
     int size();
 
+    Vector addVector(Vector vector);
+
     static Vector emptyVector(int size)
     {
         return emptyVector(DataType.FLOAT_32, size);
@@ -41,6 +43,11 @@ public interface Vector
             default
                     -> throw new RuntimeException("Unsupported data type at of: " + floatType);
         };
+    }
+
+    static Vector of(Vector vector)
+    {
+        return Vector.of(vector.getFloatType(), vector.getValues());
     }
 
     static Vector of(DataType floatType, short[] values)

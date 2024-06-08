@@ -78,7 +78,7 @@ public class LlmInt8Quantizer extends AbstractQuantizer
 
         for (var rowId = 0; rowId < matrix.getRowCount(); rowId++)
         {
-            var row = matrix.getRow(rowId).getValues();
+            var row = matrix.row(rowId).getValues();
 
             scb[rowId] = absMax(row);
             var quantConstant = 127 / scb[rowId];

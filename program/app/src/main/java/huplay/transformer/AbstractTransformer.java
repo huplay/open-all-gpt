@@ -17,7 +17,7 @@ public abstract class AbstractTransformer extends ParameterStore
 
     public abstract void loadParameters();
 
-    public abstract Vector preProcessToken(int pos, int token);
+    public abstract Vector preProcessToken(int pos, int tokenId);
 
     public abstract int generateToken(Vector hiddenState, int topK);
 

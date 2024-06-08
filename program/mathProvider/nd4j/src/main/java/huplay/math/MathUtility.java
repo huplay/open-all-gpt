@@ -24,6 +24,16 @@ public class MathUtility extends AbstractMathUtility
         }
     }
 
+    // TODO: Nd4j isn't used
+    @Override
+    public void addVector(Vector vector1, Vector vector2)
+    {
+        for (int i = 0; i < vector1.size(); i++)
+        {
+            vector1.set(i, vector1.get(i) + vector2.get(i));
+        }
+    }
+
     @Override
     public float dotProduct(Vector vector1, Vector vector2)
     {
@@ -51,7 +61,7 @@ public class MathUtility extends AbstractMathUtility
         var floatMatrix = new float[matrix.getRowCount()][];
         for (var i = 0; i < matrix.getRowCount(); i++)
         {
-            floatMatrix[i] = matrix.getRow(i).getValues();
+            floatMatrix[i] = matrix.row(i).getValues();
         }
 
         try (var array1 = Nd4j.create(floatVector);
@@ -70,7 +80,7 @@ public class MathUtility extends AbstractMathUtility
         var floatMatrix = new float[matrix.getRowCount()][];
         for (var i = 0; i < matrix.getRowCount(); i++)
         {
-            floatMatrix[i] = matrix.getRow(i).getValues();
+            floatMatrix[i] = matrix.row(i).getValues();
         }
 
         try (var array1 = Nd4j.create(array);
@@ -106,12 +116,12 @@ public class MathUtility extends AbstractMathUtility
         var floatMatrix = new float[matrix.getRowCount()][];
         for (var i = 0; i < matrix.getRowCount(); i++)
         {
-            floatMatrix[i] = matrix.getRow(i).getValues();
+            floatMatrix[i] = matrix.row(i).getValues();
         }
 
         try (var array = Nd4j.create(floatMatrix))
         {
-            return Vector.of(matrix.getRow(0).getFloatType(), array.reshape(size).toFloatVector());
+            return Vector.of(matrix.row(0).getFloatType(), array.reshape(size).toFloatVector());
         }
     }
 

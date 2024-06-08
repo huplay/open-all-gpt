@@ -9,25 +9,13 @@ public abstract class BaseNeuralNetLayer extends BaseDecoderLayer
 
     public abstract void loadParameters();
 
+    public abstract Vector process(Vector inputHiddenState);
+
     public void init(Config config, int decoderId)
     {
         super.init(config, decoderId);
         this.intermediateSize = config.getIntermediateSize();
 
         loadParameters();
-    }
-
-    public Vector process(Vector inputHiddenState, Vector residualState)
-    {
-        // Empty implementation, but it can be overridden in subclasses
-        // This one is called with the residual state (before the attention block),
-        // but if we don't need that, we can leave it as it is, and override the other method (without residual state)
-        return process(inputHiddenState);
-    }
-
-    public Vector process(Vector inputHiddenState)
-    {
-        // Empty implementation, but it can be overridden in subclasses
-        return inputHiddenState;
     }
 }

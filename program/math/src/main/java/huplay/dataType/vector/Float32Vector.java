@@ -1,5 +1,6 @@
 package huplay.dataType.vector;
 
+import huplay.MathProvider;
 import huplay.dataType.DataType;
 
 public class Float32Vector implements Vector
@@ -44,5 +45,13 @@ public class Float32Vector implements Vector
     public int size()
     {
         return values.length;
+    }
+
+    @Override
+    public Vector addVector(Vector vector)
+    {
+        MathProvider.getMathUtility().addVector(this, vector);
+
+        return this;
     }
 }

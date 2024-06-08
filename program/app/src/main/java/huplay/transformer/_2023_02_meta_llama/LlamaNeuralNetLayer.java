@@ -26,7 +26,7 @@ public class LlamaNeuralNetLayer extends BaseNeuralNetLayer
 
     public Vector process(Vector inputHiddenState)
     {
-        // Normalisation
+        // Normalization
         Vector hiddenState = MATH.RMSLayerNorm(inputHiddenState, vector(normWeight), epsilon);
 
         // Neural layers

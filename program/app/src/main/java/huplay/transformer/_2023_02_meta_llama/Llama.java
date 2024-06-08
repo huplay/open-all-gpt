@@ -15,12 +15,12 @@ import static huplay.config.ParameterType.*;
     - Optionally Grouped Query Attention (GQA) (Only at certain models)
     - Two separate MLP layers, results multiplied and processed by a third layer
     - SwiGLU activation function
-    - RMS normalisation
+    - RMS normalization
     - No biases, only weights
     - Query, key and value matrices are stored separately
     - 16 bit parameters (FLOAT16)
 
- * @author Hunor Szegi
+  @author Hunor Szegi
  */
 public class Llama extends BaseTransformer
 {
@@ -32,10 +32,10 @@ public class Llama extends BaseTransformer
         normWeight      = loadVector(NORM_WEIGHT, "norm.weight",         hiddenSize);
     }
 
-    public Vector preProcessToken(int pos, int token)
+    public Vector preProcessToken(int pos, int tokenId)
     {
         // Find the embeddings of the token
-        return matrix(tokenEmbeddings).getRow(token);
+        return matrix(tokenEmbeddings).row(tokenId);
     }
 
     public int generateToken(Vector hiddenState, int topK)

@@ -56,9 +56,6 @@ public abstract class BaseTransformer extends AbstractTransformer
 
         for (var i = 0; i < decoderCount; i++)
         {
-            // Save the state to pass later to the neural net layer (it is used only by GPTJ)
-            var residualState = hiddenState;
-
             // Attention layer - call the attention block of the implementation
             hiddenState = getAttentionLayer(i).process(hiddenState, isInputOnly);
 
@@ -66,7 +63,7 @@ public abstract class BaseTransformer extends AbstractTransformer
             if ( !(isInputOnly && isLastDecoder(i)) )
             {
                 // Unnecessary to call at input token processing (except the last input token), at the last decoder
-                hiddenState = getNeuralNetLayer(i).process(hiddenState, residualState);
+                hiddenState = getNeuralNetLayer(i).process(hiddenState);
             }
         }
 

@@ -18,7 +18,7 @@ import static huplay.config.ParameterType.*;
     - The values in the query/key/value matrices are ordered first by head, and second by type
     - The key and value vectors are stored separately for the heads
 
- * @author Hunor Szegi
+  @author Hunor Szegi
  */
 public class Bloom extends BaseTransformer
 {
@@ -33,10 +33,10 @@ public class Bloom extends BaseTransformer
         outputNormBias   = loadVector(NORM_BIAS,   "ln_f.bias",                        hiddenSize);
     }
 
-    public Vector preProcessToken(int pos, int token)
+    public Vector preProcessToken(int pos, int tokenId)
     {
         // Find the embeddings of the token
-        Vector hiddenState = matrix(tokenEmbeddings).getRow(token);
+        Vector hiddenState = matrix(tokenEmbeddings).row(tokenId);
 
         // Input normalization
         return MATH.layerNorm(hiddenState, vector(inputNormWeight), vector(inputNormBias), epsilon);

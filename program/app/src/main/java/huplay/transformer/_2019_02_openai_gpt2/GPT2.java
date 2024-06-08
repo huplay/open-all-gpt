@@ -16,7 +16,7 @@ import static huplay.config.ParameterType.*;
 
   (The normalization before the first decoder's attention block gives more numerical stability at larger models.)
 
- * @author Hunor Szegi
+  @author Hunor Szegi
  */
 public class GPT2 extends BaseTransformer
 {
@@ -30,13 +30,17 @@ public class GPT2 extends BaseTransformer
         normBias           = loadVector(NORM_BIAS,   "ln_f.bias",   hiddenSize);
     }
 
-    public Vector preProcessToken(int pos, int token)
+    public Vector preProcessToken(int pos, int tokenId)
     {
-        // Find the embeddings of the token
-        Vector hiddenState = matrix(tokenEmbeddings).getRow(token);
+        // Find the embeddings of the token (this is the initial hidden state)
+        Vector hiddenState = matrix(tokenEmbeddings).getRow(tokenId);
 
-        // Add the position embedding to hidden state
-        return MATH.addVectors(hiddenState, matrix(positionEmbeddings).getRow(pos));
+        // Find the position embedding of the position
+        Vector positionEmbedding = matrix(positionEmbeddings).row(pos);
+
+        // Return the addition of the hidden state and the position embedding
+        //return hiddenState.addVector(positionEmbedding);
+        return MATH.addVectors(hiddenState, positionEmbedding);
     }
 
     public int generateToken(Vector hiddenState, int topK)

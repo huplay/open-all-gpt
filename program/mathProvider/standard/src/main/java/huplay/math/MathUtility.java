@@ -28,6 +28,15 @@ public class MathUtility extends AbstractMathUtility
     }
 
     @Override
+    public void addVector(Vector vector1, Vector vector2)
+    {
+        for (int i = 0; i < vector1.size(); i++)
+        {
+            vector1.set(i, vector1.get(i) + vector2.get(i));
+        }
+    }
+    
+    @Override
     public float dotProduct(Vector vector1, Vector vector2)
     {
         float sum = 0;
@@ -80,7 +89,7 @@ public class MathUtility extends AbstractMathUtility
 
         for (int i = 0; i < matrix.getRowCount(); i++)
         {
-            ret.set(i, dotProduct(vector, matrix.getRow(i)));
+            ret.set(i, dotProduct(vector, matrix.row(i)));
         }
 
         return ret;
@@ -108,6 +117,26 @@ public class MathUtility extends AbstractMathUtility
         }
 
         return matrix;
+    }
+
+    public Vector joinVectors(Vector vector1, Vector vector2)
+    {
+        Vector vector = emptyVector(vector1.getFloatType(), vector1.size() + vector2.size());
+
+        var i = 0;
+        for (var value1 : vector1.getValues())
+        {
+            vector.set(i, value1);
+            i++;
+        }
+
+        for (var value2 : vector2.getValues())
+        {
+            vector.set(i, value2);
+            i++;
+        }
+
+        return vector;
     }
 
     @Override

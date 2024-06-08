@@ -26,6 +26,11 @@ public abstract class AbstractMathUtility
     public abstract Vector addVectors(Vector vector1, Vector vector2);
 
     /**
+     * Vector to vector addition, the first vector will be overridden
+     */
+    public abstract void addVector(Vector vector1, Vector vector2);
+
+    /**
      * Dot product calculation (multiplying vector by vector)
      */
     public abstract float dotProduct(Vector vector1, Vector vector2);

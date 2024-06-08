@@ -30,11 +30,19 @@ public class GPTJAttentionLayer extends BaseAttentionLayer
 
     public Vector process(Vector inputHiddenState, boolean isInputOnly)
     {
-        // Normalisation
+        // Normalization
         Vector hiddenState = MATH.layerNorm(inputHiddenState, vector(normWeight), vector(normBias), epsilon);
 
         // Attention
-        hiddenState = attention(hiddenState);
+        Vector attentionOutputHiddenState = attention(hiddenState);
+
+        // Not necessary to do the remaining if processing an input token (except the last) and it is the last decoder
+        if ( !(isInputOnly && lastDecoder) )
+        {
+            // Join the input hidden state, hidden state and output hidden state (to pass all to the neural net block)
+            hiddenState = MATH.joinVectors(inputHiddenState, hiddenState);
+            hiddenState = MATH.joinVectors(hiddenState, attentionOutputHiddenState);
+        }
 
         return hiddenState;
     }
@@ -66,13 +74,13 @@ public class GPTJAttentionLayer extends BaseAttentionLayer
         for (int head = 0; head < headCount; head++)
         {
             // Calculate the scores
-            Vector actualQuery = queryByHead.getRow(head);
+            Vector actualQuery = queryByHead.row(head);
             Vector scores = Vector.emptyVector(actualQuery.getFloatType(), storedSize);
 
             for (int pos = 0; pos < storedSize; pos++)
             {
                 // The score is calculated multiplying the "actual" query vector and the "related" key vector
-                Vector relatedKey = storedKeys.get(pos).getRow(head);
+                Vector relatedKey = storedKeys.get(pos).row(head);
                 scores.set(pos, MATH.dotProduct(actualQuery, relatedKey));
             }
 
@@ -82,9 +90,9 @@ public class GPTJAttentionLayer extends BaseAttentionLayer
             // Multiply the value matrices with the scores, and sum up
             for (int pos = 0; pos < storedSize; pos++)
             {
-                Vector relatedValue = storedValues.get(pos).getRow(head);
+                Vector relatedValue = storedValues.get(pos).row(head);
                 Vector multipliedValue = MATH.mulVectorByScalar(relatedValue, scores.get(pos));
-                valueAggregate.setRow(head, MATH.addVectors(valueAggregate.getRow(head), multipliedValue));
+                valueAggregate.setRow(head, MATH.addVectors(valueAggregate.row(head), multipliedValue));
             }
         }
 

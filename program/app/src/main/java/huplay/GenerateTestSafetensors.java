@@ -28,8 +28,11 @@ public class GenerateTestSafetensors
     private static final String MATRIX_PARAMETER = "matrix";
     private static final String BOOL_ARRAY_2D_PARAMETER = "boolArray2D";
     
-    private record TestParameter(String id, String type, int rows, int cols) {}
-    
+    private record TestParameter(String id, String type, int rows, int cols, List<Integer> shape) {}
+
+    // TODO: Override output file (now the previous should be deleted)
+    // TODO: Data type could be configured
+
     public static void main(String... args) throws IOException
     {
         //var testEntries = getTestEntriesGPT1();
@@ -159,7 +162,8 @@ public class GenerateTestSafetensors
         addVectorParameter("transformer.h.0.mlp.fc_out.bias", hiddenSize, testEntries);
 
         addVectorParameter("transformer.h.0.attn.masked_bias", 1, testEntries);
-        addBoolArray2DParameter("transformer.h.0.attn.bias", tokenCount, tokenCount, testEntries);
+        addBoolArray2DParameter("transformer.h.0.attn.bias", tokenCount, tokenCount,
+                List.of(1, 1, tokenCount, tokenCount), testEntries);
 
         return testEntries;
     }
@@ -241,10 +245,8 @@ public class GenerateTestSafetensors
 
         for (var entry : entries)
         {
-
             SafetensorsDataType dataType;
             long size;
-            List<Integer> shape;
             long endOffset;
 
             switch (entry.type)
@@ -253,27 +255,24 @@ public class GenerateTestSafetensors
                 {
                     dataType = SafetensorsDataType.F32;
                     size = entry.rows;
-                    shape = List.of(entry.rows);
                     endOffset = startOffset + size * 4L;
                 }
                 case MATRIX_PARAMETER ->
                 {
                     dataType = SafetensorsDataType.F32;
                     size = (long) entry.rows * entry.cols;
-                    shape = List.of(entry.rows, entry.cols);
                     endOffset = startOffset + size * 4L;
                 }
                 case BOOL_ARRAY_2D_PARAMETER ->
                 {
                     dataType = SafetensorsDataType.BOOL;
                     size = (long) entry.rows * entry.cols;
-                    shape = List.of(entry.rows, entry.cols);
                     endOffset = startOffset + size;
                 }
                 default -> throw new RuntimeException("Unsupported parameter type");
             }
 
-            var tensorModel = new TensorModel(dataType, shape, startOffset, endOffset);
+            var tensorModel = new TensorModel(dataType, entry.shape, startOffset, endOffset);
             safetensorsModel.addTensor(entry.id, tensorModel);
 
             startOffset = endOffset;
@@ -291,16 +290,36 @@ public class GenerateTestSafetensors
 
     private static void addVectorParameter(String id, int rows, List<TestParameter> entries)
     {
-        entries.add(new TestParameter(id, VECTOR_PARAMETER, rows, -1));
+        entries.add(new TestParameter(id, VECTOR_PARAMETER, rows, -1, List.of(rows)));
     }
 
-    private static void addMatrixParameter(String id, int rows, int cols, List<GenerateTestSafetensors.TestParameter> entries)
+    private static void addVectorParameter(String id, int rows, List<Integer> shape, List<TestParameter> entries)
     {
-        entries.add(new TestParameter(id, MATRIX_PARAMETER, rows, cols));
+        entries.add(new TestParameter(id, VECTOR_PARAMETER, rows, -1, shape));
     }
 
-    private static void addBoolArray2DParameter(String id, int rows, int cols, List<GenerateTestSafetensors.TestParameter> entries)
+    private static void addMatrixParameter(String id, int rows, int cols,
+                                           List<GenerateTestSafetensors.TestParameter> entries)
     {
-        entries.add(new GenerateTestSafetensors.TestParameter(id, GenerateTestSafetensors.BOOL_ARRAY_2D_PARAMETER, rows, cols));
+        entries.add(new TestParameter(id, MATRIX_PARAMETER, rows, cols, List.of(rows, cols)));
+    }
+
+    private static void addMatrixParameter(String id, int rows, int cols, List<Integer> shape,
+                                           List<GenerateTestSafetensors.TestParameter> entries)
+    {
+        entries.add(new TestParameter(id, MATRIX_PARAMETER, rows, cols, shape));
+    }
+
+    private static void addBoolArray2DParameter(String id, int rows, int cols,
+                                                List<GenerateTestSafetensors.TestParameter> entries)
+    {
+        entries.add(new GenerateTestSafetensors.TestParameter(id, BOOL_ARRAY_2D_PARAMETER, rows, cols,
+                List.of(rows, cols)));
+    }
+
+    private static void addBoolArray2DParameter(String id, int rows, int cols, List<Integer> shape,
+                                                List<GenerateTestSafetensors.TestParameter> entries)
+    {
+        entries.add(new GenerateTestSafetensors.TestParameter(id, BOOL_ARRAY_2D_PARAMETER, rows, cols, shape));
     }
 }

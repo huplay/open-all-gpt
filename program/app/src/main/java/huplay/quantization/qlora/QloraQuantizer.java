@@ -219,7 +219,7 @@ public class QloraQuantizer extends AbstractQuantizer
         var blockId = 0;
         for (var rowId = 0; rowId < matrix.getRowCount(); rowId++)
         {
-            var row = matrix.getRow(rowId).getValues();
+            var row = matrix.row(rowId).getValues();
 
             for (var blockIndex = 0; blockIndex < blocksPerRow; blockIndex++)
             {

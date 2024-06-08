@@ -9,6 +9,14 @@ public interface Matrix
 
     void setValue(int rowId, int colId, float value);
 
+    /**
+     * Returns a row of the matrix (referencing to the original row instance, if possible)
+     */
+    Vector row(int rowId);
+
+    /**
+     * Returns a row of the matrix (creating a new instance as result)
+     */
     Vector getRow(int rowId);
 
     void setRow(int rowId, Vector vector);

@@ -33,7 +33,7 @@ import static huplay.math.BasicMathUtility.exp;
    The weights of the trained model wasn't published.
    I don't know about any model which uses exactly the same architecture, so
 
- * @author Hunor Szegi
+  @author Hunor Szegi
  */
 public class GoogleTransformer extends BaseTransformer
 {
@@ -45,10 +45,10 @@ public class GoogleTransformer extends BaseTransformer
         tokenEmbeddings = loadMatrix(EMBEDDING, "tokens_embed.weight", tokenCount, hiddenSize);
     }
 
-    public Vector preProcessToken(int pos, int token)
+    public Vector preProcessToken(int pos, int tokenId)
     {
         // Find the embeddings of the token
-        Vector hiddenState = matrix(tokenEmbeddings).getRow(token);
+        Vector hiddenState = matrix(tokenEmbeddings).row(tokenId);
 
         // Position embedding
         for (int i = 0; i < hiddenState.size(); i++)

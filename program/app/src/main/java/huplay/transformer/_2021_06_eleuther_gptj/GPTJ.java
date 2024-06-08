@@ -8,29 +8,19 @@ import static huplay.MathUtilProvider.MATH;
 import static huplay.config.ParameterType.*;
 
 /**
- * TODO:
- * https://github.com/jzhang38/TinyLlama/issues/24
- *
- * GPTJ style: Original Llama, llama.cpp
- * rotates pairs of even and odd dimensions
- *
- * NEOX style: OpenLlama (all HF Llama)
- * rotates the 1st and 2nd half
- *
- * HF permutes the weight
-
   EleutherAI GPT-J transformer
 
   Differences to GPT-NEO:
     - Rotary Position Embedding (RoPE)
+    - The attention block and the neural net block has the same input (it would be possible to execute parallel)
+        At other transformers the output of the attention block is the input of the neural net block;
+        and there are separate residual connections within the attention block and within the neural net block.
+        Here there's a single residual connection, joining the attention input and the neural net output.
+        (More precisely, the join starts within the attention block, between the normalization and attention mechanism.)
     - No bias at attention query/key/value matrices and projection (but has bias at the neural net component)
     - Neural net normalization parameters are common in all decoders, and the same used at final normalization
-    - Usually there's only a single embedding matrix, but they used two parameters here:
-        The first matrix is used to look up the embeddings (wte)
-        The second matrix has not only weights, but biases as well (lm_head). This are used to calculate the logits.
-    - The attention block and the neural net block has the same input, so these can be executed parallel.
-        The residual connection is common for the two blocks. (No separate residual connections.)
- * @author Hunor Szegi
+
+  @author Hunor Szegi
  */
 public class GPTJ extends BaseTransformer
 {
@@ -45,10 +35,10 @@ public class GPTJ extends BaseTransformer
         normBias        = loadVector(NORM_BIAS,      "transformer.ln_f.bias",   hiddenSize);
     }
 
-    public Vector preProcessToken(int pos, int token)
+    public Vector preProcessToken(int pos, int tokenId)
     {
         // Find the embeddings of the token
-        return matrix(tokenEmbeddings).getRow(token);
+        return matrix(tokenEmbeddings).row(tokenId);
     }
 
     public int generateToken(Vector hiddenState, int topK)

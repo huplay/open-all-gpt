@@ -25,13 +25,13 @@ public class GPT1 extends BaseTransformer
         positionEmbeddings = loadMatrix(EMBEDDING, "positions_embed.weight", contextSize, hiddenSize);
     }
 
-    public Vector preProcessToken(int pos, int token)
+    public Vector preProcessToken(int pos, int tokenId)
     {
         // Find the embeddings of the token
-        Vector hiddenState = matrix(tokenEmbeddings).getRow(token);
+        Vector hiddenState = matrix(tokenEmbeddings).row(tokenId);
 
         // Add the position embedding to hidden state
-        return MATH.addVectors(hiddenState, matrix(positionEmbeddings).getRow(pos));
+        return MATH.addVectors(hiddenState, matrix(positionEmbeddings).row(pos));
     }
 
     public int generateToken(Vector hiddenState, int topK)

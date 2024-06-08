@@ -42,7 +42,7 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
 
     public Vector process(Vector inputHiddenState, boolean isInputOnly)
     {
-        // Normalisation
+        // Normalization
         Vector hiddenState = MATH.RMSLayerNorm(inputHiddenState, vector(normWeight), epsilon);
 
         if (kvHeadSize == 1)
@@ -93,13 +93,13 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
         for (int head = 0; head < headCount; head++)
         {
             // Calculate the scores
-            Vector actualQuery = queryByHead.getRow(head);
+            Vector actualQuery = queryByHead.row(head);
             Vector scores = Vector.emptyVector(actualQuery.getFloatType(), storedSize);
 
             for (int pos = 0; pos < storedSize; pos++)
             {
                 // The score is calculated multiplying the "actual" query vector and the "related" key vector
-                Vector relatedKey = storedKeys.get(pos).getRow(head);
+                Vector relatedKey = storedKeys.get(pos).row(head);
                 float score = MATH.dotProduct(actualQuery, relatedKey);
 
                 // Divide the score by the attention dividend
@@ -112,9 +112,9 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
             // Multiply the value matrices with the scores, and sum up
             for (int pos = 0; pos < storedSize; pos++)
             {
-                Vector relatedValue = storedValues.get(pos).getRow(head);
+                Vector relatedValue = storedValues.get(pos).row(head);
                 Vector multipliedValue = MATH.mulVectorByScalar(relatedValue, scores.get(pos));
-                valueAggregate.setRow(head, MATH.addVectors(valueAggregate.getRow(head), multipliedValue));
+                valueAggregate.setRow(head, MATH.addVectors(valueAggregate.row(head), multipliedValue));
             }
         }
 
@@ -181,13 +181,13 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
             int group = head % kvHeadCount;
 
             // Calculate the scores
-            Vector actualQuery = queryByHead.getRow(head);
+            Vector actualQuery = queryByHead.row(head);
             Vector scores = Vector.emptyVector(actualQuery.getFloatType(), storedSize);
 
             for (int pos = 0; pos < storedSize; pos++)
             {
                 // The score is calculated multiplying the "actual" query vector and the "related" key vector
-                Vector relatedKey = storedKeys.get(pos).getRow(group);
+                Vector relatedKey = storedKeys.get(pos).row(group);
                 float score = MATH.dotProduct(actualQuery, relatedKey);
 
                 // Divide the score by the attention dividend
@@ -200,9 +200,9 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
             // Multiply the value matrices with the scores, and sum up
             for (int pos = 0; pos < storedSize; pos++)
             {
-                Vector relatedValue = storedValues.get(pos).getRow(group);
+                Vector relatedValue = storedValues.get(pos).row(group);
                 Vector multipliedValue = MATH.mulVectorByScalar(relatedValue, scores.get(pos));
-                valueAggregate.setRow(head, MATH.addVectors(valueAggregate.getRow(head), multipliedValue));
+                valueAggregate.setRow(head, MATH.addVectors(valueAggregate.row(head), multipliedValue));
             }
         }
 

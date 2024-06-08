@@ -34,7 +34,7 @@ public class GoogleTransformerNeuralNetLayer extends BaseNeuralNetLayer
         // Residual connection
         hiddenState = MATH.addVectors(inputHiddenState, hiddenState);
 
-        //  Normalisation
+        // Normalization
         hiddenState = MATH.layerNorm(hiddenState, vector(normWeight), vector(normBias), epsilon);
 
         return hiddenState;

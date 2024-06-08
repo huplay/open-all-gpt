@@ -28,7 +28,7 @@ public class GPT2NeuralNetLayer extends BaseNeuralNetLayer
 
     public Vector process(Vector inputHiddenState)
     {
-        // Normalisation
+        // Normalization
         Vector hiddenState = MATH.layerNorm(inputHiddenState, vector(normWeight), vector(normBias), epsilon);
 
         // Neural layers

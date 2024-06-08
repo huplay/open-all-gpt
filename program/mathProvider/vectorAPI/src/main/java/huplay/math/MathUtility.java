@@ -35,6 +35,16 @@ public class MathUtility extends AbstractMathUtility
         return Vector.of(vector1.getFloatType(), result);
     }
 
+    // TODO: Vector-API isn't used
+    @Override
+    public void addVector(Vector vector1, Vector vector2)
+    {
+        for (int i = 0; i < vector1.size(); i++)
+        {
+            vector1.set(i, vector1.get(i) + vector2.get(i));
+        }
+    }
+
     @Override
     public float dotProduct(Vector vector1, Vector vector2)
     {
@@ -103,7 +113,7 @@ public class MathUtility extends AbstractMathUtility
 
         for (var col = 0; col < matrix.getRowCount(); col++)
         {
-            ret.set(col, dotProduct(vector, matrix.getRow(col)));
+            ret.set(col, dotProduct(vector, matrix.row(col)));
         }
 
         return ret;

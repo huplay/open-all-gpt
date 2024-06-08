@@ -1,11 +1,13 @@
 package huplay.transformer._2021_06_eleuther_gptj;
 
 import huplay.config.Parameter;
+import huplay.dataType.matrix.Matrix;
 import huplay.transformer.BaseNeuralNetLayer;
 import huplay.dataType.vector.Vector;
 
-import static huplay.config.ParameterType.*;
 import static huplay.MathUtilProvider.MATH;
+import static huplay.config.ParameterType.*;
+import static huplay.config.ParameterType.BIAS;
 
 /**
  * EleutherAI GPT-J decoder implementation
@@ -26,22 +28,14 @@ public class GPTJNeuralNetLayer extends BaseNeuralNetLayer
         layer2Bias   = loadVector(BIAS,            "mlp.fc_out.bias",   hiddenSize);
     }
 
-    public Vector process(Vector inputHiddenState, Vector residualState)
+    public Vector process(Vector hiddenStateCompound)
     {
-        // Normalisation
-        Vector hiddenState = MATH.layerNorm(inputHiddenState, vector(normWeight), vector(normBias), epsilon);
+        // Split the input hidden states
+        Matrix input = MATH.splitVector(hiddenStateCompound, 3);
+        Vector inputHiddenState = input.row(0);
+        Vector hiddenState = input.row(1);
+        Vector attentionOutputHiddenState = input.row(2);
 
-        // Neural layers
-        hiddenState = neuralNet(hiddenState);
-
-        // Residual connection
-        hiddenState = MATH.addVectors(residualState, hiddenState);
-
-        return hiddenState;
-    }
-
-    private Vector neuralNet(Vector hiddenState)
-    {
         // Layer 1: <intermediateSize> neurons (usually 4 * <hiddenSize>) (using gelu activation function)
         hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(layer1Weight));
         hiddenState = MATH.addVectors(hiddenState, vector(layer1Bias));
@@ -55,6 +49,10 @@ public class GPTJNeuralNetLayer extends BaseNeuralNetLayer
         // Layer 2: <hiddenSize> neurons (without activation function)
         hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(layer2Weight));
         hiddenState = MATH.addVectors(hiddenState, vector(layer2Bias));
+
+        // Add the three input states
+        hiddenState = MATH.addVectors(hiddenState, inputHiddenState);
+        hiddenState = MATH.addVectors(hiddenState, attentionOutputHiddenState);
 
         return hiddenState;
     }
