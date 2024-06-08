@@ -43,7 +43,7 @@ public class GPT2AttentionLayer extends BaseAttentionLayer
         if ( !(isInputOnly && lastDecoder) )
         {
             // Residual connection
-            hiddenState = MATH.addVectors(inputHiddenState, hiddenState);
+            hiddenState = hiddenState.add(inputHiddenState);
         }
 
         return hiddenState;
@@ -52,19 +52,19 @@ public class GPT2AttentionLayer extends BaseAttentionLayer
     private Vector attention(Vector hiddenState)
     {
         // Calculate the query-key-value vectors for the actual token
-        Vector queryKeyValue = MATH.mulVectorByMatrix(hiddenState, matrix(queryKeyValueWeight));
-        queryKeyValue = MATH.addVectors(queryKeyValue, vector(queryKeyValueBias));
+        Vector queryKeyValue = hiddenState.multiply(matrix(queryKeyValueWeight));
+        queryKeyValue = queryKeyValue.add(vector(queryKeyValueBias));
 
         // Split the query/key/value
-        Matrix split = MATH.splitVector(queryKeyValue, 3);
+        Matrix split = queryKeyValue.split(3);
         Vector query = split.row(0);
         Vector key = split.row(1);
         Vector value = split.row(2);
 
         // Split the query, key and value vectors into pieces for all heads
-        Matrix queryByHead = MATH.splitVector(query, headCount);
-        Matrix keyByHead = MATH.splitVector(key, headCount);
-        Matrix valueByHead = MATH.splitVector(value, headCount);
+        Matrix queryByHead = query.split(headCount);
+        Matrix keyByHead = key.split(headCount);
+        Matrix valueByHead = value.split(headCount);
 
         // Store the keys and values (these will be available while the following tokens will be processed)
         storedKeys.add(keyByHead);
@@ -86,7 +86,7 @@ public class GPT2AttentionLayer extends BaseAttentionLayer
             {
                 // The score is calculated multiplying the "actual" query vector and the "related" key vector
                 Vector relatedKey = storedKeys.get(pos).row(head);
-                float score = MATH.dotProduct(actualQuery, relatedKey);
+                float score = actualQuery.dotProduct(relatedKey);
 
                 // Divide the score by the attention dividend
                 scores.set(pos, score / attentionDividend);
@@ -99,17 +99,19 @@ public class GPT2AttentionLayer extends BaseAttentionLayer
             for (int pos = 0; pos < storedSize; pos++)
             {
                 Vector relatedValue = storedValues.get(pos).row(head);
-                Vector multipliedValue = MATH.mulVectorByScalar(relatedValue, scores.get(pos));
-                valueAggregate.setRow(head, MATH.addVectors(valueAggregate.row(head), multipliedValue));
+                Vector multipliedValue = relatedValue.multiply(scores.get(pos));
+
+                Vector actualValue = valueAggregate.row(head);
+                valueAggregate.setRow(head, actualValue.add(multipliedValue));
             }
         }
 
         // Concatenate the results for all heads
-        hiddenState = MATH.flattenMatrix(valueAggregate);
+        hiddenState = valueAggregate.flatten();
 
         // Projection neural layer
-        hiddenState = MATH.mulVectorByMatrix(hiddenState, matrix(projectionWeight));
-        hiddenState = MATH.addVectors(hiddenState, vector(projectionBias));
+        hiddenState = hiddenState.multiply(matrix(projectionWeight));
+        hiddenState = hiddenState.add(vector(projectionBias));
 
         return hiddenState;
     }

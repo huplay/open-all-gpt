@@ -2,11 +2,12 @@ package huplay.quantization;
 
 import huplay.IdentifiedException;
 import huplay.dataType.DataType;
+import huplay.dataType.matrix.AbstractMatrix;
 import huplay.dataType.matrix.Matrix;
 import huplay.dataType.matrix.VectorArrayMatrix;
 import huplay.dataType.vector.Vector;
 
-public abstract class QuantizedMatrix implements Matrix
+public abstract class QuantizedMatrix extends AbstractMatrix
 {
     private final DataType outputFloatType;
 
@@ -42,12 +43,6 @@ public abstract class QuantizedMatrix implements Matrix
         }
 
         return vector;
-    }
-
-    @Override
-    public Vector getRow(int rowId)
-    {
-        return row(rowId);
     }
 
     @Override

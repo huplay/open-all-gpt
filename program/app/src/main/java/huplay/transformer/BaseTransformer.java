@@ -73,10 +73,10 @@ public abstract class BaseTransformer extends AbstractTransformer
     /**
      * Selects randomly the token from the provided logits (list of probabilities), using the topK settings
      */
-    protected int selectBestToken(float[] logits, int topK)
+    protected int selectBestToken(Vector logits, int topK)
     {
         // Sort (higher to lower) the result of the dot products, retaining the order (index) of the related token
-        List<IndexedValue> orderedLogits = MATH.reverseAndFilter(logits, topK);
+        List<IndexedValue> orderedLogits = MATH.reverseAndFilter(logits.getValues(), topK);
 
         // Convert the logits to probabilities
         float[] probabilities = MATH.softmax(orderedLogits);

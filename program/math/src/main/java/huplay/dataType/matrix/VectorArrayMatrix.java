@@ -3,7 +3,7 @@ package huplay.dataType.matrix;
 import huplay.dataType.DataType;
 import huplay.dataType.vector.Vector;
 
-public class VectorArrayMatrix implements Matrix
+public class VectorArrayMatrix extends AbstractMatrix
 {
     private final Vector[] vectorArray;
     private final DataType internalFloatType;
@@ -35,12 +35,6 @@ public class VectorArrayMatrix implements Matrix
     public Vector row(int rowId)
     {
         return vectorArray[rowId];
-    }
-
-    public Vector getRow(int rowId)
-    {
-        var row = row(rowId);
-        return Vector.of(row.getFloatType(), row.getValues());
     }
 
     @Override

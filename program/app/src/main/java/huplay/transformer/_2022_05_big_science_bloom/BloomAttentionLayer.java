@@ -66,7 +66,7 @@ public class BloomAttentionLayer extends BaseAttentionLayer
         if ( !(isInputOnly && lastDecoder) )
         {
             // Residual connection
-            hiddenState = MATH.addVectors(inputHiddenState, hiddenState);
+            hiddenState = hiddenState.add(inputHiddenState);
         }
 
         return hiddenState;
@@ -75,11 +75,11 @@ public class BloomAttentionLayer extends BaseAttentionLayer
     private Vector attention(Vector hiddenState)
     {
         // Calculate the query-key-value vectors for the actual token
-        Vector queryKeyValue = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(queryKeyValueWeight));
-        queryKeyValue = MATH.addVectors(queryKeyValue, vector(queryKeyValueBias));
+        Vector queryKeyValue = hiddenState.multiplyByTransposed(matrix(queryKeyValueWeight));
+        queryKeyValue = queryKeyValue.add(vector(queryKeyValueBias));
 
         // Split the query, key and value vectors into pieces for all heads
-        Matrix queryKeyValuesByHead = MATH.splitVector(queryKeyValue, headCount);
+        Matrix queryKeyValuesByHead = queryKeyValue.split(headCount);
 
         // Matrix for collecting the attention results for all heads
         Matrix valueAggregate = emptyMatrix(headCount, headSize);
@@ -90,7 +90,7 @@ public class BloomAttentionLayer extends BaseAttentionLayer
             Vector queryKeyValueByHead = queryKeyValuesByHead.row(head);
 
             // Split the query/key/value
-            Matrix split = MATH.splitVector(queryKeyValueByHead, 3);
+            Matrix split = queryKeyValueByHead.split(3);
             Vector queryByHead = split.row(0);
             Vector keyByHead = split.row(1);
             Vector valueByHead = split.row(2);
@@ -108,7 +108,7 @@ public class BloomAttentionLayer extends BaseAttentionLayer
             {
                 // The score is calculated multiplying the "actual" query vector and the "related" key vector
                 Vector relatedKey = storedKeys.get(head).get(pos);
-                float score = MATH.dotProduct(queryByHead, relatedKey);
+                float score = queryByHead.dotProduct(relatedKey);
 
                 // Position embedding at score
                 score = score - positionSlope[head] * (storedSize - pos - 1);
@@ -124,17 +124,19 @@ public class BloomAttentionLayer extends BaseAttentionLayer
             for (int pos = 0; pos < storedSize; pos++)
             {
                 Vector relatedValue = storedValues.get(head).get(pos);
-                Vector multipliedValue = MATH.mulVectorByScalar(relatedValue, scores.get(pos));
-                valueAggregate.setRow(head, MATH.addVectors(valueAggregate.row(head), multipliedValue));
+                Vector multipliedValue = relatedValue.multiply(scores.get(pos));
+
+                Vector actualValue = valueAggregate.row(head);
+                valueAggregate.setRow(head, actualValue.add(multipliedValue));
             }
         }
 
         // Concatenate the results for all heads
-        hiddenState = MATH.flattenMatrix(valueAggregate);
+        hiddenState = valueAggregate.flatten();
 
         // Projection neural layer
-        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(projectionWeight));
-        hiddenState = MATH.addVectors(hiddenState, vector(projectionBias));
+        hiddenState = hiddenState.multiplyByTransposed(matrix(projectionWeight));
+        hiddenState = hiddenState.add(vector(projectionBias));
 
         return hiddenState;
     }

@@ -60,7 +60,7 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
         if ( !(isInputOnly && lastDecoder) )
         {
             // Residual connection
-            hiddenState = MATH.addVectors(inputHiddenState, hiddenState);
+            hiddenState = hiddenState.add(inputHiddenState);
         }
 
         return hiddenState;
@@ -69,14 +69,14 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
     protected Vector attention(Vector hiddenState)
     {
         // Calculate the query, key and value vectors for the actual token
-        Vector query = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(queryWeight));
-        Vector key = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(keyWeight));
-        Vector value = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(valueWeight));
+        Vector query = hiddenState.multiplyByTransposed(matrix(queryWeight));
+        Vector key = hiddenState.multiplyByTransposed(matrix(keyWeight));
+        Vector value = hiddenState.multiplyByTransposed(matrix(valueWeight));
 
         // Split the query, key and value vectors into pieces for all heads
-        Matrix queryByHead = MATH.splitVector(query, headCount);
-        Matrix keyByHead = MATH.splitVector(key, headCount);
-        Matrix valueByHead = MATH.splitVector(value, headCount);
+        Matrix queryByHead = query.split(headCount);
+        Matrix keyByHead = key.split(headCount);
+        Matrix valueByHead = value.split(headCount);
 
         // Position embedding (RoPE)
         applyPosition(query, key);
@@ -100,7 +100,7 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
             {
                 // The score is calculated multiplying the "actual" query vector and the "related" key vector
                 Vector relatedKey = storedKeys.get(pos).row(head);
-                float score = MATH.dotProduct(actualQuery, relatedKey);
+                float score = actualQuery.dotProduct(relatedKey);
 
                 // Divide the score by the attention dividend
                 scores.set(pos, score / attentionDividend);
@@ -113,16 +113,18 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
             for (int pos = 0; pos < storedSize; pos++)
             {
                 Vector relatedValue = storedValues.get(pos).row(head);
-                Vector multipliedValue = MATH.mulVectorByScalar(relatedValue, scores.get(pos));
-                valueAggregate.setRow(head, MATH.addVectors(valueAggregate.row(head), multipliedValue));
+                Vector multipliedValue = relatedValue.multiply(scores.get(pos));
+
+                Vector actualValue = valueAggregate.row(head);
+                valueAggregate.setRow(head, actualValue.add(multipliedValue));
             }
         }
 
         // Concatenate the results for all heads
-        hiddenState = MATH.flattenMatrix(valueAggregate);
+        hiddenState = valueAggregate.flatten();
 
         // Projection neural layer
-        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(projectionWeight));
+        hiddenState = hiddenState.multiplyByTransposed(matrix(projectionWeight));
 
         return hiddenState;
     }
@@ -153,16 +155,16 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
     protected Vector groupedQueryAttention(Vector hiddenState)
     {
         // Calculate the query, key and value vectors for the actual token
-        Vector query = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(queryWeight));
+        Vector query = hiddenState.multiplyByTransposed(matrix(queryWeight));
 
         // The key and value matrices are smaller (less head count) than the query matrix
-        Vector key = MATH.mulVectorByMatrix(hiddenState, matrix(keyWeight)); // TODO: Why it isn't transposed?
-        Vector value = MATH.mulVectorByMatrix(hiddenState, matrix(valueWeight)); // TODO: Why it isn't transposed?
+        Vector key = hiddenState.multiply(matrix(keyWeight)); // TODO: Why it isn't transposed?
+        Vector value = hiddenState.multiply(matrix(valueWeight)); // TODO: Why it isn't transposed?
 
         // Split the query, key and value vectors into pieces for all heads
-        Matrix queryByHead = MATH.splitVector(query, headCount);
-        Matrix keyByGroup = MATH.splitVector(key, headCount / kvHeadSize);
-        Matrix valueByGroup = MATH.splitVector(value, headCount / kvHeadSize);
+        Matrix queryByHead = query.split(headCount);
+        Matrix keyByGroup = key.split(headCount / kvHeadSize);
+        Matrix valueByGroup = value.split(headCount / kvHeadSize);
 
         // Position embedding (RoPE)
         applyGroupedPosition(query, key);
@@ -188,7 +190,7 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
             {
                 // The score is calculated multiplying the "actual" query vector and the "related" key vector
                 Vector relatedKey = storedKeys.get(pos).row(group);
-                float score = MATH.dotProduct(actualQuery, relatedKey);
+                float score = actualQuery.dotProduct(relatedKey);
 
                 // Divide the score by the attention dividend
                 scores.set(pos, score / attentionDividend);
@@ -201,16 +203,18 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
             for (int pos = 0; pos < storedSize; pos++)
             {
                 Vector relatedValue = storedValues.get(pos).row(group);
-                Vector multipliedValue = MATH.mulVectorByScalar(relatedValue, scores.get(pos));
-                valueAggregate.setRow(head, MATH.addVectors(valueAggregate.row(head), multipliedValue));
+                Vector multipliedValue = relatedValue.multiply(scores.get(pos));
+
+                Vector actualValue = valueAggregate.row(head);
+                valueAggregate.setRow(head, actualValue.add(multipliedValue));
             }
         }
 
         // Concatenate the results for all heads
-        hiddenState = MATH.flattenMatrix(valueAggregate);
+        hiddenState = valueAggregate.flatten();
 
         // Projection neural layer
-        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(projectionWeight));
+        hiddenState = hiddenState.multiplyByTransposed(matrix(projectionWeight));
 
         return hiddenState;
     }

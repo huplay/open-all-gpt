@@ -33,7 +33,7 @@ public class LlamaNeuralNetLayer extends BaseNeuralNetLayer
         hiddenState = neuralNet(hiddenState);
 
         // Residual connection
-        hiddenState = MATH.addVectors(inputHiddenState, hiddenState);
+        hiddenState = inputHiddenState.add(hiddenState);
 
         return hiddenState;
     }
@@ -41,23 +41,25 @@ public class LlamaNeuralNetLayer extends BaseNeuralNetLayer
     private Vector neuralNet(Vector hiddenState)
     {
         // Feed parallel two layers with the same input
-        Vector hiddenState1 = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(layer1Weight));
-        Vector hiddenState2 = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(layer2Weight));
+        Vector hiddenState1 = hiddenState.multiplyByTransposed(matrix(layer1Weight));
+        Vector hiddenState2 = hiddenState.multiplyByTransposed(matrix(layer2Weight));
 
         // Use SwiGLU activation function on the gate layer (no activation function on the other)
         for (int neuron = 0; neuron < intermediateSize; neuron++)
         {
-            hiddenState1.set(neuron, MATH.swiglu(hiddenState1.get(neuron)));
+            float activation = MATH.swiglu(hiddenState1.get(neuron));
+            hiddenState1.set(neuron, activation);
         }
 
         // Multiply the two outputs
         for (int neuron = 0; neuron < intermediateSize; neuron++)
         {
-            hiddenState1.set(neuron, hiddenState1.get(neuron) * hiddenState2.get(neuron));
+            float activation = MATH.swiglu(hiddenState1.get(neuron) * hiddenState2.get(neuron));
+            hiddenState1.set(neuron, activation);
         }
 
         // Use the third layer (no activation function)
-        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState1, matrix(layer3Weight));
+        hiddenState = hiddenState1.multiply(matrix(layer3Weight));
 
         return hiddenState;
     }

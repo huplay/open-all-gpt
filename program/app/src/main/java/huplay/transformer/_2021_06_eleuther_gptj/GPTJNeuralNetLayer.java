@@ -31,28 +31,28 @@ public class GPTJNeuralNetLayer extends BaseNeuralNetLayer
     public Vector process(Vector hiddenStateCompound)
     {
         // Split the input hidden states
-        Matrix input = MATH.splitVector(hiddenStateCompound, 3);
+        Matrix input = hiddenStateCompound.split(3);
         Vector inputHiddenState = input.row(0);
         Vector hiddenState = input.row(1);
         Vector attentionOutputHiddenState = input.row(2);
 
         // Layer 1: <intermediateSize> neurons (usually 4 * <hiddenSize>) (using gelu activation function)
-        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(layer1Weight));
-        hiddenState = MATH.addVectors(hiddenState, vector(layer1Bias));
+        hiddenState = hiddenState.multiplyByTransposed(matrix(layer1Weight));
+        hiddenState = hiddenState.add(vector(layer1Bias));
 
         for (int i = 0; i < intermediateSize; i++)
         {
-            float activation =  MATH.gelu(hiddenState.get(i));
+            float activation = MATH.gelu(hiddenState.get(i));
             hiddenState.set(i, activation);
         }
 
         // Layer 2: <hiddenSize> neurons (without activation function)
-        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(layer2Weight));
-        hiddenState = MATH.addVectors(hiddenState, vector(layer2Bias));
+        hiddenState = hiddenState.multiplyByTransposed(matrix(layer2Weight));
+        hiddenState = hiddenState.add(vector(layer2Bias));
 
         // Add the three input states
-        hiddenState = MATH.addVectors(hiddenState, inputHiddenState);
-        hiddenState = MATH.addVectors(hiddenState, attentionOutputHiddenState);
+        hiddenState = hiddenState.add(inputHiddenState);
+        hiddenState = hiddenState.add(attentionOutputHiddenState);
 
         return hiddenState;
     }

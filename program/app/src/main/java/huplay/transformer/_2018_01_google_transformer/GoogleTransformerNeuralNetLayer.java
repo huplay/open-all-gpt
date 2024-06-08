@@ -32,7 +32,7 @@ public class GoogleTransformerNeuralNetLayer extends BaseNeuralNetLayer
         Vector hiddenState = neuralNet(inputHiddenState);
 
         // Residual connection
-        hiddenState = MATH.addVectors(inputHiddenState, hiddenState);
+        hiddenState = hiddenState.add(inputHiddenState);
 
         // Normalization
         hiddenState = MATH.layerNorm(hiddenState, vector(normWeight), vector(normBias), epsilon);
@@ -43,17 +43,18 @@ public class GoogleTransformerNeuralNetLayer extends BaseNeuralNetLayer
     private Vector neuralNet(Vector hiddenState)
     {
         // Layer 1: <intermediateSize> neurons (4 * <hiddenSize>) (using gelu activation function)
-        hiddenState = MATH.mulVectorByMatrix(hiddenState, matrix(layer1Weight));
-        hiddenState = MATH.addVectors(hiddenState, vector(layer1Bias));
+        hiddenState = hiddenState.multiply(matrix(layer1Weight));
+        hiddenState = hiddenState.add(vector(layer1Bias));
 
         for (int neuron = 0; neuron < intermediateSize; neuron++)
         {
-            hiddenState.set(neuron, MATH.gelu(hiddenState.get(neuron)));
+            float activation = MATH.gelu(hiddenState.get(neuron));
+            hiddenState.set(neuron, activation);
         }
 
         // Layer 2: <hiddenSize> neurons (without activation function)
-        hiddenState = MATH.mulVectorByMatrix(hiddenState, matrix(layer2Weight));
-        hiddenState = MATH.addVectors(hiddenState, vector(layer2Bias));
+        hiddenState = hiddenState.multiply(matrix(layer2Weight));
+        hiddenState = hiddenState.add(vector(layer2Bias));
 
         return hiddenState;
     }

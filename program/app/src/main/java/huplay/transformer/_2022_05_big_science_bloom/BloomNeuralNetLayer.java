@@ -35,7 +35,7 @@ public class BloomNeuralNetLayer extends BaseNeuralNetLayer
         hiddenState = neuralNet(hiddenState);
 
         // Residual connection
-        hiddenState = MATH.addVectors(inputHiddenState, hiddenState);
+        hiddenState = hiddenState.add(inputHiddenState);
 
         return hiddenState;
     }
@@ -43,17 +43,18 @@ public class BloomNeuralNetLayer extends BaseNeuralNetLayer
     private Vector neuralNet(Vector hiddenState)
     {
         // Layer 1: <intermediateSize> neurons (usually 4 * <hiddenSize>) (using gelu activation function)
-        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(layer1Weight));
-        hiddenState = MATH.addVectors(hiddenState, vector(layer1Bias));
+        hiddenState = hiddenState.multiplyByTransposed(matrix(layer1Weight));
+        hiddenState = hiddenState.add(vector(layer1Bias));
 
         for (int neuron = 0; neuron < intermediateSize; neuron++)
         {
-            hiddenState.set(neuron, MATH.gelu(hiddenState.get(neuron)));
+            float activation = MATH.gelu(hiddenState.get(neuron));
+            hiddenState.set(neuron, activation);
         }
 
         // Layer 2: <hiddenSize> neurons (without activation function)
-        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(layer2Weight));
-        hiddenState = MATH.addVectors(hiddenState, vector(layer2Bias));
+        hiddenState = hiddenState.multiplyByTransposed(matrix(layer2Weight));
+        hiddenState = hiddenState.add(vector(layer2Bias));
 
         return hiddenState;
     }

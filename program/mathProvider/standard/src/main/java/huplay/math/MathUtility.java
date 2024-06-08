@@ -28,15 +28,6 @@ public class MathUtility extends AbstractMathUtility
     }
 
     @Override
-    public void addVector(Vector vector1, Vector vector2)
-    {
-        for (int i = 0; i < vector1.size(); i++)
-        {
-            vector1.set(i, vector1.get(i) + vector2.get(i));
-        }
-    }
-    
-    @Override
     public float dotProduct(Vector vector1, Vector vector2)
     {
         float sum = 0;

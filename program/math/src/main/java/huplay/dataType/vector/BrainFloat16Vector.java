@@ -1,13 +1,12 @@
 package huplay.dataType.vector;
 
-import huplay.MathProvider;
 import huplay.dataType.BrainFloat16;
 import huplay.dataType.DataType;
 
 /**
  * Brain Float 16 Vector implementation (Google Brain)
  */
-public class BrainFloat16Vector implements Vector
+public class BrainFloat16Vector extends AbstractVector
 {
     private final short[] values;
 
@@ -66,13 +65,5 @@ public class BrainFloat16Vector implements Vector
     public int size()
     {
         return values.length;
-    }
-
-    @Override
-    public Vector addVector(Vector vector)
-    {
-        MathProvider.getMathUtility().addVector(this, vector);
-
-        return this;
     }
 }

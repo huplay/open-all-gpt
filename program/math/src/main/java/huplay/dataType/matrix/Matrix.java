@@ -14,11 +14,6 @@ public interface Matrix
      */
     Vector row(int rowId);
 
-    /**
-     * Returns a row of the matrix (creating a new instance as result)
-     */
-    Vector getRow(int rowId);
-
     void setRow(int rowId, Vector vector);
 
     Vector[] getVectorArray();
@@ -28,6 +23,8 @@ public interface Matrix
     int getColCount();
 
     DataType getInternalFloatType();
+
+    Vector flatten();
 
     static MatrixType getInternalMatrixType(DataType floatType)
     {

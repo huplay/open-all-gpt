@@ -48,9 +48,9 @@ public class GPTJ extends BaseTransformer
 
         // Multiply (dot product) the output with all token embeddings.
         // It will give a higher value if the output is more similar to the token embedding
-        Vector logits = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(embeddingWeight));
-        logits = MATH.addVectors(logits, vector(embeddingBias));
+        Vector logits = hiddenState.multiplyByTransposed(matrix(embeddingWeight));
+        logits = logits.add(vector(embeddingBias));
 
-        return selectBestToken(logits.getValues(), topK);
+        return selectBestToken(logits, topK);
     }
 }

@@ -33,14 +33,13 @@ public class GPT2 extends BaseTransformer
     public Vector preProcessToken(int pos, int tokenId)
     {
         // Find the embeddings of the token (this is the initial hidden state)
-        Vector hiddenState = matrix(tokenEmbeddings).getRow(tokenId);
+        Vector hiddenState = matrix(tokenEmbeddings).row(tokenId);
 
         // Find the position embedding of the position
         Vector positionEmbedding = matrix(positionEmbeddings).row(pos);
 
         // Return the addition of the hidden state and the position embedding
-        //return hiddenState.addVector(positionEmbedding);
-        return MATH.addVectors(hiddenState, positionEmbedding);
+        return hiddenState.add(positionEmbedding);
     }
 
     public int generateToken(Vector hiddenState, int topK)
@@ -50,7 +49,7 @@ public class GPT2 extends BaseTransformer
 
         // Multiply (dot product) the output with all token embeddings.
         // It will give a higher value if the output is more similar to the token embedding
-        float[] logits = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(tokenEmbeddings)).getValues();
+        Vector logits = hiddenState.multiplyByTransposed(matrix(tokenEmbeddings));
 
         return selectBestToken(logits, topK);
     }

@@ -49,7 +49,7 @@ public class Bloom extends BaseTransformer
 
         // Multiply (dot product) the output with all token embeddings.
         // It will give a higher value if the output is more similar to the token embedding
-        float[] logits = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(tokenEmbeddings)).getValues();
+        Vector logits = hiddenState.multiplyByTransposed(matrix(tokenEmbeddings));
 
         return selectBestToken(logits, topK);
     }

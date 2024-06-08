@@ -1,6 +1,7 @@
 package huplay.dataType.vector;
 
 import huplay.dataType.DataType;
+import huplay.dataType.matrix.Matrix;
 
 public interface Vector
 {
@@ -14,7 +15,17 @@ public interface Vector
 
     int size();
 
-    Vector addVector(Vector vector);
+    Vector add(Vector vector);
+
+    float dotProduct(Vector vector);
+
+    Vector multiply(float scalar);
+
+    Vector multiply(Matrix matrix);
+
+    Vector multiplyByTransposed(Matrix matrix);
+
+    Matrix split(int rows);
 
     static Vector emptyVector(int size)
     {

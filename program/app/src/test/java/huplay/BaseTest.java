@@ -54,7 +54,7 @@ public class BaseTest
 
             for (var i = 0; i < expected.length; i++)
             {
-                assertVectorEquals(expected[i], actual.getRow(i), delta);
+                assertVectorEquals(expected[i], actual.row(i), delta);
             }
         }
     }

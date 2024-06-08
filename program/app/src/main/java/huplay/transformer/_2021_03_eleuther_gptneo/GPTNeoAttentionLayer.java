@@ -44,7 +44,7 @@ public class GPTNeoAttentionLayer extends BaseAttentionLayer
         if ( !(isInputOnly && lastDecoder) )
         {
             // Residual connection
-            hiddenState = MATH.addVectors(inputHiddenState, hiddenState);
+            hiddenState = hiddenState.add(inputHiddenState);
         }
 
         return hiddenState;
@@ -53,27 +53,19 @@ public class GPTNeoAttentionLayer extends BaseAttentionLayer
     private Vector attention(Vector hiddenState)
     {
         // Calculate the query, key and value vectors for the actual token
-        Vector query = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(queryWeight));
-        Vector key = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(keyWeight));
-        Vector value = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(valueWeight));
+        Vector query = hiddenState.multiplyByTransposed(matrix(queryWeight));
+        Vector key = hiddenState.multiplyByTransposed(matrix(keyWeight));
+        Vector value = hiddenState.multiplyByTransposed(matrix(valueWeight));
 
         // Split the query, key and value vectors into pieces for all heads
-        Matrix queryByHead = MATH.splitVector(query, headCount);
-        Matrix keyByHead = MATH.splitVector(key, headCount);
-        Matrix valueByHead = MATH.splitVector(value, headCount);
+        Matrix queryByHead = query.split(headCount);
+        Matrix keyByHead = key.split(headCount);
+        Matrix valueByHead = value.split(headCount);
 
         // Store the keys and values (these will be available while the following tokens will be processed)
         storedKeys.add(keyByHead);
         storedValues.add(valueByHead);
         int storedSize = storedKeys.size();
-
-        // Used only at sparse attention:
-        /*if (storedSize > maxAttentionSize)
-        {
-            // Topping the maximum attention size we can drop the oldest stored values
-            storedKeys.remove(0);
-            storedValues.remove(0);
-        }*/
 
         // Matrix for collecting the attention results for all heads
         Matrix valueAggregate = emptyMatrix(headCount, headSize);
@@ -89,7 +81,7 @@ public class GPTNeoAttentionLayer extends BaseAttentionLayer
             {
                 // The score is calculated multiplying the "actual" query vector and the "related" key vector
                 Vector relatedKey = storedKeys.get(pos).row(head);
-                scores.set(pos, MATH.dotProduct(actualQuery, relatedKey));
+                scores.set(pos, actualQuery.dotProduct(relatedKey));
             }
 
             // Scale the scores to values between 0 and 1
@@ -99,17 +91,19 @@ public class GPTNeoAttentionLayer extends BaseAttentionLayer
             for (int pos = 0; pos < storedSize; pos++)
             {
                 Vector relatedValue = storedValues.get(pos).row(head);
-                Vector multipliedValue = MATH.mulVectorByScalar(relatedValue, scores.get(pos));
-                valueAggregate.setRow(head, MATH.addVectors(valueAggregate.row(head), multipliedValue));
+                Vector multipliedValue = relatedValue.multiply(scores.get(pos));
+
+                Vector actualValue = valueAggregate.row(head);
+                valueAggregate.setRow(head, actualValue.add(multipliedValue));
             }
         }
 
         // Concatenate the results for all heads
-        hiddenState = MATH.flattenMatrix(valueAggregate);
+        hiddenState = valueAggregate.flatten();
 
         // Projection neural layer
-        hiddenState = MATH.mulVectorByTransposedMatrix(hiddenState, matrix(projectionWeight));
-        hiddenState = MATH.addVectors(hiddenState, vector(projectionBias));
+        hiddenState = hiddenState.multiplyByTransposed(matrix(projectionWeight));
+        hiddenState = hiddenState.add(vector(projectionBias));
 
         return hiddenState;
     }

@@ -1,13 +1,12 @@
 package huplay.dataType.vector;
 
-import huplay.MathProvider;
 import huplay.dataType.Float16;
 import huplay.dataType.DataType;
 
 /**
  * Float 16 Vector implementation
  */
-public class Float16Vector implements Vector
+public class Float16Vector extends AbstractVector
 {
     private final short[] values;
 
@@ -66,13 +65,5 @@ public class Float16Vector implements Vector
     public int size()
     {
         return values.length;
-    }
-
-    @Override
-    public Vector addVector(Vector vector)
-    {
-        MathProvider.getMathUtility().addVector(this, vector);
-
-        return this;
     }
 }

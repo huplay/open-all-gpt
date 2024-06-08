@@ -35,16 +35,6 @@ public class MathUtility extends AbstractMathUtility
         return Vector.of(vector1.getFloatType(), result);
     }
 
-    // TODO: Vector-API isn't used
-    @Override
-    public void addVector(Vector vector1, Vector vector2)
-    {
-        for (int i = 0; i < vector1.size(); i++)
-        {
-            vector1.set(i, vector1.get(i) + vector2.get(i));
-        }
-    }
-
     @Override
     public float dotProduct(Vector vector1, Vector vector2)
     {
