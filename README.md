@@ -131,7 +131,7 @@ The transformer architecture is implemented multiple times. All variant placed i
 
 <p align="center"><img src="static/transformer-packages.png" height="300"/></p>
 
-Every package name contains the release date and the company.
+Every package name contains the release date (and the company), so these are ordered historically.
 
 I tried to write the simplest Java code as possible. My main goal is that 
 
@@ -163,15 +163,19 @@ Neural net layer:
 
 If you take a look you can see all methods are very simple, only the attention mechanism is more complicated. Although, these uses some inherited methods from the parent (base) classes, and utility methods implementing the core mathematical algorithms, but those are also very simple codes, and everything is included in this repo.
 
-Code of the main class:
+The common core of the transformer implementations:
+
+<img src="static/java-transformer.png" height="300"/>
+
+Code of a main class (GPT-2):
 
 <img src="static/java-main.png" height="300"/>
 
-Code of the attention block):
+Code of an attention block (GPT-2):
 
 <img src="static/java-attention.png" height="300"/>
 
-Code of the neural net block:
+Code of a neural net block (GPT-2):
 
 <img src="static/java-neural-net.png" height="300"/>
 
