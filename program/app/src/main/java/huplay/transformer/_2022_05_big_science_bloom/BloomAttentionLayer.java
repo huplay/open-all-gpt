@@ -13,7 +13,7 @@ import static huplay.config.ParameterType.*;
 import static huplay.math.BasicMathUtility.sqrt;
 
 /**
- * BLOOM decoder implementation
+ * BLOOM decoder (attention block) implementation
  *
  * @author Hunor Szegi
  */

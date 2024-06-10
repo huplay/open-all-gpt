@@ -10,7 +10,8 @@ import static huplay.config.ParameterType.*;
 import static huplay.math.BasicMathUtility.sqrt;
 
 /**
- * Decoder implementation of the original decoder-only Transformer architecture created by Google Brain
+ * Decoder (attention block) implementation of the original decoder-only Transformer architecture
+ * created by Google Brain
  *
  * @author Hunor Szegi
  */

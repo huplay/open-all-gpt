@@ -9,7 +9,7 @@ import static huplay.MathUtilProvider.*;
 import static huplay.config.ParameterType.*;
 
 /**
- * EleutherAI GPT-NEO decoder implementation
+ * EleutherAI GPT-NEO decoder (attention block) implementation
  *
  * @author Hunor Szegi
  */

@@ -1,0 +1,14 @@
+{
+  "name": "Google Gemma 2B",
+  "transformerType": "GOOGLE_GEMMA",
+  "repo-comment": "YOU HAVE TO LOGIN TO HUGGING FACE AND ACCEPT THE CONDITIONS, SO THE AUTO DOWNLOAD WON'T WORK",
+  "repo": "https://huggingface.co/google/gemma-2b",
+  "files": [
+    "config.json",
+    "model-00001-of-00002.safetensors",
+    "model-00002-of-00002.safetensors"
+  ],
+  "parameterNaming": "model.{name}",
+  "decoderParameterNaming": "model.layers.{decoderId}.{name}",
+  "memorySize": 30720
+}

@@ -8,7 +8,7 @@ import static huplay.MathUtilProvider.*;
 import static huplay.config.ParameterType.*;
 
 /**
- * Meta Llama decoder implementation
+ * Meta Llama decoder (neural net block) implementation
  *
  * @author Hunor Szegi
  */
@@ -51,15 +51,15 @@ public class LlamaNeuralNetLayer extends BaseNeuralNetLayer
             hiddenState1.set(neuron, activation);
         }
 
-        // Multiply the two outputs
+        // Fuse the two by multiplying the outputs
         for (int neuron = 0; neuron < intermediateSize; neuron++)
         {
-            float activation = MATH.swiglu(hiddenState1.get(neuron) * hiddenState2.get(neuron));
-            hiddenState1.set(neuron, activation);
+            float fused = hiddenState1.get(neuron) * hiddenState2.get(neuron);
+            hiddenState1.set(neuron, fused);
         }
 
         // Use the third layer (no activation function)
-        hiddenState = hiddenState1.multiply(matrix(layer3Weight));
+        hiddenState = hiddenState1.multiplyByTransposed(matrix(layer3Weight));
 
         return hiddenState;
     }

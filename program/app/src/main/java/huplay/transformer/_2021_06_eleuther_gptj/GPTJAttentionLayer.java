@@ -10,7 +10,7 @@ import static huplay.config.ParameterType.*;
 import static huplay.math.BasicMathUtility.*;
 
 /**
- * EleutherAI GPT-J decoder implementation
+ * EleutherAI GPT-J decoder (attention block) implementation
  *
  * @author Hunor Szegi
  */

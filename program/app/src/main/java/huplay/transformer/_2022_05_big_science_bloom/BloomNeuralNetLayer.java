@@ -8,7 +8,7 @@ import static huplay.MathUtilProvider.*;
 import static huplay.config.ParameterType.*;
 
 /**
- * BLOOM decoder implementation
+ * BLOOM decoder (neural net block) implementation
  *
  * @author Hunor Szegi
  */

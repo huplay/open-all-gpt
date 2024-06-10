@@ -55,27 +55,25 @@
   },
   "EleutherAI": {"order": 4,
     "folders": {
-      "GPT-NEO": {"order": 1,
+      "GPT-NEO 125M": {"order": 1},
+      "GPT-NEO 350M": {"order": 2},
+      "GPT-NEO 1.3B": {"order": 3},
+      "GPT-NEO 2.7B": {"order": 4},
+      "GPT-J 6B": {"order": 5},
+      "GPT-NEOX 20B": {"order": 6}
+    }
+  },
+  "Google": {"order": 5,
+    "folders": {
+      "Gemma": {"order": 1,
         "folders": {
-          "GPT-NEO 125M": {"order": 1},
-          "GPT-NEO 350M": {"order": 2},
-          "GPT-NEO 1.3B": {"order": 3},
-          "GPT-NEO 2.7B": {"order": 4}
-        }
-      },
-      "GPT-J": {"order": 2,
-        "folders": {
-          "GPT-J 6B": {"order": 1}
-        }
-      },
-      "GPT-NEOX": {"order": 3,
-        "folders": {
-          "GPT-NEOX 20B": {"order": 1}
+          "Gemma 2B": {"order": 1},
+          "Gemma 7B": {"order": 2}
         }
       }
     }
   },
-  "Meta": {"order": 5,
+  "Meta": {"order": 6,
     "folders": {
       "Llama 1": {"order": 1,
         "folders": {

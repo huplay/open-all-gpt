@@ -1,23 +1,22 @@
-package huplay.transformer._2023_02_meta_llama;
+package huplay.transformer._2024_02_google_gemma;
 
 import huplay.config.Parameter;
 import huplay.dataType.matrix.Matrix;
-import huplay.transformer.BaseAttentionLayer;
 import huplay.dataType.vector.Vector;
+import huplay.transformer.BaseAttentionLayer;
 
-import static huplay.MathUtilProvider.*;
-import static huplay.config.ParameterType.NORM_WEIGHT;
-import static huplay.config.ParameterType.VERTICAL_WEIGHT;
+import static huplay.MathUtilProvider.MATH;
+import static huplay.config.ParameterType.*;
 import static huplay.math.BasicMathUtility.*;
 
 /**
- * Meta Llama decoder (attention block) implementation
+ * Google Gemma decoder (attention block) implementation
  *
  * @author Hunor Szegi
  */
-public class LlamaAttentionLayer extends BaseAttentionLayer
+public class GemmaAttentionLayer extends BaseAttentionLayer
 {
-    Parameter queryWeight, keyWeight, valueWeight, normWeight, projectionWeight;
+    Parameter normWeight, queryWeight, keyWeight, valueWeight, projectionWeight;
 
     int kvHeadCount;
     int kvHeadSize;
@@ -27,6 +26,8 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
         // Read the optional config for the "key/value head" count
         // (At the original attention (MHA) there was only a single kind of head. Call it "query head" from now on.)
         // If the "query head" is different to the "key/value head" count, we are using Grouped Query Attention (GQA)
+        // If the "key/value head" count is 1, that is called Multi-Query Attention (MQA)
+        // Gemma 2B uses MQA, 7B uses GQA
         kvHeadCount = config.getIntOptional("num_key_value_heads", headCount);
         kvHeadSize = headCount / kvHeadCount;
 
@@ -43,7 +44,7 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
     public Vector process(Vector inputHiddenState, boolean isInputOnly)
     {
         // Normalization
-        Vector hiddenState = MATH.RMSLayerNorm(inputHiddenState, vector(normWeight), epsilon);
+        Vector hiddenState = MATH.RMSLayerNorm(inputHiddenState, vector(normWeight), epsilon, 1f);
 
         if (kvHeadSize == 1)
         {

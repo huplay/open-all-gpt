@@ -10,18 +10,16 @@ import static huplay.config.ParameterType.*;
 import static huplay.config.ParameterType.BIAS;
 
 /**
- * EleutherAI GPT-J decoder implementation
+ * EleutherAI GPT-J decoder (neural net block) implementation
  *
  * @author Hunor Szegi
  */
 public class GPTJNeuralNetLayer extends BaseNeuralNetLayer
 {
-    Parameter normWeight, normBias, layer1Weight, layer1Bias, layer2Weight, layer2Bias;
+    Parameter layer1Weight, layer1Bias, layer2Weight, layer2Bias;
 
     public void loadParameters()
     {
-        normWeight   = loadVector(NORM_WEIGHT,     "ln_f.weight",       hiddenSize);
-        normBias     = loadVector(NORM_BIAS,       "ln_f.bias",         hiddenSize);
         layer1Weight = loadMatrix(VERTICAL_WEIGHT, "mlp.fc_in.weight",  intermediateSize, hiddenSize);
         layer1Bias   = loadVector(BIAS,            "mlp.fc_in.bias",    intermediateSize);
         layer2Weight = loadMatrix(VERTICAL_WEIGHT, "mlp.fc_out.weight", hiddenSize, intermediateSize);

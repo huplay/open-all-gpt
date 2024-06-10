@@ -508,7 +508,7 @@ public class SafetensorsReader implements ParameterReader
     @Override
     public Matrix readBrainFloat16Matrix(String parameterId, int rows, int cols)
     {
-        var header = getHeader(parameterId, new long[] {(long) rows * cols});
+        var header = getHeader(parameterId, new long[] {rows, cols});
         try (var stream = new FileInputStream(header.getFileName()))
         {
             var matrix = new VectorArrayMatrix(DataType.BRAIN_FLOAT_16, rows, cols);

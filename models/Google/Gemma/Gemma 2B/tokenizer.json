@@ -1,0 +1,5 @@
+{
+  "tokenizerType": "SENTENCE_PIECE",
+  "repo": "https://huggingface.co/google/gemma-2b",
+  "files": ["tokenizer.model"]
+}

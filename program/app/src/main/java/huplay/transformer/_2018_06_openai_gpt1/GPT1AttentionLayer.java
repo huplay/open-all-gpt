@@ -10,7 +10,7 @@ import static huplay.config.ParameterType.*;
 import static huplay.math.BasicMathUtility.sqrt;
 
 /**
- * OpenAI GPT-1 decoder implementation
+ * OpenAI GPT-1 decoder (attention block) implementation
  *
  * @author Hunor Szegi
  */

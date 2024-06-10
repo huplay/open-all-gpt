@@ -1,6 +1,6 @@
 # GPT-NEO #
 
-`EleutherAI` is attempted to recreate all the GPT-3 variants, training them on their own dataset (`Pile`). (https://www.eleuther.ai)
+`EleutherAI` attempted to recreate all the GPT-3 variants, training them on their own dataset (`Pile`). (https://www.eleuther.ai)
 
 They started the work on the smallest models, which are similar in size to the GPT-2.
 I called the GPT-2 models as SMALL/MEDIUM/LARGE/XL. They officially released a model similar to the SMALL (NEO-125M) and XL (NEO-1.3B).

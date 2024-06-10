@@ -32,10 +32,10 @@ public abstract class BaseTransformer extends AbstractTransformer
     /**
      * Main flow of processing a token
      */
-    public Integer processToken(int pos, int token, int topK, boolean isInputOnly)
+    public Integer processToken(int pos, int tokenId, int topK, boolean isInputOnly)
     {
         // Head of the transformer - call the preProcess of the implementation
-        Vector hiddenState = processTokenMain(pos, token, isInputOnly);
+        Vector hiddenState = processTokenMain(pos, tokenId, isInputOnly);
 
         // Tail of the transformer - call the generateToken of the implementation
         if (isInputOnly)

@@ -22,6 +22,9 @@ import huplay.transformer._2018_06_openai_gpt1.GPT1;
 import huplay.transformer._2019_02_openai_gpt2.GPT2;
 import huplay.transformer._2023_02_meta_llama.LlamaAttentionLayer;
 import huplay.transformer._2023_02_meta_llama.LlamaNeuralNetLayer;
+import huplay.transformer._2024_02_google_gemma.Gemma;
+import huplay.transformer._2024_02_google_gemma.GemmaAttentionLayer;
+import huplay.transformer._2024_02_google_gemma.GemmaNeuralNetLayer;
 
 public enum TransformerType
 {
@@ -31,6 +34,7 @@ public enum TransformerType
     ELEUTHERAI_GPT_NEO,
     ELEUTHERAI_GPT_J,
     BIG_SCIENCE_BLOOM,
+    GOOGLE_GEMMA,
     META_LLAMA;
 
     private static TransformerType getTransformerType(String transformerType)
@@ -55,6 +59,7 @@ public enum TransformerType
             case ELEUTHERAI_GPT_NEO     -> new GPTNeo();
             case ELEUTHERAI_GPT_J       -> new GPTJ();
             case BIG_SCIENCE_BLOOM      -> new Bloom();
+            case GOOGLE_GEMMA           -> new Gemma();
             case META_LLAMA             -> new Llama();
         };
     }
@@ -70,6 +75,7 @@ public enum TransformerType
             case BIG_SCIENCE_BLOOM      -> new BloomAttentionLayer();
             case ELEUTHERAI_GPT_NEO     -> new GPTNeoAttentionLayer();
             case ELEUTHERAI_GPT_J       -> new GPTJAttentionLayer();
+            case GOOGLE_GEMMA           -> new GemmaAttentionLayer();
             case META_LLAMA             -> new LlamaAttentionLayer();
         };
     }
@@ -85,6 +91,7 @@ public enum TransformerType
             case BIG_SCIENCE_BLOOM      -> new BloomNeuralNetLayer();
             case ELEUTHERAI_GPT_NEO     -> new GPTNeoNeuralNetLayer();
             case ELEUTHERAI_GPT_J       -> new GPTJNeuralNetLayer();
+            case GOOGLE_GEMMA           -> new GemmaNeuralNetLayer();
             case META_LLAMA             -> new LlamaNeuralNetLayer();
         };
     }

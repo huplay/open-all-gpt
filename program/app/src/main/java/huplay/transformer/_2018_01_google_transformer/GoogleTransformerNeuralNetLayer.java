@@ -8,7 +8,8 @@ import static huplay.MathUtilProvider.*;
 import static huplay.config.ParameterType.*;
 
 /**
- * Decoder implementation of the original decoder-only Transformer architecture created by Google Brain
+ * Decoder (neural net block) implementation of the original decoder-only Transformer architecture
+ * created by Google Brain
  *
  * @author Hunor Szegi
  */

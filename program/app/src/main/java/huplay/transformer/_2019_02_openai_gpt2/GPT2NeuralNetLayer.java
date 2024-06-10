@@ -8,7 +8,7 @@ import static huplay.MathUtilProvider.*;
 import static huplay.config.ParameterType.*;
 
 /**
- * OpenAI GPT-2 decoder implementation
+ * OpenAI GPT-2 decoder (neural net block) implementation
  *
  * @author Hunor Szegi
  */

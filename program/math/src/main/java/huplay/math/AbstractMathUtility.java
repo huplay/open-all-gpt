@@ -125,6 +125,11 @@ public abstract class AbstractMathUtility
      */
     public Vector RMSLayerNorm(Vector vector, Vector weight, float epsilon)
     {
+        return RMSLayerNorm(vector, weight, epsilon, 0f);
+    }
+
+    public Vector RMSLayerNorm(Vector vector, Vector weight, float epsilon, float bias)
+    {
         var size = vector.size();
 
         // Calculate the sum of squares
@@ -143,7 +148,7 @@ public abstract class AbstractMathUtility
 
         for (var i = 0; i < size; i++)
         {
-            result.set(i, weight.get(i) * (sum * vector.get(i)));
+            result.set(i, (weight.get(i) + bias) * sum * vector.get(i));
         }
 
         return result;
