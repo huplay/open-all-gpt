@@ -1,4 +1,4 @@
-package transformer._2021_03_eleuther_gptneo;
+package transformer._2021_03_eleutherai_gptneo;
 
 import config.Parameter;
 import transformer.BaseNeuralNetLayer;

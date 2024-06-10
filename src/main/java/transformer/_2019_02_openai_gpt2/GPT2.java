@@ -10,6 +10,9 @@ import static config.ParameterType.*;
 /**
   OpenAI GPT-2 transformer
 
+  It was announced and partly released on 14 Feb 2019, and fully released on 5 Nov 2019.
+  Source code: https://github.com/openai/gpt-2
+
   Differences to GPT-1:
     - The normalization is used at the beginning of the attention and mlp blocks
     - Final normalization is added after the last decoder

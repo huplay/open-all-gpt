@@ -1,4 +1,4 @@
-package transformer._2021_03_eleuther_gptneo;
+package transformer._2021_06_eleutherai_gptj;
 
 import config.Parameter;
 import math.dataType.matrix.Matrix;
@@ -7,29 +7,25 @@ import math.dataType.vector.Vector;
 
 import static math.MathUtil.MATH;
 import static config.ParameterType.*;
+import static math.BasicMathUtility.*;
 
 /**
- * EleutherAI GPT-NEO decoder (attention block) implementation
+ * EleutherAI GPT-J decoder (attention block) implementation
  *
  * @author Hunor Szegi
  */
-public class GPTNeoAttentionLayer extends BaseAttentionLayer
+public class GPTJAttentionLayer extends BaseAttentionLayer
 {
-    Parameter normWeight, normBias, queryWeight, keyWeight, valueWeight, projectionWeight, projectionBias;
-
-    int maxAttentionSize;
+    Parameter normWeight, normBias, queryWeight, keyWeight, valueWeight, projectionWeight;
 
     public void loadParameters()
     {
-        normWeight       = loadVector(NORM_WEIGHT,     "ln_1.weight",                    hiddenSize);
-        normBias         = loadVector(NORM_BIAS,       "ln_1.bias",                      hiddenSize);
-        queryWeight      = loadMatrix(VERTICAL_WEIGHT, "attn.attention.q_proj.weight",   hiddenSize, hiddenSize);
-        keyWeight        = loadMatrix(VERTICAL_WEIGHT, "attn.attention.k_proj.weight",   hiddenSize, hiddenSize);
-        valueWeight      = loadMatrix(VERTICAL_WEIGHT, "attn.attention.v_proj.weight",   hiddenSize, hiddenSize);
-        projectionWeight = loadMatrix(VERTICAL_WEIGHT, "attn.attention.out_proj.weight", hiddenSize, hiddenSize);
-        projectionBias   = loadVector(BIAS,             "attn.attention.out_proj.bias",  hiddenSize);
-
-        maxAttentionSize = 256; // TODO: Move sparse attention to logic, not as config
+        normWeight       = loadVector(NORM_WEIGHT,     "ln_1.weight",          hiddenSize);
+        normBias         = loadVector(NORM_BIAS,       "ln_1.bias",            hiddenSize);
+        queryWeight      = loadMatrix(VERTICAL_WEIGHT, "attn.q_proj.weight",   hiddenSize, hiddenSize);
+        keyWeight        = loadMatrix(VERTICAL_WEIGHT, "attn.k_proj.weight",   hiddenSize, hiddenSize);
+        valueWeight      = loadMatrix(VERTICAL_WEIGHT, "attn.v_proj.weight",   hiddenSize, hiddenSize);
+        projectionWeight = loadMatrix(VERTICAL_WEIGHT, "attn.out_proj.weight", hiddenSize, hiddenSize);
     }
 
     public Vector process(Vector inputHiddenState, boolean isInputOnly)
@@ -38,13 +34,14 @@ public class GPTNeoAttentionLayer extends BaseAttentionLayer
         Vector hiddenState = MATH.layerNorm(inputHiddenState, vector(normWeight), vector(normBias), epsilon);
 
         // Attention
-        hiddenState = attention(hiddenState);
+        Vector attentionOutputHiddenState = attention(hiddenState);
 
         // Not necessary to do the remaining if processing an input token (except the last) and it is the last decoder
         if ( !(isInputOnly && lastDecoder) )
         {
-            // Residual connection
-            hiddenState = hiddenState.add(inputHiddenState);
+            // Join the input hidden state, hidden state and output hidden state (to pass all to the neural net block)
+            hiddenState = MATH.joinVectors(inputHiddenState, hiddenState);
+            hiddenState = MATH.joinVectors(hiddenState, attentionOutputHiddenState);
         }
 
         return hiddenState;
@@ -61,6 +58,9 @@ public class GPTNeoAttentionLayer extends BaseAttentionLayer
         Matrix queryByHead = query.split(headCount);
         Matrix keyByHead = key.split(headCount);
         Matrix valueByHead = value.split(headCount);
+
+        // Position embedding (RoPE)
+        applyRotaryPosition(query, key);
 
         // Store the keys and values (these will be available while the following tokens will be processed)
         storedKeys.add(keyByHead);
@@ -103,8 +103,30 @@ public class GPTNeoAttentionLayer extends BaseAttentionLayer
 
         // Projection neural layer
         hiddenState = hiddenState.multiplyByTransposed(matrix(projectionWeight));
-        hiddenState = hiddenState.add(vector(projectionBias));
 
         return hiddenState;
+    }
+
+    protected void applyRotaryPosition(Vector query, Vector key)
+    {
+        for (int i = 0; i < hiddenSize; i += 2)
+        {
+            int modulus = i % headSize;
+
+            double frequency = 1.0 / pow(10000.0f, (float) modulus / headSize);
+            double degree = frequency * storedKeys.size();
+            float x = cos(degree);
+            float y = sin(degree);
+
+            // Rotate query
+            float query0 = query.get(i);
+            query.set(i, query0 * x - query.get(i + 1) * y);
+            query.set(i + 1, query0 * y - query.get(i + 1) * x);
+
+            // Rotate key
+            float key0 = key.get(i);
+            key.set(i, key0 * x - key.get(i + 1) * y);
+            key.set(i + 1, key0 * y - key.get(i + 1) * x);
+        }
     }
 }

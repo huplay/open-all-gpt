@@ -10,6 +10,12 @@ import static config.ParameterType.*;
 /**
   BLOOM transformer
 
+  BLOOM was the first open model reaching the size of GPT-3 created by a volunteer research community called BigScience.
+  The project was funded by the French state, giving access to a supercomputer called "Jean Zay", led by Hugging Face.
+
+  Publication: https://arxiv.org/abs/2211.05100
+  Official page: https://bigscience.huggingface.co/
+
   Differences to GPT-2:
     - ALiBi position embedding, applied in the attention block to the score
     - 16 bit parameters (BFLOAT16 for the 176B model, FLOAT16 for the others)

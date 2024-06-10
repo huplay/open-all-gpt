@@ -29,8 +29,9 @@ import static math.BasicMathUtility.exp;
     - 32 bit parameters
     - query/key/value matrices are stored in a single matrix
 
-   The weights of the trained model wasn't published.
-   I don't know about any model which uses exactly the same architecture, so
+  The weights of the trained model weren't published.
+  I don't know about any model which uses exactly the same architecture,
+  so currently you can't try this implementation.
 
   @author Hunor Szegi
  */

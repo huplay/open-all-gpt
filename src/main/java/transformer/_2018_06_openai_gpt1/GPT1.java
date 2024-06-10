@@ -9,10 +9,13 @@ import static config.ParameterType.*;
 /**
   OpenAI GPT-1 transformer
 
+  The first GPT was released in June 2018.
+  Publication: https://paperswithcode.com/paper/improving-language-understanding-by
+
   Difference to the original transformer:
     - Learned position embedding (not sinusoid)
 
- * @author Hunor Szegi
+  @author Hunor Szegi
  */
 public class GPT1 extends BaseTransformer
 {

@@ -11,6 +11,10 @@ import static math.BasicMathUtility.sqrt;
 /**
   Google Gemma transformer
 
+  Gemma was announced and released on 21 Feb 2024. Publication: https://arxiv.org/abs/2403.08295
+
+  The architecture is almost identical to the Llama models, even the parameter names are the same.
+
   Differences to Llama:
     - Extra input normalization: division by sqrt of the hidden size
     - GELU activation function (same as at GPT-2)

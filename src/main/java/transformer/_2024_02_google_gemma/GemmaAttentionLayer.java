@@ -138,18 +138,18 @@ public class GemmaAttentionLayer extends BaseAttentionLayer
 
             double frequency = 1.0 / pow(10000.0f, (float) modulus / headSize);
             double degree = frequency * storedKeys.size();
-            float x = cos(degree);
-            float y = sin(degree);
+            float cos = cos(degree);
+            float sin = sin(degree);
 
             // Rotate query
-            float query0 = query.get(i);
-            query.set(i, query0 * x - query.get(i + 1) * y);
-            query.set(i + 1, query0 * y - query.get(i + 1) * x);
+            float queryInput = query.get(i);
+            query.set(i, queryInput * cos - query.get(i + 1) * sin);
+            query.set(i + 1, queryInput * sin - query.get(i + 1) * cos);
 
             // Rotate key
-            float key0 = key.get(i);
-            key.set(i, key0 * x - key.get(i + 1) * y);
-            key.set(i + 1, key0 * y - key.get(i + 1) * x);
+            float keyInput = key.get(i);
+            key.set(i, keyInput * cos - key.get(i + 1) * sin);
+            key.set(i + 1, keyInput * sin - key.get(i + 1) * cos);
         }
     }
 

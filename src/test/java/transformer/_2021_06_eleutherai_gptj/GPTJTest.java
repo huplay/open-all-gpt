@@ -1,4 +1,4 @@
-package transformer._2021_06_eleuther_gptj;
+package transformer._2021_06_eleutherai_gptj;
 
 import transformer.BaseTransformerTest;
 import org.junit.Test;
@@ -8,7 +8,7 @@ public class GPTJTest extends BaseTransformerTest
     @Test
     public void testTransformer()
     {
-        var config = getTestConfig("transformer/_2021_06_eleuther_gptj");
+        var config = getTestConfig("transformer/_2021_06_eleutherai_gptj");
         var transformer = new GPTJ();
         transformer.init(config);
         transformer.initDecoders();

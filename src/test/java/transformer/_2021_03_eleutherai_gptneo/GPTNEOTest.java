@@ -1,4 +1,4 @@
-package transformer._2021_03_eleuther_gptneo;
+package transformer._2021_03_eleutherai_gptneo;
 
 import transformer.BaseTransformerTest;
 import org.junit.Test;
@@ -8,7 +8,7 @@ public class GPTNEOTest extends BaseTransformerTest
     @Test
     public void testTransformer()
     {
-        var config = getTestConfig("transformer/_2021_03_eleuther_gptneo");
+        var config = getTestConfig("transformer/_2021_03_eleutherai_gptneo");
         var transformer = new GPTNeo();
         transformer.init(config);
         transformer.initDecoders();

@@ -1,4 +1,4 @@
-package transformer._2021_06_eleuther_gptj;
+package transformer._2021_06_eleutherai_gptj;
 
 import config.Parameter;
 import math.dataType.matrix.Matrix;

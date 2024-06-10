@@ -10,15 +10,25 @@ import static config.ParameterType.*;
 /**
   Meta Llama transformer
 
+  Llama was announced and released on 23 Feb 2023 by Meta (Facebook).
+  Publication: https://arxiv.org/abs/2302.13971
+
   Differences to GPT-2:
     - Rotary Position Embedding (RoPE)
-    - Optionally Grouped Query Attention (GQA) (Only at certain models)
     - Two separate MLP layers, results multiplied and processed by a third layer
     - SwiGLU activation function
     - RMS normalization
     - No biases, only weights
     - Query, key and value matrices are stored separately
     - 16 bit parameters (FLOAT16)
+
+  Llama 2 was announced and released on 18 July 2023. Publication: https://arxiv.org/abs/2307.09288
+
+  Changes in Llama2:
+    - Grouped Query Attention (GQA) (Only at certain models)
+    - The context lenght was increased from 2048 to 4096
+
+  Llama 3 was announced and released on 18 April 2024. (Publication is expected in few months.)
 
   @author Hunor Szegi
  */
