@@ -1,3 +1,3 @@
 @echo off
 CHCP 65001 >nul
-java -cp program/app/target/open-all-gpt.jar huplay.AppNetworkWorker %*
+java -cp target/open-all-gpt.jar app.AppNetworkWorker %*
