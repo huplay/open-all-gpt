@@ -1,8 +1,11 @@
 package math.impl.standard;
 
+import app.IdentifiedException;
 import math.dataType.matrix.Matrix;
 import math.dataType.vector.Vector;
 import math.AbstractMathUtility;
+
+import java.util.Arrays;
 
 import static math.dataType.matrix.Matrix.emptyMatrix;
 import static math.dataType.vector.Vector.emptyVector;
@@ -18,9 +21,9 @@ public class StandardMath extends AbstractMathUtility
     @Override
     public Vector addVectors(Vector vector1, Vector vector2)
     {
-        Vector ret = emptyVector(vector1.getFloatType(), vector1.size());
+        var ret = emptyVector(vector1.getFloatType(), vector1.size());
 
-        for (int i = 0; i < vector1.size(); i++)
+        for (var i = 0; i < vector1.size(); i++)
         {
             ret.set(i, vector1.get(i) + vector2.get(i));
         }
@@ -31,9 +34,9 @@ public class StandardMath extends AbstractMathUtility
     @Override
     public float dotProduct(Vector vector1, Vector vector2)
     {
-        float sum = 0;
+        var sum = 0f;
 
-        for (int i = 0; i < vector1.size(); i++)
+        for (var i = 0; i < vector1.size(); i++)
         {
             sum = sum + vector1.get(i) * vector2.get(i);
         }
@@ -44,26 +47,32 @@ public class StandardMath extends AbstractMathUtility
     @Override
     public Vector mulVectorByScalar(Vector vector, float scalar)
     {
-        Vector ret = emptyVector(vector.getFloatType(), vector.size());
+        var result = emptyVector(vector.getFloatType(), vector.size());
 
-        for (int i = 0; i < vector.size(); i++)
+        for (var i = 0; i < vector.size(); i++)
         {
-            ret.set(i, vector.get(i) * scalar);
+            result.set(i, vector.get(i) * scalar);
         }
 
-        return ret;
+        return result;
     }
 
     @Override
     public Vector mulVectorByMatrix(Vector vector, Matrix matrix)
     {
-        Vector ret = emptyVector(vector.getFloatType(), matrix.getColCount());
-
-        for (int col = 0; col < matrix.getColCount(); col++)
+        if (vector.size() != matrix.getRowCount())
         {
-            float sum = 0;
+            throw new IdentifiedException("Vector and matrix shape is incompatible at multiplication. " +
+                    "Vector size: " + vector.size() + ", matrix shape: " + matrix.getRowCount() + ", " + matrix.getRowCount());
+        }
 
-            for (int i = 0; i < vector.size(); i++)
+        var ret = emptyVector(vector.getFloatType(), matrix.getColCount());
+
+        for (var col = 0; col < matrix.getColCount(); col++)
+        {
+            var sum = 0f;
+
+            for (var i = 0; i < vector.size(); i++)
             {
                 sum = sum + vector.get(i) * matrix.getValue(i, col);
             }
@@ -77,11 +86,21 @@ public class StandardMath extends AbstractMathUtility
     @Override
     public Vector mulVectorByTransposedMatrix(Vector vector, Matrix matrix)
     {
-        Vector ret = emptyVector(vector.getFloatType(), matrix.getRowCount());
-
-        for (int i = 0; i < matrix.getRowCount(); i++)
+        if (vector.size() != matrix.getColCount())
         {
-            ret.set(i, dotProduct(vector, matrix.row(i)));
+            var thread = Thread.currentThread();
+            var stackTrace = thread.getStackTrace();
+
+            throw new IdentifiedException("Vector and matrix shape is incompatible at multiplication (transposed). " +
+                    "Vector size: " + vector.size() + ", matrix shape: " + matrix.getRowCount() + ", " + matrix.getColCount() +
+                    " Stack trace: " + Arrays.toString(stackTrace));
+        }
+
+        var ret = emptyVector(vector.getFloatType(), matrix.getRowCount());
+
+        for (var col = 0; col < matrix.getRowCount(); col++)
+        {
+            ret.set(col, dotProduct(vector, matrix.row(col)));
         }
 
         return ret;
@@ -90,14 +109,14 @@ public class StandardMath extends AbstractMathUtility
     @Override
     public Matrix splitVector(Vector vector, int rows)
     {
-        int cols = vector.size() / rows;
+        var cols = vector.size() / rows;
         var matrix = emptyMatrix(vector.getFloatType(), rows, cols);
 
-        int segment = 0;
-        int col = 0;
-        for (int i = 0; i < vector.size(); i++)
+        var segment = 0;
+        var col = 0;
+        for (var i = 0; i < vector.size(); i++)
         {
-            float value = vector.get(i);
+            var value = vector.get(i);
             matrix.setValue(segment, col, value);
 
             if (col == cols - 1)
@@ -114,15 +133,15 @@ public class StandardMath extends AbstractMathUtility
     @Override
     public Vector flattenMatrix(Matrix matrix)
     {
-        Vector ret = emptyVector(matrix.getInternalFloatType(), matrix.getRowCount() * matrix.getColCount());
+        var ret = emptyVector(matrix.getInternalFloatType(), matrix.getRowCount() * matrix.getColCount());
 
-        int i = 0;
+        var i = 0;
 
-        for (Vector row : matrix.getVectorArray())
+        for (var row : matrix.getVectorArray())
         {
-            for (int j = 0; j < row.size(); j++)
+            for (var j = 0; j < row.size(); j++)
             {
-                float value = row.get(j);
+                var value = row.get(j);
                 ret.set(i, value);
                 i++;
             }
@@ -152,14 +171,14 @@ public class StandardMath extends AbstractMathUtility
     @Override
     public float average(Vector vector)
     {
-        double sum = 0;
+        var sum = 0f;
 
-        for (int i = 0; i < vector.size(); i++)
+        for (var i = 0; i < vector.size(); i++)
         {
-            float value = vector.get(i);
+            var value = vector.get(i);
             sum = sum + value;
         }
 
-        return (float) sum / vector.size();
+        return sum / vector.size();
     }
 }

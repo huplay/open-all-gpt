@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.TreeSet;
 
 import static math.dataType.vector.Vector.emptyVector;
-import static java.lang.Math.PI;
-import static java.lang.Math.tanh;
 
 public abstract class AbstractMathUtility
 {
@@ -102,25 +100,6 @@ public abstract class AbstractMathUtility
     public abstract float average(Vector vector);
 
     /**
-     * Gaussian Error Linear Unit (GELU) cumulative distribution activation function (approximate implementation)
-     * Original paper: <a href="https://paperswithcode.com/method/gelu" />
-     */
-    public float gelu(float value)
-    {
-        // Using a constant for sqrt(2 / PI) didn't make it faster, most likely Java optimized it
-        return (float) (0.5 * value * (1 + tanh(java.lang.Math.sqrt(2 / PI) * (value + 0.044715 * value * value * value))));
-    }
-
-    /**
-     * SwiGLU activation function
-     * Original paper: <a href="https://arxiv.org/abs/2002.05202" />
-     */
-    public float swiglu(float value)
-    {
-        return (float) (value * (1f / (1f + java.lang.Math.exp(-value))));
-    }
-
-    /**
      * Standard normalization with applying normalization weights and biases
      */
     public Vector layerNorm(Vector vector, Vector weight, Vector bias, float epsilon)
@@ -210,14 +189,14 @@ public abstract class AbstractMathUtility
         double total = 0;
         for (var value : values)
         {
-            total = total + BasicMathUtility.exp(value.getValue() - max);
+            total = total + BasicMathUtility.exp(value.value() - max);
         }
 
         var ret = new float[values.size()];
 
         for (var i = 0; i < values.size(); i++)
         {
-            ret[i] = (float) (BasicMathUtility.exp(values.get(i).getValue() - max) / total);
+            ret[i] = (float) (BasicMathUtility.exp(values.get(i).value() - max) / total);
         }
 
         return ret;
@@ -272,9 +251,9 @@ public abstract class AbstractMathUtility
 
         for (var indexedValue : vector)
         {
-            if (indexedValue.getValue() > max)
+            if (indexedValue.value() > max)
             {
-                max = indexedValue.getValue();
+                max = indexedValue.value();
             }
         }
 
@@ -310,7 +289,6 @@ public abstract class AbstractMathUtility
 
         return (float) java.lang.Math.sqrt(averageSquareDiff + epsilon);
     }
-
 
     /**
      * Sort values to reversed order and filter out the lowest values (retain the top [count] values)

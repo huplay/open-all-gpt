@@ -160,6 +160,7 @@ public class SafetensorsReader implements ParameterReader
             var tensor = entry.getValue();
 
             var dataType = SafetensorsDataType.valueOf(tensor.getDataType());
+
             var shape = tensor.getShape();
             var offsets = tensor.getDataOffsets();
 
@@ -185,7 +186,13 @@ public class SafetensorsReader implements ParameterReader
 
     public DataType getDataType(String parameterId)
     {
-        return parameterHeaders.get(parameterId).getDataType().getDataType();
+        var header = parameterHeaders.get(parameterId);
+        if (header == null)
+        {
+            throw new IdentifiedException("Parameter id not found: " + parameterId);
+        }
+
+        return header.getDataType().getDataType();
     }
 
     private void checkSize(SafetensorsHeader header, long[] expectedShape)

@@ -48,7 +48,7 @@ public class GPT1NeuralNetLayer extends BaseNeuralNetLayer
 
         for (int neuron = 0; neuron < intermediateSize; neuron++)
         {
-            float activation = MATH.gelu(hiddenState.get(neuron));
+            float activation = gelu(hiddenState.get(neuron));
             hiddenState.set(neuron, activation);
         }
 

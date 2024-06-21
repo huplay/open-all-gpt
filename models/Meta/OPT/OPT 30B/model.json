@@ -1,0 +1,19 @@
+{
+  "name": "Meta OPT 30B",
+  "transformerType": "META_OPT",
+  "repo": "https://huggingface.co/facebook/opt-30b",
+  "branch": "refs/pr/30",
+  "files": [
+    "config.json",
+    "model-00001-of-00007.safetensors",
+    "model-00002-of-00007.safetensors",
+    "model-00003-of-00007.safetensors",
+    "model-00004-of-00007.safetensors",
+    "model-00005-of-00007.safetensors",
+    "model-00006-of-00007.safetensors",
+    "model-00007-of-00007.safetensors"
+  ],
+  "parameterNaming": "decoder.{name}",
+  "decoderParameterNaming": "decoder.layers.{decoderId}.{name}",
+  "memorySize": 40960
+}

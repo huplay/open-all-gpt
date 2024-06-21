@@ -18,6 +18,11 @@ public class BrainFloat16
 
     private final short value;
 
+    public static BrainFloat16 of(float value)
+    {
+        return new BrainFloat16(value);
+    }
+
     public BrainFloat16(short value)
     {
         this.value = value;

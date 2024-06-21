@@ -99,6 +99,7 @@ public class ModelConfig implements RepoConfig
     public Integer getMemorySize() {return memorySize;}
     public Map<BlockType, Integer> getMemorySizes() {return memorySizes;}
     public Config getConfigOverride() {return configOverride;}
+
     public QuantizationConfig getQuantizationConfig() {return quantizationConfig;}
     public QuantizeConfig getQuantizeConfig() {return quantizeConfig;}
 

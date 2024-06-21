@@ -1,0 +1,15 @@
+{
+  "name": "Meta OPT 13B",
+  "transformerType": "META_OPT",
+  "repo": "https://huggingface.co/facebook/opt-13b",
+  "branch": "refs/pr/28",
+  "files": [
+    "config.json",
+    "model-00001-of-00003.safetensors",
+    "model-00002-of-00003.safetensors",
+    "model-00003-of-00003.safetensors"
+  ],
+  "parameterNaming": "decoder.{name}",
+  "decoderParameterNaming": "decoder.layers.{decoderId}.{name}",
+  "memorySize": 40960
+}

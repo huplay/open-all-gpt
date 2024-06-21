@@ -3,6 +3,7 @@ package transformer._2024_02_google_gemma;
 import config.Parameter;
 import math.dataType.matrix.Matrix;
 import math.dataType.vector.Vector;
+import position.rotary.RotaryPositionEmbedding;
 import transformer.BaseAttentionLayer;
 
 import static math.MathUtil.MATH;
@@ -16,10 +17,12 @@ import static math.BasicMathUtility.*;
  */
 public class GemmaAttentionLayer extends BaseAttentionLayer
 {
-    Parameter normWeight, queryWeight, keyWeight, valueWeight, projectionWeight;
+    Parameter queryWeight, keyWeight, valueWeight, normWeight, projectionWeight;
 
     int kvHeadCount;
-    int kvHeadSize;
+    int headPerKvHead;
+
+    RotaryPositionEmbedding positionEmbedding;
 
     public void loadParameters()
     {
@@ -29,16 +32,16 @@ public class GemmaAttentionLayer extends BaseAttentionLayer
         // If the "key/value head" count is 1, that is called Multi-Query Attention (MQA)
         // Gemma 2B uses MQA, 7B uses GQA
         kvHeadCount = config.getIntOptional("num_key_value_heads", headCount);
-        kvHeadSize = headCount / kvHeadCount;
+        headPerKvHead = headCount / kvHeadCount;
 
         queryWeight      = loadMatrix(VERTICAL_WEIGHT, "self_attn.q_proj.weight", hiddenSize, hiddenSize);
-        keyWeight        = loadMatrix(VERTICAL_WEIGHT, "self_attn.k_proj.weight", hiddenSize / kvHeadSize, hiddenSize);
-        valueWeight      = loadMatrix(VERTICAL_WEIGHT, "self_attn.v_proj.weight", hiddenSize / kvHeadSize, hiddenSize);
+        keyWeight        = loadMatrix(VERTICAL_WEIGHT, "self_attn.k_proj.weight", hiddenSize / headPerKvHead, hiddenSize);
+        valueWeight      = loadMatrix(VERTICAL_WEIGHT, "self_attn.v_proj.weight", hiddenSize / headPerKvHead, hiddenSize);
         normWeight       = loadVector(NORM_WEIGHT,     "input_layernorm.weight",  hiddenSize);
         projectionWeight = loadMatrix(VERTICAL_WEIGHT, "self_attn.o_proj.weight", hiddenSize, hiddenSize);
 
-        // Calculate the attention dividend
-        this.attentionDividend = sqrt(headSize);
+        // Initialize the position embedding
+        positionEmbedding = new RotaryPositionEmbedding(config, hiddenSize / headCount);
     }
 
     public Vector process(Vector inputHiddenState, boolean isInputOnly)
@@ -46,7 +49,7 @@ public class GemmaAttentionLayer extends BaseAttentionLayer
         // Normalization
         Vector hiddenState = MATH.RMSLayerNorm(inputHiddenState, vector(normWeight), epsilon, 1f);
 
-        if (kvHeadSize == 1)
+        if (headPerKvHead == 1)
         {
             // Multi Head Attention (MHA)
             hiddenState = attention(hiddenState);
@@ -79,8 +82,8 @@ public class GemmaAttentionLayer extends BaseAttentionLayer
         Matrix keyByHead = key.split(headCount);
         Matrix valueByHead = value.split(headCount);
 
-        // Position embedding (RoPE)
-        applyPosition(query, key);
+        // Position embedding on the key
+        positionEmbedding.applySliced(key, storedKeys.size());
 
         // Store the keys and values (these will be available while the following tokens will be processed)
         storedKeys.add(keyByHead);
@@ -95,16 +98,17 @@ public class GemmaAttentionLayer extends BaseAttentionLayer
         {
             // Calculate the scores
             Vector actualQuery = queryByHead.row(head);
+
+            // Position embedding on the query (separately within a head)
+            positionEmbedding.applySliced(actualQuery, storedKeys.size() - 1);
+
             Vector scores = Vector.emptyVector(actualQuery.getFloatType(), storedSize);
 
             for (int pos = 0; pos < storedSize; pos++)
             {
                 // The score is calculated multiplying the "actual" query vector and the "related" key vector
                 Vector relatedKey = storedKeys.get(pos).row(head);
-                float score = actualQuery.dotProduct(relatedKey);
-
-                // Divide the score by the attention dividend
-                scores.set(pos, score / attentionDividend);
+                scores.set(pos, actualQuery.dotProduct(relatedKey));
             }
 
             // Scale the scores to values between 0 and 1
@@ -130,29 +134,6 @@ public class GemmaAttentionLayer extends BaseAttentionLayer
         return hiddenState;
     }
 
-    protected void applyPosition(Vector query, Vector key)
-    {
-        for (int i = 0; i < hiddenSize; i += 2)
-        {
-            int modulus = i % headSize;
-
-            double frequency = 1.0 / pow(10000.0f, (float) modulus / headSize);
-            double degree = frequency * storedKeys.size();
-            float cos = cos(degree);
-            float sin = sin(degree);
-
-            // Rotate query
-            float queryInput = query.get(i);
-            query.set(i, queryInput * cos - query.get(i + 1) * sin);
-            query.set(i + 1, queryInput * sin - query.get(i + 1) * cos);
-
-            // Rotate key
-            float keyInput = key.get(i);
-            key.set(i, keyInput * cos - key.get(i + 1) * sin);
-            key.set(i + 1, keyInput * sin - key.get(i + 1) * cos);
-        }
-    }
-
     protected Vector groupedQueryAttention(Vector hiddenState)
     {
         // Calculate the query, key and value vectors for the actual token
@@ -164,11 +145,11 @@ public class GemmaAttentionLayer extends BaseAttentionLayer
 
         // Split the query, key and value vectors into pieces for all heads
         Matrix queryByHead = query.split(headCount);
-        Matrix keyByGroup = key.split(headCount / kvHeadSize);
-        Matrix valueByGroup = value.split(headCount / kvHeadSize);
+        Matrix keyByGroup = key.split(headCount / headPerKvHead);
+        Matrix valueByGroup = value.split(headCount / headPerKvHead);
 
-        // Position embedding (RoPE)
-        applyGroupedPosition(query, key);
+        // Position embedding on the key
+        positionEmbedding.applySliced(key, storedKeys.size());
 
         // Store the keys and values (these will be available while the following tokens will be processed)
         storedKeys.add(keyByGroup);
@@ -185,6 +166,10 @@ public class GemmaAttentionLayer extends BaseAttentionLayer
 
             // Calculate the scores
             Vector actualQuery = queryByHead.row(head);
+
+            // Position embedding on the query (separately within a head)
+            positionEmbedding.applySliced(actualQuery, storedKeys.size() - 1);
+
             Vector scores = Vector.emptyVector(actualQuery.getFloatType(), storedSize);
 
             for (int pos = 0; pos < storedSize; pos++)
@@ -218,31 +203,5 @@ public class GemmaAttentionLayer extends BaseAttentionLayer
         hiddenState = hiddenState.multiplyByTransposed(matrix(projectionWeight));
 
         return hiddenState;
-    }
-
-    protected void applyGroupedPosition(Vector query, Vector key)
-    {
-        for (int i = 0; i < hiddenSize; i += 2)
-        {
-            int modulus = i % headSize;
-
-            double frequency = 1.0 / pow(10000.0f, (float) modulus / headSize);
-            double degree = frequency * storedKeys.size();
-            float x = cos(degree);
-            float y = sin(degree);
-
-            // Rotate query
-            float query0 = query.get(i);
-            query.set(i, query0 * x - query.get(i + 1) * y);
-            query.set(i + 1, query0 * y - query.get(i + 1) * x);
-
-            if (i < hiddenSize / kvHeadSize)
-            {
-                // Rotate key
-                float key0 = key.get(i);
-                key.set(i, key0 * x - key.get(i + 1) * y);
-                key.set(i + 1, key0 * y - key.get(i + 1) * x);
-            }
-        }
     }
 }

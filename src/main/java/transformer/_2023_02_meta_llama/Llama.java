@@ -8,7 +8,7 @@ import static math.MathUtil.MATH;
 import static config.ParameterType.*;
 
 /**
-  Meta Llama transformer
+  Meta (Facebook) Llama transformer
 
   Llama was announced and released on 23 Feb 2023 by Meta (Facebook).
   Publication: https://arxiv.org/abs/2302.13971
@@ -20,6 +20,7 @@ import static config.ParameterType.*;
     - RMS normalization
     - No biases, only weights
     - Query, key and value matrices are stored separately
+    - The weights are stored in vertical matrices (easier to execute the vector-matrix multiplication)
     - 16 bit parameters (FLOAT16)
 
   Llama 2 was announced and released on 18 July 2023. Publication: https://arxiv.org/abs/2307.09288

@@ -85,6 +85,6 @@ public abstract class BaseTransformer extends AbstractTransformer
         int index = MATH.weightedRandomPick(probabilities);
 
         // Lookup the token id
-        return orderedLogits.get(index).getIndex();
+        return orderedLogits.get(index).index();
     }
 }

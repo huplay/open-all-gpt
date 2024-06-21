@@ -2,16 +2,16 @@ package transformer._2023_02_meta_llama;
 
 import config.Parameter;
 import math.dataType.matrix.Matrix;
-import transformer.BaseAttentionLayer;
 import math.dataType.vector.Vector;
+import position.rotary.RotaryPositionEmbedding;
+import transformer.BaseAttentionLayer;
 
 import static math.MathUtil.MATH;
-import static config.ParameterType.NORM_WEIGHT;
-import static config.ParameterType.VERTICAL_WEIGHT;
+import static config.ParameterType.*;
 import static math.BasicMathUtility.*;
 
 /**
- * Meta Llama decoder (attention block) implementation
+ * Meta (Facebook) Llama decoder (attention block) implementation
  *
  * @author Hunor Szegi
  */
@@ -20,7 +20,9 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
     Parameter queryWeight, keyWeight, valueWeight, normWeight, projectionWeight;
 
     int kvHeadCount;
-    int kvHeadSize;
+    int headPerKvHead;
+
+    RotaryPositionEmbedding positionEmbedding;
 
     public void loadParameters()
     {
@@ -28,16 +30,23 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
         // (At the original attention (MHA) there was only a single kind of head. Call it "query head" from now on.)
         // If the "query head" is different to the "key/value head" count, we are using Grouped Query Attention (GQA)
         kvHeadCount = config.getIntOptional("num_key_value_heads", headCount);
-        kvHeadSize = headCount / kvHeadCount;
+        headPerKvHead = headCount / kvHeadCount;
 
         queryWeight      = loadMatrix(VERTICAL_WEIGHT, "self_attn.q_proj.weight", hiddenSize, hiddenSize);
-        keyWeight        = loadMatrix(VERTICAL_WEIGHT, "self_attn.k_proj.weight", hiddenSize / kvHeadSize, hiddenSize);
-        valueWeight      = loadMatrix(VERTICAL_WEIGHT, "self_attn.v_proj.weight", hiddenSize / kvHeadSize, hiddenSize);
+        keyWeight        = loadMatrix(VERTICAL_WEIGHT, "self_attn.k_proj.weight", hiddenSize / headPerKvHead, hiddenSize);
+        valueWeight      = loadMatrix(VERTICAL_WEIGHT, "self_attn.v_proj.weight", hiddenSize / headPerKvHead, hiddenSize);
         normWeight       = loadVector(NORM_WEIGHT,     "input_layernorm.weight",  hiddenSize);
         projectionWeight = loadMatrix(VERTICAL_WEIGHT, "self_attn.o_proj.weight", hiddenSize, hiddenSize);
 
-        // Calculate the attention dividend
-        this.attentionDividend = sqrt(headSize);
+        // Initialize the position embedding
+        if (headPerKvHead == 1)
+        {
+            positionEmbedding = new RotaryPositionEmbedding(config, hiddenSize);
+        }
+        else
+        {
+            positionEmbedding = new RotaryPositionEmbedding(config, hiddenSize / headCount);
+        }
     }
 
     public Vector process(Vector inputHiddenState, boolean isInputOnly)
@@ -45,7 +54,7 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
         // Normalization
         Vector hiddenState = MATH.RMSLayerNorm(inputHiddenState, vector(normWeight), epsilon);
 
-        if (kvHeadSize == 1)
+        if (headPerKvHead == 1)
         {
             // Multi Head Attention (MHA)
             hiddenState = attention(hiddenState);
@@ -78,8 +87,9 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
         Matrix keyByHead = key.split(headCount);
         Matrix valueByHead = value.split(headCount);
 
-        // Position embedding (RoPE)
-        applyPosition(query, key);
+        // Position embedding on the key
+        positionEmbedding.applyInterleaved(query, storedKeys.size());
+        positionEmbedding.applyInterleaved(key, storedKeys.size());
 
         // Store the keys and values (these will be available while the following tokens will be processed)
         storedKeys.add(keyByHead);
@@ -94,16 +104,14 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
         {
             // Calculate the scores
             Vector actualQuery = queryByHead.row(head);
+
             Vector scores = Vector.emptyVector(actualQuery.getFloatType(), storedSize);
 
             for (int pos = 0; pos < storedSize; pos++)
             {
                 // The score is calculated multiplying the "actual" query vector and the "related" key vector
                 Vector relatedKey = storedKeys.get(pos).row(head);
-                float score = actualQuery.dotProduct(relatedKey);
-
-                // Divide the score by the attention dividend
-                scores.set(pos, score / attentionDividend);
+                scores.set(pos, actualQuery.dotProduct(relatedKey));
             }
 
             // Scale the scores to values between 0 and 1
@@ -129,29 +137,6 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
         return hiddenState;
     }
 
-    protected void applyPosition(Vector query, Vector key)
-    {
-        for (int i = 0; i < hiddenSize; i += 2)
-        {
-            int modulus = i % headSize;
-
-            double frequency = 1.0 / pow(10000.0f, (float) modulus / headSize);
-            double degree = frequency * storedKeys.size();
-            float x = cos(degree);
-            float y = sin(degree);
-
-            // Rotate query
-            float query0 = query.get(i);
-            query.set(i, query0 * x - query.get(i + 1) * y);
-            query.set(i + 1, query0 * y - query.get(i + 1) * x);
-
-            // Rotate key
-            float key0 = key.get(i);
-            key.set(i, key0 * x - key.get(i + 1) * y);
-            key.set(i + 1, key0 * y - key.get(i + 1) * x);
-        }
-    }
-
     protected Vector groupedQueryAttention(Vector hiddenState)
     {
         // Calculate the query, key and value vectors for the actual token
@@ -163,11 +148,11 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
 
         // Split the query, key and value vectors into pieces for all heads
         Matrix queryByHead = query.split(headCount);
-        Matrix keyByGroup = key.split(headCount / kvHeadSize);
-        Matrix valueByGroup = value.split(headCount / kvHeadSize);
+        Matrix keyByGroup = key.split(headCount / headPerKvHead);
+        Matrix valueByGroup = value.split(headCount / headPerKvHead);
 
-        // Position embedding (RoPE)
-        applyGroupedPosition(query, key);
+        // Position embedding on the key
+        positionEmbedding.applyInterleaved(key, storedKeys.size());
 
         // Store the keys and values (these will be available while the following tokens will be processed)
         storedKeys.add(keyByGroup);
@@ -184,6 +169,10 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
 
             // Calculate the scores
             Vector actualQuery = queryByHead.row(head);
+
+            // Position embedding on the query (separately within a head)
+            positionEmbedding.applyInterleaved(query, storedSize - 1);
+
             Vector scores = Vector.emptyVector(actualQuery.getFloatType(), storedSize);
 
             for (int pos = 0; pos < storedSize; pos++)
@@ -217,31 +206,5 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
         hiddenState = hiddenState.multiplyByTransposed(matrix(projectionWeight));
 
         return hiddenState;
-    }
-
-    protected void applyGroupedPosition(Vector query, Vector key)
-    {
-        for (int i = 0; i < hiddenSize; i += 2)
-        {
-            int modulus = i % headSize;
-
-            double frequency = 1.0 / pow(10000.0f, (float) modulus / headSize);
-            double degree = frequency * storedKeys.size();
-            float x = cos(degree);
-            float y = sin(degree);
-
-            // Rotate query
-            float query0 = query.get(i);
-            query.set(i, query0 * x - query.get(i + 1) * y);
-            query.set(i + 1, query0 * y - query.get(i + 1) * x);
-
-            if (i < hiddenSize / kvHeadSize)
-            {
-                // Rotate key
-                float key0 = key.get(i);
-                key.set(i, key0 * x - key.get(i + 1) * y);
-                key.set(i + 1, key0 * y - key.get(i + 1) * x);
-            }
-        }
     }
 }

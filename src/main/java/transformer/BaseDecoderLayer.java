@@ -11,6 +11,7 @@ public abstract class BaseDecoderLayer extends ParameterStore
     protected int headSize;
     protected boolean lastDecoder;
     protected float epsilon;
+    protected int contextSize;
 
     public void init(Config config, int decoderId)
     {
@@ -22,6 +23,7 @@ public abstract class BaseDecoderLayer extends ParameterStore
         this.headSize = config.getHeadSize();
         this.lastDecoder = (decoderId == config.getDecoderCount() - 1);
         this.epsilon = config.getEpsilon();
+        this.contextSize = config.getContextSize();
     }
 
     @Override

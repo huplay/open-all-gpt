@@ -63,19 +63,22 @@
       "GPT-NEOX 20B": {"order": 6}
     }
   },
-  "Google": {"order": 5,
+  "Meta": {"order": 5,
     "folders": {
-      "Gemma": {"order": 1,
-        "folders": {
-          "Gemma 2B": {"order": 1},
-          "Gemma 7B": {"order": 2}
+      "OPT": {"order": 1,
+        "folders":{
+          "OPT 125M": {"order": 1},
+          "OPT 350M": {"order": 2},
+          "OPT 1.3B": {"order": 3},
+          "OPT 2.7B": {"order": 4},
+          "OPT 6.7B": {"order": 5},
+          "OPT 13B": {"order": 6},
+          "OPT 30B": {"order": 7},
+          "OPT 66B": {"order": 8},
+          "OPT 175B": {"order": 9}
         }
-      }
-    }
-  },
-  "Meta": {"order": 6,
-    "folders": {
-      "Llama 1": {"order": 1,
+      },
+      "Llama 1": {"order": 2,
         "folders": {
           "Llama 7B": {"order": 1},
           "Llama 13B": {"order": 2},
@@ -83,7 +86,7 @@
           "Llama 65B": {"order": 4}
         }
       },
-      "Llama 2": {"order": 2,
+      "Llama 2": {"order": 3,
         "folders": {
           "Llama 2 - 7B": {"order": 1},
           "Llama 2 - 7B-chat": {"order": 2},
@@ -93,7 +96,7 @@
           "Llama 2 - 70B-chat": {"order": 6}
         }
       },
-      "Llama 3": {"order": 3,
+      "Llama 3": {"order": 4,
         "folders": {
           "Llama 3 - 8B": {"order": 1},
           "Llama 3 - 8B-Instruct": {"order": 2},
@@ -102,7 +105,7 @@
         }
       }
     ,
-      "OpenLlama": {"order": 4,
+      "OpenLlama": {"order": 5,
         "folders": {
           "OpenLlama 3B": {"order": 1},
           "OpenLlama 3B v2": {"order": 2},
@@ -111,19 +114,40 @@
           "OpenLlama 65B": {"order": 5}
         }
       },
-      "TinyLlamas (llama.cpp - Karpathy)": {"order": 5,
+      "TinyLlamas (llama.cpp - Karpathy)": {"order": 6,
         "folders": {
           "TinyLlama 15M": {"order": 1},
           "TinyLlama 42M": {"order": 2},
           "TinyLlama 110M": {"order": 3}
         }
       },
-      "TinyLlama (Zhang)": {"order": 6,
+      "TinyLlama (Zhang)": {"order": 7,
         "folders": {
           "TinyLlama 1.1B": {"order": 1},
           "TinyLlama 1.1B Chat1.0": {"order": 2}
         }
       }
     }
+  },
+  "Google": {"order": 6,
+    "folders": {
+      "Gemma": {"order": 1,
+        "folders": {
+          "Gemma 2B": {"order": 1},
+          "Gemma 7B": {"order": 2}
+        }
+      }
+    }
+  },
+  "MistralAI": {"order": 7,
+    "folders": {
+      "Mistral 7B v0.1": {"order": 1},
+	  "Mistral 7B v0.3": {"order": 2},
+	  "Mistral 7B Instruct v0.1": {"order": 3},
+	  "Mistral 7B Instruct v0.2": {"order": 4},
+	  "Mistral 7B Instruct v0.3": {"order": 5}
+	  
+    }
   }
 }
+

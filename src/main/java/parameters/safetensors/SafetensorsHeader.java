@@ -13,8 +13,8 @@ public class SafetensorsHeader
     private final long startOffset;
     private final long endOffset;
 
-    public SafetensorsHeader(String fileName, String parameterId, long dataOffset, String format, SafetensorsDataType dataType,
-                             List<Integer> shape, long startOffset, long endOffset)
+    public SafetensorsHeader(String fileName, String parameterId, long dataOffset, String format,
+                             SafetensorsDataType dataType, List<Integer> shape, long startOffset, long endOffset)
     {
         this.fileName = fileName;
         this.parameterId = parameterId;

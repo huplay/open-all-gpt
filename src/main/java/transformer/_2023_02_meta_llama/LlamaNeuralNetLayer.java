@@ -8,20 +8,20 @@ import static math.MathUtil.MATH;
 import static config.ParameterType.*;
 
 /**
- * Meta Llama decoder (neural net block) implementation
+ * Meta (Facebook) Llama decoder (neural net block) implementation
  *
  * @author Hunor Szegi
  */
 public class LlamaNeuralNetLayer extends BaseNeuralNetLayer
 {
-    Parameter normWeight, layer1Weight, layer2Weight, layer3Weight;
+    Parameter normWeight, gateProjectionWeight, upProjectionWeight, downProjectionWeight;
 
     public void loadParameters()
     {
-        normWeight   = loadVector(NORM_WEIGHT,     "post_attention_layernorm.weight", hiddenSize);
-        layer1Weight = loadMatrix(VERTICAL_WEIGHT, "mlp.gate_proj.weight",            intermediateSize, hiddenSize);
-        layer2Weight = loadMatrix(VERTICAL_WEIGHT, "mlp.up_proj.weight",              intermediateSize, hiddenSize);
-        layer3Weight = loadMatrix(VERTICAL_WEIGHT, "mlp.down_proj.weight",            hiddenSize, intermediateSize);
+        normWeight           = loadVector(NORM_WEIGHT,     "post_attention_layernorm.weight", hiddenSize);
+        gateProjectionWeight = loadMatrix(VERTICAL_WEIGHT, "mlp.gate_proj.weight",            intermediateSize, hiddenSize);
+        upProjectionWeight   = loadMatrix(VERTICAL_WEIGHT, "mlp.up_proj.weight",              intermediateSize, hiddenSize);
+        downProjectionWeight = loadMatrix(VERTICAL_WEIGHT, "mlp.down_proj.weight",            hiddenSize, intermediateSize);
     }
 
     public Vector process(Vector inputHiddenState)
@@ -40,26 +40,26 @@ public class LlamaNeuralNetLayer extends BaseNeuralNetLayer
 
     private Vector neuralNet(Vector hiddenState)
     {
-        // Feed parallel two layers with the same input
-        Vector hiddenState1 = hiddenState.multiplyByTransposed(matrix(layer1Weight));
-        Vector hiddenState2 = hiddenState.multiplyByTransposed(matrix(layer2Weight));
+        // Feed parallel the gate and up layers with the same input
+        Vector gateState = hiddenState.multiplyByTransposed(matrix(gateProjectionWeight));
+        Vector upState = hiddenState.multiplyByTransposed(matrix(upProjectionWeight));
 
         // Use SwiGLU activation function on the gate layer (no activation function on the other)
         for (int neuron = 0; neuron < intermediateSize; neuron++)
         {
-            float activation = MATH.swiglu(hiddenState1.get(neuron));
-            hiddenState1.set(neuron, activation);
+            float activation = swiglu(gateState.get(neuron));
+            gateState.set(neuron, activation);
         }
 
         // Fuse the two by multiplying the outputs
         for (int neuron = 0; neuron < intermediateSize; neuron++)
         {
-            float fused = hiddenState1.get(neuron) * hiddenState2.get(neuron);
-            hiddenState1.set(neuron, fused);
+            float fused = gateState.get(neuron) * upState.get(neuron);
+            gateState.set(neuron, fused);
         }
 
-        // Use the third layer (no activation function)
-        hiddenState = hiddenState1.multiplyByTransposed(matrix(layer3Weight));
+        // Use the down layer (no activation function)
+        hiddenState = gateState.multiplyByTransposed(matrix(downProjectionWeight));
 
         return hiddenState;
     }

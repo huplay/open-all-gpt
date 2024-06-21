@@ -2,12 +2,12 @@ package transformer._2021_06_eleutherai_gptj;
 
 import config.Parameter;
 import math.dataType.matrix.Matrix;
+import position.rotary.RotaryPositionEmbedding;
 import transformer.BaseAttentionLayer;
 import math.dataType.vector.Vector;
 
 import static math.MathUtil.MATH;
 import static config.ParameterType.*;
-import static math.BasicMathUtility.*;
 
 /**
  * EleutherAI GPT-J decoder (attention block) implementation
@@ -18,6 +18,8 @@ public class GPTJAttentionLayer extends BaseAttentionLayer
 {
     Parameter normWeight, normBias, queryWeight, keyWeight, valueWeight, projectionWeight;
 
+    RotaryPositionEmbedding positionEmbedding;
+
     public void loadParameters()
     {
         normWeight       = loadVector(NORM_WEIGHT,     "ln_1.weight",          hiddenSize);
@@ -26,6 +28,9 @@ public class GPTJAttentionLayer extends BaseAttentionLayer
         keyWeight        = loadMatrix(VERTICAL_WEIGHT, "attn.k_proj.weight",   hiddenSize, hiddenSize);
         valueWeight      = loadMatrix(VERTICAL_WEIGHT, "attn.v_proj.weight",   hiddenSize, hiddenSize);
         projectionWeight = loadMatrix(VERTICAL_WEIGHT, "attn.out_proj.weight", hiddenSize, hiddenSize);
+
+        // Initialize the position embedder
+        positionEmbedding = new RotaryPositionEmbedding(config, hiddenSize / headCount);
     }
 
     public Vector process(Vector inputHiddenState, boolean isInputOnly)
@@ -60,7 +65,8 @@ public class GPTJAttentionLayer extends BaseAttentionLayer
         Matrix valueByHead = value.split(headCount);
 
         // Position embedding (RoPE)
-        applyRotaryPosition(query, key);
+        positionEmbedding.applyInterleaved(query, storedKeys.size());
+        positionEmbedding.applyInterleaved(key, storedKeys.size());
 
         // Store the keys and values (these will be available while the following tokens will be processed)
         storedKeys.add(keyByHead);
@@ -105,28 +111,5 @@ public class GPTJAttentionLayer extends BaseAttentionLayer
         hiddenState = hiddenState.multiplyByTransposed(matrix(projectionWeight));
 
         return hiddenState;
-    }
-
-    protected void applyRotaryPosition(Vector query, Vector key)
-    {
-        for (int i = 0; i < hiddenSize; i += 2)
-        {
-            int modulus = i % headSize;
-
-            double frequency = 1.0 / pow(10000.0f, (float) modulus / headSize);
-            double degree = frequency * storedKeys.size();
-            float x = cos(degree);
-            float y = sin(degree);
-
-            // Rotate query
-            float query0 = query.get(i);
-            query.set(i, query0 * x - query.get(i + 1) * y);
-            query.set(i + 1, query0 * y - query.get(i + 1) * x);
-
-            // Rotate key
-            float key0 = key.get(i);
-            key.set(i, key0 * x - key.get(i + 1) * y);
-            key.set(i + 1, key0 * y - key.get(i + 1) * x);
-        }
     }
 }

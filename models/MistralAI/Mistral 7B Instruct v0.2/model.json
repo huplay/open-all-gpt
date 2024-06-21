@@ -1,0 +1,13 @@
+{
+  "name": "MistralAI Mistral 7B Instruct v0.2",
+  "transformerType": "MISTRALAI_MISTRAL",
+  "repo": "https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2",
+  "files": [
+    "config.json",
+    "model-00001-of-00003.safetensors",
+    "model-00002-of-00003.safetensors",
+    "model-00003-of-00003.safetensors"
+  ],
+  "decoderParameterNaming": "model.layers.{decoderId}.{name}",
+  "memorySize": 30720
+}

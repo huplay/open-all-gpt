@@ -20,7 +20,7 @@ import static config.ParameterType.*;
     - ALiBi position embedding, applied in the attention block to the score
     - 16 bit parameters (BFLOAT16 for the 176B model, FLOAT16 for the others)
     - Additional normalization at input (it was necessary because of the FLOAT16 data type, but used at all models)
-    - The weights are stored in transposed matrices (easier to execute the vector-matrix multiplication)
+    - The weights are stored in vertical matrices (easier to execute the vector-matrix multiplication)
     - The values in the query/key/value matrices are ordered first by head, and second by type
     - The key and value vectors are stored separately for the heads
 

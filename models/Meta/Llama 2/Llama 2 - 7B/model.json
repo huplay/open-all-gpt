@@ -9,5 +9,5 @@
   ],
   "parameterNaming": "model.{name}",
   "decoderParameterNaming": "model.layers.{decoderId}.{name}",
-  "memorySize": 11264
+  "memorySize": 30720
 }

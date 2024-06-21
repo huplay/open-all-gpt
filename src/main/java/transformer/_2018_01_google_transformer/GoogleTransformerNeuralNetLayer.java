@@ -43,13 +43,13 @@ public class GoogleTransformerNeuralNetLayer extends BaseNeuralNetLayer
 
     private Vector neuralNet(Vector hiddenState)
     {
-        // Layer 1: <intermediateSize> neurons (4 * <hiddenSize>) (using gelu activation function)
+        // Layer 1: <intermediateSize> neurons (4 * <hiddenSize>) (using ReLU activation function)
         hiddenState = hiddenState.multiply(matrix(layer1Weight));
         hiddenState = hiddenState.add(vector(layer1Bias));
 
         for (int neuron = 0; neuron < intermediateSize; neuron++)
         {
-            float activation = MATH.gelu(hiddenState.get(neuron));
+            float activation = relu(hiddenState.get(neuron));
             hiddenState.set(neuron, activation);
         }
 

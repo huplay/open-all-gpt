@@ -18,9 +18,9 @@ import static config.ParameterType.*;
   Differences to GPT-2:
     - Sparse decoders: Every second decoder uses local attention, using only the previous 256 tokens
     - No biases for the attention query/key/value matrices
-    - query/key/value matrices are stored separately
+    - The query/key/value matrices are stored separately
     - No attention dividend, so the score isn't divided by a fixed value
-    - The weights are stored in transposed matrices (easier to execute the vector-matrix multiplication)
+    - The weights are stored in vertical matrices (easier to execute the vector-matrix multiplication)
 
   @author Hunor Szegi
  */

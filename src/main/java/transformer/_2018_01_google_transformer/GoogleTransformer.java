@@ -1,12 +1,11 @@
 package transformer._2018_01_google_transformer;
 
 import config.Parameter;
-import math.dataType.matrix.Matrix;
+import position.sinusoid.SinusoidPositionEmbedding;
 import transformer.BaseTransformer;
 import math.dataType.vector.Vector;
 
 import static config.ParameterType.*;
-import static math.BasicMathUtility.exp;
 
 /**
   Google Brain, the original decoder-only Transformer
@@ -25,7 +24,7 @@ import static math.BasicMathUtility.exp;
     - Score dividend in the attention, which is calculated as sqrt(headSize)
     - Single layer projection at the end of the attention blocks
     - Feed-forward block has two layers (layer1: 4 * hiddenSize neurons, layer2: hiddenSize neurons)
-    - GELU activation function (used only at the first feed-forward layer)
+    - ReLU activation function (used only at the first feed-forward layer)
     - 32 bit parameters
     - query/key/value matrices are stored in a single matrix
 
@@ -38,11 +37,13 @@ import static math.BasicMathUtility.exp;
 public class GoogleTransformer extends BaseTransformer
 {
     Parameter tokenEmbeddings;
-    Matrix positionMatrix = calculatePositionMatrix();
+    SinusoidPositionEmbedding position = new SinusoidPositionEmbedding();
 
     public void loadParameters()
     {
         tokenEmbeddings = loadMatrix(EMBEDDING, "tokens_embed.weight", tokenCount, hiddenSize);
+
+        position.init(config, hiddenSize);
     }
 
     public Vector preProcessToken(int pos, int tokenId)
@@ -51,10 +52,7 @@ public class GoogleTransformer extends BaseTransformer
         Vector hiddenState = matrix(tokenEmbeddings).row(tokenId);
 
         // Position embedding
-        for (int i = 0; i < hiddenState.size(); i++)
-        {
-            hiddenState.set(i, hiddenState.get(i) * positionMatrix.getValue(pos, i));
-        }
+        position.apply(hiddenState, pos);
 
         return hiddenState;
     }
@@ -66,34 +64,5 @@ public class GoogleTransformer extends BaseTransformer
         Vector logits = hiddenState.multiplyByTransposed(matrix(tokenEmbeddings));
 
         return selectBestToken(logits, topK);
-    }
-
-    private Matrix calculatePositionMatrix()
-    {
-        Matrix positionMatrix = emptyMatrix(contextSize, hiddenSize);
-
-        Vector positions = emptyVector(contextSize);
-        for (int i = 0; i < contextSize; i++)
-        {
-            positions.set(i, i);
-        }
-
-        Vector progression = emptyVector(contextSize / 2);
-        for (int i = 0; i < contextSize / 2; i++)
-        {
-            progression.set(i, exp(-i * Math.log(10000) / contextSize));
-        }
-
-        for (int pos = 0; pos < contextSize; pos++)
-        {
-            for (int k = 0; k < hiddenSize / 2; k++)
-            {
-                int i = 2 * k;
-                positionMatrix.setValue(pos, i, (float) Math.sin(positions.get(i) * progression.get(k)));
-                positionMatrix.setValue(pos, i + 1, (float) Math.sin(positions.get(i + 1) * progression.get(k)));
-            }
-        }
-
-        return positionMatrix;
     }
 }

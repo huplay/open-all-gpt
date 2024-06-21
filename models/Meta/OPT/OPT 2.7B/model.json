@@ -1,0 +1,10 @@
+{
+  "name": "Meta OPT 2.7B",
+  "transformerType": "META_OPT",
+  "repo": "https://huggingface.co/facebook/opt-2.7b",
+  "branch": "refs/pr/26",
+  "files": ["config.json", "model.safetensors"],
+  "parameterNaming": "model.decoder.{name}",
+  "decoderParameterNaming": "model.decoder.layers.{decoderId}.{name}",
+  "memorySize": 11264
+}

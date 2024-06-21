@@ -47,7 +47,7 @@ public class GemmaNeuralNetLayer extends BaseNeuralNetLayer
         // Use GELU activation function on the gate layer (no activation function on the other)
         for (int neuron = 0; neuron < intermediateSize; neuron++)
         {
-            float activation = MATH.gelu(gateState.get(neuron));
+            float activation = gelu(gateState.get(neuron));
             gateState.set(neuron, activation);
         }
 

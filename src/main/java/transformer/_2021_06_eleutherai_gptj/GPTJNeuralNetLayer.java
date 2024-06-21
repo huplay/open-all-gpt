@@ -40,7 +40,7 @@ public class GPTJNeuralNetLayer extends BaseNeuralNetLayer
 
         for (int i = 0; i < intermediateSize; i++)
         {
-            float activation = MATH.gelu(hiddenState.get(i));
+            float activation = gelu(hiddenState.get(i));
             hiddenState.set(i, activation);
         }
 

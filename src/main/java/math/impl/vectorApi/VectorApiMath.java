@@ -1,5 +1,6 @@
 package math.impl.vectorApi;
 
+import app.IdentifiedException;
 import math.AbstractMathUtility;
 import math.dataType.matrix.Matrix;
 import math.dataType.vector.Vector;
@@ -7,17 +8,19 @@ import jdk.incubator.vector.FloatVector;
 import jdk.incubator.vector.VectorOperators;
 import jdk.incubator.vector.VectorSpecies;
 
+import java.util.Arrays;
+
 import static math.dataType.matrix.Matrix.emptyMatrix;
 import static math.dataType.vector.Vector.emptyVector;
 
 public class VectorApiMath extends AbstractMathUtility
 {
-    static final VectorSpecies<Float> SPECIES = FloatVector.SPECIES_MAX;
+    static final VectorSpecies<Float> PROCESSOR_BLOCK = FloatVector.SPECIES_MAX;
 
     @Override
     public String getMathProviderName()
     {
-        return "Java Vector API (" + SPECIES.vectorBitSize() + " bit)";
+        return "Java Vector API (" + PROCESSOR_BLOCK.vectorBitSize() + " bit)";
     }
 
     @Override
@@ -25,11 +28,11 @@ public class VectorApiMath extends AbstractMathUtility
     {
         var result = new float[vector1.size()];
 
-        for (var i = 0; i < vector1.size(); i += SPECIES.length())
+        for (var i = 0; i < vector1.size(); i += PROCESSOR_BLOCK.length())
         {
-            var mask = SPECIES.indexInRange(i, vector1.size());
-            var first = FloatVector.fromArray(SPECIES, vector1.getValues(), i, mask);
-            var second = FloatVector.fromArray(SPECIES, vector2.getValues(), i, mask);
+            var mask = PROCESSOR_BLOCK.indexInRange(i, vector1.size());
+            var first = FloatVector.fromArray(PROCESSOR_BLOCK, vector1.getValues(), i, mask);
+            var second = FloatVector.fromArray(PROCESSOR_BLOCK, vector2.getValues(), i, mask);
             first.add(second).intoArray(result, i, mask);
         }
 
@@ -39,22 +42,28 @@ public class VectorApiMath extends AbstractMathUtility
     @Override
     public float dotProduct(Vector vector1, Vector vector2)
     {
-        var upperBound = SPECIES.loopBound(vector1.size());
-        var sum = FloatVector.zero(SPECIES);
+        // Determine how many full loops can we do (vector size divided by the vector block size)
+        var fullLoops = PROCESSOR_BLOCK.loopBound(vector1.size());
+
+        // Processing the full loops using fma and reduceLanes
+
+        var sum = FloatVector.zero(PROCESSOR_BLOCK);
 
         var i = 0;
-        for (; i < upperBound; i += SPECIES.length())
+        for (; i < fullLoops; i += PROCESSOR_BLOCK.length())
         {
-            var va = FloatVector.fromArray(SPECIES, vector1.getValues(), i);
-            var vb = FloatVector.fromArray(SPECIES, vector2.getValues(), i);
+            var va = FloatVector.fromArray(PROCESSOR_BLOCK, vector1.getValues(), i);
+            var vb = FloatVector.fromArray(PROCESSOR_BLOCK, vector2.getValues(), i);
             sum = va.fma(vb, sum);
         }
 
         var result = sum.reduceLanes(VectorOperators.ADD);
 
-        // counter "i" has an incremented value from the previous loop
+        // variable "i" has an incremented value from the previous loop
         for (; i < vector1.size(); i++)
         {
+            // This will be executed only few times, for the last elements
+            // if the vector size isn't divisible by the processor block size
             result += vector1.get(i) * vector2.get(i);
         }
 
@@ -66,10 +75,10 @@ public class VectorApiMath extends AbstractMathUtility
     {
         var result = new float[vector.size()];
 
-        for (var i = 0; i < vector.size(); i += SPECIES.length())
+        for (var i = 0; i < vector.size(); i += PROCESSOR_BLOCK.length())
         {
-            var mask = SPECIES.indexInRange(i, vector.size());
-            var floatVector = FloatVector.fromArray(SPECIES, vector.getValues(), i, mask);
+            var mask = PROCESSOR_BLOCK.indexInRange(i, vector.size());
+            var floatVector = FloatVector.fromArray(PROCESSOR_BLOCK, vector.getValues(), i, mask);
             floatVector.mul(scalar).intoArray(result, i, mask);
         }
 
@@ -80,11 +89,17 @@ public class VectorApiMath extends AbstractMathUtility
     // TODO: Vector-api isn't used
     public Vector mulVectorByMatrix(Vector vector, Matrix matrix)
     {
-        var ret = emptyVector(matrix.getRowCount());
+        if (vector.size() != matrix.getRowCount())
+        {
+            throw new IdentifiedException("Vector and matrix shape is incompatible at multiplication. " +
+                    "Vector size: " + vector.size() + ", matrix shape: " + matrix.getRowCount() + ", " + matrix.getRowCount());
+        }
+
+        var ret = emptyVector(vector.getFloatType(), matrix.getColCount());
 
         for (var col = 0; col < matrix.getColCount(); col++)
         {
-            float sum = 0;
+            var sum = 0f;
 
             for (var i = 0; i < vector.size(); i++)
             {
@@ -100,7 +115,17 @@ public class VectorApiMath extends AbstractMathUtility
     @Override
     public Vector mulVectorByTransposedMatrix(Vector vector, Matrix matrix)
     {
-        var ret = emptyVector(matrix.getRowCount());
+        if (vector.size() != matrix.getColCount())
+        {
+            var thread = Thread.currentThread();
+            var stackTrace = thread.getStackTrace();
+
+            throw new IdentifiedException("Vector and matrix shape is incompatible at multiplication (transposed). " +
+                    "Vector size: " + vector.size() + ", matrix shape: " + matrix.getRowCount() + ", " + matrix.getColCount() +
+                    " Stack trace: " + Arrays.toString(stackTrace));
+        }
+
+        var ret = emptyVector(vector.getFloatType(), matrix.getRowCount());
 
         for (var col = 0; col < matrix.getRowCount(); col++)
         {
@@ -139,7 +164,7 @@ public class VectorApiMath extends AbstractMathUtility
     // TODO: Vector-api isn't used
     public Vector flattenMatrix(Matrix matrix)
     {
-        var ret = emptyVector(matrix.getRowCount() * matrix.getColCount());
+        var ret = emptyVector(matrix.getInternalFloatType(), matrix.getRowCount() * matrix.getColCount());
 
         var i = 0;
 
@@ -180,7 +205,7 @@ public class VectorApiMath extends AbstractMathUtility
     // TODO: Vector-api isn't used
     public float average(Vector vector)
     {
-        float sum = 0;
+        var sum = 0f;
 
         for (var i = 0; i < vector.size(); i++)
         {

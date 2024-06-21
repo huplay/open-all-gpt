@@ -2,6 +2,7 @@ package transformer._2022_05_big_science_bloom;
 
 import config.Parameter;
 import math.dataType.matrix.Matrix;
+import position.alibi.AlibiPositionEmbedding;
 import transformer.BaseAttentionLayer;
 import math.dataType.vector.Vector;
 
@@ -19,12 +20,12 @@ import static math.BasicMathUtility.sqrt;
  */
 public class BloomAttentionLayer extends BaseAttentionLayer
 {
-    private float[] positionSlope;
-
     protected final List<List<Vector>> storedKeys = new ArrayList<>(headCount);
     protected final List<List<Vector>> storedValues = new ArrayList<>(headCount);
 
     Parameter normWeight, normBias, queryKeyValueWeight, queryKeyValueBias, projectionWeight, projectionBias;
+
+    AlibiPositionEmbedding position = new AlibiPositionEmbedding();
 
     public void loadParameters()
     {
@@ -45,13 +46,8 @@ public class BloomAttentionLayer extends BaseAttentionLayer
         // Calculate the attention dividend
         attentionDividend = sqrt(headSize);
 
-        // Calculate the slope for the position embedding
-        positionSlope = new float[headCount];
-        float step = 1f / headCount;
-        for (int i = 0; i < headCount; i++)
-        {
-            positionSlope[i] = step * (i + 1);
-        }
+        // Initialize the position embedder
+        position.init(headCount);
     }
 
     public Vector process(Vector inputHiddenState, boolean isInputOnly)
@@ -111,7 +107,7 @@ public class BloomAttentionLayer extends BaseAttentionLayer
                 float score = queryByHead.dotProduct(relatedKey);
 
                 // Position embedding at score
-                score = score - positionSlope[head] * (storedSize - pos - 1);
+                score = position.apply(score, head, storedSize - pos);
 
                 // Divide the score by the attention dividend
                 scores.set(pos, score / attentionDividend);

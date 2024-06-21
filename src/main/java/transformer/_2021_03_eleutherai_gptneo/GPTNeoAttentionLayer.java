@@ -27,7 +27,7 @@ public class GPTNeoAttentionLayer extends BaseAttentionLayer
         keyWeight        = loadMatrix(VERTICAL_WEIGHT, "attn.attention.k_proj.weight",   hiddenSize, hiddenSize);
         valueWeight      = loadMatrix(VERTICAL_WEIGHT, "attn.attention.v_proj.weight",   hiddenSize, hiddenSize);
         projectionWeight = loadMatrix(VERTICAL_WEIGHT, "attn.attention.out_proj.weight", hiddenSize, hiddenSize);
-        projectionBias   = loadVector(BIAS,             "attn.attention.out_proj.bias",  hiddenSize);
+        projectionBias   = loadVector(BIAS,            "attn.attention.out_proj.bias",  hiddenSize);
 
         maxAttentionSize = 256; // TODO: Move sparse attention to logic, not as config
     }

@@ -14,6 +14,7 @@ import static config.ParameterType.*;
 
   Difference to the original transformer:
     - Learned position embedding (not sinusoid)
+    - GELU activation function (instead of ReLU)
 
   @author Hunor Szegi
  */
@@ -32,8 +33,11 @@ public class GPT1 extends BaseTransformer
         // Find the embeddings of the token
         Vector hiddenState = matrix(tokenEmbeddings).row(tokenId);
 
-        // Add the position embedding to hidden state
-        return hiddenState.add(matrix(positionEmbeddings).row(pos));
+        // Find the position embedding of the position
+        Vector positionEmbedding = matrix(positionEmbeddings).row(pos);
+
+        // Return the addition of the hidden state and the position embedding
+        return hiddenState.add(positionEmbedding);
     }
 
     public int generateToken(Vector hiddenState, int topK)

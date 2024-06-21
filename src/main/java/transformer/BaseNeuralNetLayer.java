@@ -1,9 +1,10 @@
 package transformer;
 
 import config.Config;
+import math.NeuralNetUtil;
 import math.dataType.vector.Vector;
 
-public abstract class BaseNeuralNetLayer extends BaseDecoderLayer
+public abstract class BaseNeuralNetLayer extends BaseDecoderLayer implements NeuralNetUtil
 {
     protected int intermediateSize;
 

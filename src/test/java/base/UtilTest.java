@@ -1,7 +1,8 @@
 package base;
 
+import math.AbstractMathUtility;
+import math.MathUtil;
 import math.dataType.matrix.MatrixType;
-import math.impl.standard.StandardMath;
 import org.junit.Test;
 
 import static math.dataType.matrix.Matrix.emptyMatrix;
@@ -9,7 +10,7 @@ import static org.junit.Assert.assertEquals;
 
 public class UtilTest extends BaseTest
 {
-    private static final StandardMath MATH = new StandardMath();
+    private static final AbstractMathUtility MATH = MathUtil.getInstance();
 
     @Test
     public void addVectorsTest()

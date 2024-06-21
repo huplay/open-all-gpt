@@ -29,6 +29,24 @@ EleutherAI created the following models so far:
 | GPT-NEOX-20B                       |        6144 |       44 |       64 |        2048 |       20,250 M |
 
 
+### Meta (Facebook) OPT ###
+
+Meta trained 9 models and made it accessible for research (non-commercial use) on 3 May 2022. (The 66B on 23 June.)
+The largest model has an equivalent size to GPT-3. (It was the largest available model at the time.)
+
+| Name     | Hidden size | Dec. no. | Head no. | Max. length | Size of params |
+|----------|------------:|---------:|---------:|------------:|---------------:|
+| OPT 125M |         768 |       12 |       12 |        2048 |          125 M | 
+| OPT 350M |        1024 |       24 |       16 |        2048 |          331 M | 
+| OPT 1.3B |        2048 |       24 |       32 |        2048 |        1,316 M |
+| OPT 2.7B |        2560 |       32 |       32 |        2048 |        2,652 M |
+| OPT 6.7B |        4096 |       32 |       32 |        2048 |        6,658 M |
+| OPT 13B  |        5120 |       40 |       40 |        2048 |       12,853 M |
+| OPT 30B  |        7168 |       48 |       56 |        2048 |       29,975 M |
+| OPT 66B  |        9216 |       64 |       72 |        2048 |              ? |
+| OPT 175B |       12288 |       96 |       96 |        2048 |              ? |
+
+
 ### BLOOM ###
 
 BLOOM (BigScience Large Open-science Open-access Multilingual Language Model) was created by over a thousand AI developers, organized by Hugging Face, published in May 2022.

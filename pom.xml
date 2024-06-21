@@ -50,7 +50,7 @@
                 Standard profile
 
                 Copies mathProviders/standard.provider as math.provider
-                Excludes to compile the nd4j and vecto-api math packages
+                Excludes to compile the nd4j and vector-api math packages
             -->
             <id>standard</id>
             <activation>

@@ -1,0 +1,14 @@
+{
+  "name": "Meta OPT 175B",
+  "transformerType": "META_OPT",
+  "repo": "NOT UPLOADED TO ANY REPO, REQUEST IS NECESSARY: https://forms.gle/BDB2i44QwCr2mCJN6",
+  "files": [
+    "config.json",
+    "model-00001-of-000??.safetensors",
+    "...",
+    "model-000??-of-000??.safetensors"
+  ],
+  "parameterNaming": "decoder.{name}",
+  "decoderParameterNaming": "decoder.layers.{decoderId}.{name}",
+  "memorySize": 40960
+}

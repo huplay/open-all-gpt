@@ -1,0 +1,5 @@
+{
+  "tokenizerType": "SENTENCE_PIECE",
+  "repo": "https://huggingface.co/huggyllama/llama-7b",
+  "files": ["tokenizer.model"]
+}

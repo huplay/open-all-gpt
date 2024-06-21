@@ -6,6 +6,7 @@ import config.Arguments;
 import config.Config;
 import config.ModelConfig;
 import config.TokenizerConfig;
+import math.MathUtil;
 import parameters.download.DownloadMissingFiles;
 import parameters.safetensors.SafetensorsReader;
 import network.info.Models;
@@ -15,6 +16,7 @@ import ui.ModelSelector;
 
 import java.io.*;
 import java.util.Map;
+import java.util.Objects;
 
 import static app.AppStandaloneMain.*;
 import static parameters.FileUtil.checkFiles;
@@ -98,8 +100,13 @@ public class AppStandaloneLauncher
             {
                 var userDir = System.getProperty("user.dir").replace('\\', '/');
 
+                var mathClass = MathUtil.getInstance().getClass().getName();
+                var incubatorVector = mathClass.endsWith("VectorApiMath")
+                        ? " --add-modules=jdk.incubator.vector"
+                        : "";
+
                 // Open the main app to launch the model
-                var command = "java" +
+                var command = "java" + incubatorVector +
                                 " -Xmx" + memorySize + "m -Xms" + memorySize + "m" +
                                 " -cp " + userDir + "/target/open-all-gpt.jar" +
                                 " app.AppStandaloneMain" +

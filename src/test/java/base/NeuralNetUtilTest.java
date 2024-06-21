@@ -1,5 +1,6 @@
 package base;
 
+import math.NeuralNetUtil;
 import math.dataType.DataType;
 import math.dataType.vector.Vector;
 import org.junit.Test;
@@ -8,22 +9,24 @@ import static math.MathUtil.MATH;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-public class TransformerUtilTest
+public class NeuralNetUtilTest
 {
+    private final NeuralNetUtil neuralNetUtil = new TestNeuralNetUtil();
+
     @Test
     public void geluTest()
     {
-        assertEquals(1.9545977115631104f, MATH.gelu(2f), 1e-15f);
-        assertEquals(0.005039893556386232f, MATH.gelu(1e-2f), 1e-15f);
-        assertEquals(-0.021692416f, MATH.gelu(-0.045f), 1e-15f);
+        assertEquals(1.9545977115631104f, neuralNetUtil.gelu(2f), 1e-15f);
+        assertEquals(0.005039893556386232f, neuralNetUtil.gelu(1e-2f), 1e-15f);
+        assertEquals(-0.021692416f, neuralNetUtil.gelu(-0.045f), 1e-15f);
     }
 
     @Test
     public void swigluTest()
     {
-        assertEquals(1.7615942f, MATH.swiglu(2f), 1e-15f);
-        assertEquals(0.005025f, MATH.swiglu(1e-2f), 1e-15f);
-        assertEquals(-0.021993836f, MATH.swiglu(-0.045f), 1e-15f);
+        assertEquals(1.7615942f, neuralNetUtil.swiglu(2f), 1e-15f);
+        assertEquals(0.005025f, neuralNetUtil.swiglu(1e-2f), 1e-15f);
+        assertEquals(-0.021993836f, neuralNetUtil.swiglu(-0.045f), 1e-15f);
     }
 
     @Test

@@ -26,6 +26,7 @@ import static config.ParameterType.*;
     - Untied embedding / un-embedding matrices (Separate parameters for token embeddings and generating logits.)
     - No bias at attention query/key/value matrices and projection (but has bias at the neural net component)
     - Neural net normalization parameters are common in all decoders, and the same used at final normalization
+    - The weights are stored in vertical matrices (easier to execute the vector-matrix multiplication)
 
   @author Hunor Szegi
  */

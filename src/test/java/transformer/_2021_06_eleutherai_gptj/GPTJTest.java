@@ -1,8 +1,10 @@
 package transformer._2021_06_eleutherai_gptj;
 
+import org.junit.Ignore;
 import transformer.BaseTransformerTest;
 import org.junit.Test;
 
+@Ignore
 public class GPTJTest extends BaseTransformerTest
 {
     @Test

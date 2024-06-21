@@ -78,8 +78,9 @@ public class GPT1AttentionLayer extends BaseAttentionLayer
         for (int head = 0; head < headCount; head++)
         {
             // Calculate the scores
+            Vector scores = emptyVector(storedSize);
+
             Vector actualQuery = queryByHead.row(head);
-            Vector scores = Vector.emptyVector(actualQuery.getFloatType(), storedSize);
 
             for (int pos = 0; pos < storedSize; pos++)
             {

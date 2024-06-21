@@ -1,7 +1,5 @@
 package math;
 
-import math.impl.standard.StandardMath;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
@@ -13,7 +11,7 @@ public enum MathUtil
 
     public static final AbstractMathUtility MATH = MathUtil.getInstance();
 
-    private String className;
+    private final String className;
 
     MathUtil(String className)
     {
@@ -45,6 +43,6 @@ public enum MathUtil
             System.out.println("Error during instantiating requested math provider: " + e.getMessage());
         }
 
-        return new StandardMath();
+        return null;
     }
 }

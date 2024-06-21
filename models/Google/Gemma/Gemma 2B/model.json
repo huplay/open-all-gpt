@@ -1,7 +1,7 @@
 {
   "name": "Google Gemma 2B",
   "transformerType": "GOOGLE_GEMMA",
-  "repo-comment": "YOU HAVE TO LOGIN TO HUGGING FACE AND ACCEPT THE CONDITIONS, SO THE AUTO DOWNLOAD WON'T WORK",
+  "repo-comment": "YOU HAVE TO LOGIN TO HUGGING FACE AND ACCEPT THE CONDITIONS, SO THE AUTO DOWNLOAD WON'T WORK. PLEASE DOWNLOAD IT MANUALLY",
   "repo": "https://huggingface.co/google/gemma-2b",
   "files": [
     "config.json",

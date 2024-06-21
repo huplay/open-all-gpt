@@ -118,10 +118,53 @@ The following transformer architectures are implemented:
 - `ORIGINAL_TRANSFORMER`: The first transformer, created by Google Brain in 2017. Described in the `Attention Is All You Need` paper. (The trained parameters are not published.)
 - `OPENAI_GPT_1`: The first GPT created by OpenAI, released in June 2018. (Based on the Google's unpublished model, described in the `Attention Is All You Need` paper)
 - `OPENAI_GPT_2`: The second GPT created by OpenAI, limited release in Feb 2019, full access in Nov 2019. Minor differences to GPT-1, only related to the normalization.
-- `ELEUTHERAI_GPT_NEO`: First GPT implementation by EleutherAI, released in 2021. Almost the same as GPT-2 and GPT-3, few unimportant differences.
-- `ELEUTHERAI_GPT_J`: Second GPT implementation by EleutherAI, released in 2022. The biggest change to the previous architecture is the Rotational Position Embedding (RoPE).
+- `OPENAI_GPT_3`: The third GPT created by OpenAI, announced in May 2020, without public access. Minor difference to GPT-2 is the sparse attention.
+- `ELEUTHERAI_GPT_NEO`: First GPT implementation by EleutherAI, released in March 2021. Almost the same as GPT-2 and GPT-3, few unimportant differences.
+- `ELEUTHERAI_GPT_J`: Second GPT implementation by EleutherAI, released in June 2021. First model with Rotary Position Embedding (RoPE), and other details also diverged from the previous models.
+- `ELEUTHERAI_GPT_NEOX`: Third GPT implementation by EleutherAI, released in Feb 2022. More similar to the original transformers than GPT-J, but it is also uses rotary position embedding.
 - `BIG_SCIENCE_BLOOM`: Created by an open community organised by Hugging Face to create a similar model to GPT-3. Released in March-July 2022. The main difference to GPT-2/GPT-3 is the Alibi position embedding.
+- `META_OPT`: Created by Meta (Facebook), released in May 2022.
 - `META_LLAMA`: Created by Meta (Facebook), released in Feb 2023. Currently only the original architecture is supported, but the latest models use Grouped Query Attention. Changes to GPT-2: Rotary position embedding, 3 layered MLP block, Swiglu activation function, RSM normalization.
+- `GOOGLE_GEMMA`: Create by Google, released in Feb 2024. Almost identical to the Llama architecture.
+
+## Comparison of the models ##
+
+| Name        |   Pos.   |  Att.   | Bias | V | D | G |   Act    | P | Norm  | +N | Type | UE |    | 
+|:------------|:--------:|:-------:|------|---|---|---|:--------:|---|-------|----|-----:|----|----|
+| Transformer | Sinusoid |   MHA   | XXX  |   | X |   |   ReLU   |   | Std.  |    |  F32 |    |    |  
+| GPT-1       | Learned  |   MHA   | XXX  |   | X |   |   GELU   |   | Std.  |    |  F32 |    |    |
+| GPT-2       | Learned  |   MHA   | XXX  |   | X |   |   GELU   | X | Std.  |    |  F32 |    |    |
+| GPT-3       | Learned  | MHA sp. | XXX  | * | X |   |   GELU   | X | Std.  |    |  F32 |    |    |
+| GPT-NEO     | Learned  | MHA sp. | -XX  | X |   |   |   GELU   | X | Std.  |    |  F32 |    |    |
+| GPT-J       | RoPE i.  |   MHA   | --X  | X |   |   |   GELU   | X | Std.  |    |  F32 | X  | *1 |
+| GPT-NEOX    | RoPE s.  |   MHA   | XXX  | X |   |   |   GELU   | X | Std.  |    |  F16 |    |    |
+| OPT-350     | Learned  |   MHA   | XXX  | X | Q |   |   ReLU   |   | Std.  |    |  F16 |    | *2 |
+| OPT         | Learned  |   MHA   | XXX  | X | Q |   |   ReLU   | X | Std.  |    |  F16 |    |    |
+| BLOOM       |  ALiBi   |   MHA   | XXX  | X | X |   |   GELU   | X | Std.  | X  |  F16 |    |    |
+| BLOOM-176B  |  ALiBi   |   MHA   | XXX  | X | X |   |   GELU   | X | Std.  | X  | BF16 |    |    |
+| Llama 1     | RoPE i.  |   MHA   | ---  | X |   | X |  SwiGLU  | X | RMS   |    | BF16 |    |    |
+| Llama 2     | RoPE i.  | MHA/GQA | ---  | X |   | X |  SwiGLU  | X | RMS   |    | BF16 |    |    |
+| Llama 3     | RoPE i.  |   GQA   | ---  | X |   | X |  SwiGLU  | X | RMS   |    | BF16 |    |    |
+| Gemma       | RoPE s.  |   MQA   | ---  | X |   | X |   GELU   | X | RMS+1 | X  | BF16 |    |    |
+| Mistral     |  ALiBi   |   GQA   | ---  | X |   | X |  SwiGLU  | X | RMS   |    | BF16 | X  |    |
+
+Legend:
+- `Pos.` : Position embedding type. (Sinusoid / Learned/ RoPE (interleaved or sliced) / ALiBi)
+- `Att`: Attention organisation type (MHA: Multi-Head / GQA: Grouped Query /MQA: Multi-Query) (sp. = Sparse)
+- `D`: Score division (X: division by sqrt(head size) / Q: same, but applied on query)
+- `G`: Uses gated neural net block (not the standard 2 layered)
+- `Bias`: Whether bias is used, or only weight (Query-key-value/attention projection/neural net layer)
+- `V`: Weight are organised vertically (not horizontally) 
+  - (* GPT-3 is most likely vertical (more efficient to calculate), but not released, and my implementation is horizontal to make it compatible with GPT-2)
+- `Act`: Activation function (GELU, ReLU, SwiGLU)
+- `P`: Pre-normalization (with final normalization) (Not post-normalization)
+- `Norm`: Normalization type (Std. = Standard layernorm / RMS ("+1": 1 as offset)
+- `+N`: Extra input normalization
+- `Type`: Data type. (F32: Float 32, F16: Float 16, BF16: Brain Float 16)
+- `UE`: Untied embedding. There are separate matrices for input embedding and to generate the logits.
+- Comments
+  - *1 (GPT-J): Attention and neural net layer is organised parallel
+  - *2 (OPT-350): Extra embedding projection
 
 ## Transformer implementation ##
 
@@ -306,6 +349,23 @@ Supported tokenizers:
    - GPT-1
    - GPT-2 (used by GPT-3 as well), and for BLOOM with different vocabulary
    - SentencePiece (used by Llama1 and Llama2)
+
+| Name        | Tokenizer     | No. tokens |
+|:------------|---------------|-----------:|
+| Transformer | BPE           |     32,000 |
+| GPT-1       | GPT-1         |     40,478 |
+| GPT-2       | GPT-2         |     50,256 |
+| GPT-3       | GPT-2         |     50,256 |
+| GPT-NEO     | GPT-2         |     50,256 |
+| GPT-J       | GPT-2         |     50,400 |
+| GPT-NEOX    | GPT-2         |     50,432 |
+| OPT         | GPT-2         |     50,272 |
+| BLOOM       | GPT-2         |    250,880 |
+| Llama 1     | SentencePiece |     32,000 |
+| Llama 2     | SentencePiece |     32,000 |
+| Llama 3     | TikToken      |    128,256 |
+| Gemma       | SentencePiece |    256,000 |
+| Mistral     | SentencePiece |     32,000 |
 
 ## Some comments about the implementation ##
 

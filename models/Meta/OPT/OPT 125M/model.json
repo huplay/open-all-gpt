@@ -1,0 +1,10 @@
+{
+  "name": "Meta OPT 125M",
+  "transformerType": "META_OPT",
+  "repo": "https://huggingface.co/facebook/opt-125m",
+  "branch": "refs/pr/39",
+  "files": ["config.json", "model.safetensors"],
+  "parameterNaming": "model.decoder.{name}",
+  "decoderParameterNaming": "model.decoder.layers.{decoderId}.{name}",
+  "memorySize": 1024
+}
