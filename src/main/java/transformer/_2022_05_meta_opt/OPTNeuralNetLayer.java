@@ -42,7 +42,7 @@ public class OPTNeuralNetLayer extends BaseNeuralNetLayer
 
     public Vector neuralNet(Vector hiddenState)
     {
-        // Layer 1: <intermediateSize> neurons (usually 4 * <hiddenSize>) (using gelu activation function)
+        // Layer 1: <intermediateSize> neurons (usually 4 * <hiddenSize>) (using ReLU activation function)
         hiddenState = hiddenState.multiplyByTransposed(matrix(layer1Weight));
         hiddenState = hiddenState.add(vector(layer1Bias));
 

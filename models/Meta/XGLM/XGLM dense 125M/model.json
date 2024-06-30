@@ -1,0 +1,8 @@
+{
+  "name": "XGLM dense 125M",
+  "transformerType": "META_FAIRSEQ",
+  "repo": "https://huggingface.co/KoboldAI/fairseq-dense-125M",
+  "files": ["config.json", "model.safetensors"],
+  "decoderParameterNaming": "model.layers.{decoderId}.{name}",
+  "memorySize": 1024
+}

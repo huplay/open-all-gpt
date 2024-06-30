@@ -45,8 +45,6 @@ public class Talk
                     flow.clear();
                 }
 
-                inputTokens.add(2);
-
                 // Convert the input text into list of tokens
                 inputTokens.addAll(tokenizer.encode(inputText));
 

@@ -5,6 +5,8 @@ import math.dataType.matrix.Matrix;
 import transformer.BaseAttentionLayer;
 import math.dataType.vector.Vector;
 
+import java.util.List;
+
 import static math.MathUtil.MATH;
 import static config.ParameterType.*;
 import static math.BasicMathUtility.sqrt;
@@ -27,8 +29,8 @@ public class GPT1AttentionLayer extends BaseAttentionLayer
         projectionWeight    = loadMatrix(HORIZONTAL_WEIGHT, "attn.c_proj.weight", hiddenSize, hiddenSize);
         projectionBias      = loadVector(BIAS,              "attn.c_proj.bias",   hiddenSize);
 
-        // Calculate the attention dividend
-        attentionDividend = sqrt(headSize);
+        // Calculate the attention scale
+        attentionScale = 1 / sqrt(headSize);
     }
 
     public Vector process(Vector inputHiddenState, boolean isInputOnly)
@@ -66,47 +68,26 @@ public class GPT1AttentionLayer extends BaseAttentionLayer
         Matrix keyByHead = key.split(headCount);
         Matrix valueByHead = value.split(headCount);
 
-        // Store the keys and values (these will be available while the following tokens will be processed)
-        storedKeys.add(keyByHead);
-        storedValues.add(valueByHead);
-        int storedSize = storedKeys.size();
-
-        // Matrix for collecting the attention results for all heads
+        // Collector of the attention results for all heads
         Matrix valueAggregate = emptyMatrix(headCount, headSize);
 
         // Score the previous tokens (including the actual), separately for all heads
         for (int head = 0; head < headCount; head++)
         {
-            // Calculate the scores
-            Vector scores = emptyVector(storedSize);
+            // Store the keys and values (these will be available while the following tokens will be processed)
+            store(head, keyByHead, valueByHead);
 
-            Vector actualQuery = queryByHead.row(head);
+            // Process the core of the attention mechanism (scaled dot product attention)
+            Vector attentionResult = scaledDotProductAttention(
+                                            queryByHead.row(head),
+                                            getStoredKeys(head),
+                                            getStoredValues(head));
 
-            for (int pos = 0; pos < storedSize; pos++)
-            {
-                // The score is calculated multiplying the "actual" query vector and the "related" key vector
-                Vector relatedKey = storedKeys.get(pos).row(head);
-                float score = actualQuery.dotProduct(relatedKey);
-
-                // Divide the score by the attention dividend
-                scores.set(pos, score / attentionDividend);
-            }
-
-            // Scale the scores to values between 0 and 1
-            scores = MATH.softmax(scores);
-
-            // Multiply the value matrices with the scores, and sum up
-            for (int pos = 0; pos < storedSize; pos++)
-            {
-                Vector relatedValue = storedValues.get(pos).row(head);
-                Vector multipliedValue = relatedValue.multiply(scores.get(pos));
-
-                Vector actualValue = valueAggregate.row(head);
-                valueAggregate.setRow(head, actualValue.add(multipliedValue));
-            }
+            // Add the result to the collector for the actual head
+            valueAggregate.setRow(head, attentionResult);
         }
 
-        // Concatenate the results for all heads
+        // Concatenate the results of all heads
         hiddenState = valueAggregate.flatten();
 
         // Projection neural layer
@@ -114,5 +95,38 @@ public class GPT1AttentionLayer extends BaseAttentionLayer
         hiddenState = hiddenState.add(vector(projectionBias));
 
         return hiddenState;
+    }
+
+    private Vector scaledDotProductAttention(Vector query, List<Vector> keys, List<Vector> values)
+    {
+        int tokenCount = keys.size();
+
+        // Score all tokens using the actual query and the keys, multiplying by the scale
+        Vector scores = emptyVector(tokenCount);
+        for (int pos = 0; pos < tokenCount; pos++)
+        {
+            Vector relatedKey = keys.get(pos);
+
+            // The core of the scaled dot product attention
+            float score = query.dotProduct(relatedKey) * attentionScale;
+            scores.set(pos, score);
+        }
+
+        // Normalize the scores into a range between 0 and 1
+        scores = MATH.softmax(scores);
+
+        // Apply the score on the values vectors
+        Vector result = Vector.emptyVector(query.getFloatType(), query.size());
+        for (int pos = 0; pos < tokenCount; pos++)
+        {
+            Vector relatedValue = values.get(pos);
+            float score = scores.get(pos);
+
+            // Multiply the values by the score and sum up
+            Vector scoredValue = relatedValue.multiply(score);
+            result = result.add(scoredValue);
+        }
+
+        return result;
     }
 }

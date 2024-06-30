@@ -1,5 +1,7 @@
 package math;
 
+import app.IdentifiedException;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
@@ -37,12 +39,14 @@ public enum MathUtil
             {
                 return mathUtility;
             }
+            else
+            {
+                throw new IdentifiedException("Incorrect math utility");
+            }
         }
         catch (Exception e)
         {
-            System.out.println("Error during instantiating requested math provider: " + e.getMessage());
+            throw new IdentifiedException("Error during instantiating requested math provider", e);
         }
-
-        return null;
     }
 }

@@ -17,16 +17,17 @@ import static math.MathUtil.MATH;
 
   Differences to GPT-2:
     - ReLU activation function (not GELU)
-    - The attention dividend is applied on the query, not on the score
+    - The attention scale is applied on the query, not on the score
     - The weights are stored in vertical matrices (easier to execute the vector-matrix multiplication)
     - The query/key/value matrices are stored separately
     - The position embedding matrix contains 2 extra rows (not used at inference, but the position index should be adjusted)
     - 16 bit parameters (FLOAT16)
     - The OPT-350M model is different to the others, so it is implemented separately (see OPT350)
 
-
- : it performs the normalization after the attention and neural net blocks,
-      not before, and the final normalization is omitted. (Same as at GPT-1)
+  Differences to XGLM:
+    - Learned position embedding (not sinusoid)
+    - ReLU activation function (not GELU)
+    - Tied embedding (input embedding and output token selection use the same matrix)
 
   @author Hunor Szegi
  */
@@ -44,7 +45,7 @@ public class OPT extends BaseTransformer
 
     public Vector preProcessToken(int pos, int tokenId)
     {
-        // Find the embeddings of the token (this is the initial hidden state)
+        // Find the embeddings of the token
         Vector hiddenState = matrix(tokenEmbeddings).row(tokenId);
 
         // Find the position embedding of the position

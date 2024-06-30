@@ -5,7 +5,6 @@ import math.dataType.matrix.Matrix;
 import transformer.BaseNeuralNetLayer;
 import math.dataType.vector.Vector;
 
-import static math.MathUtil.MATH;
 import static config.ParameterType.*;
 import static config.ParameterType.BIAS;
 

@@ -29,16 +29,16 @@ public class Config
     private boolean isCalculationOnly;
     private DataType internalFloatType;
 
-    @JsonAlias({"n_embd", "hidden_size", "n_embed"})
+    @JsonAlias({"n_embd", "hidden_size", "n_embed", "d_model"})
     private int hiddenSize;
 
-    @JsonAlias({"intermediate_size", "n_inner"})
+    @JsonAlias({"intermediate_size", "n_inner", "ffn_dim"})
     private Integer intermediateSize;
 
     @JsonAlias({"n_layer", "num_hidden_layers", "num_layers"})
     private int decoderCount;
 
-    @JsonAlias({"n_head", "num_attention_heads", "num_heads"})
+    @JsonAlias({"n_head", "num_attention_heads", "num_heads", "attention_heads"})
     private int headCount;
 
     @JsonAlias({"layer_norm_epsilon", "rms_norm_eps"})
@@ -98,6 +98,22 @@ public class Config
             System.out.println(e.getMessage());
             throw new IdentifiedException("Can't read the config file.\n" + configFile.getName(), e);
         }
+    }
+
+    public String getValue(String key)
+    {
+        var value = allEntries.get(key);
+        if (value == null)
+        {
+            throw new IdentifiedException("String configuration is missing: " + key);
+        }
+
+        return value.toString();
+    }
+
+    public boolean getBooleanValue(String key)
+    {
+        return getValue(key).equals("true");
     }
 
     public int getInt(String key)

@@ -12,7 +12,7 @@ import static math.MathUtil.MATH;
   EleutherAI GPT-NeoX transformer
 
   GPT-NeoX is the third step towards a GPT-3 size open model by EleutherAI.
-  It was the largest open model at the time of it's release (20B), but far from the size of GPT-3 (175B).
+  It was the largest open model at the time of its release (20B), but far from the size of GPT-3 (175B).
 
   It was announced in Feb 2022: https://blog.eleuther.ai/announcing-20b/
   Publication: https://arxiv.org/abs/2204.06745
@@ -26,7 +26,8 @@ import static math.MathUtil.MATH;
 
   Differences to GPT-J:
     - Original structure of residual connections (the parallelized attention and feed forward technique is dropped)
-    - Biases are back
+    - Biases are used
+    - Attention scale is used
     - Neural net normalization weights are different per decoders (not common, as at GPT-J)
     - The rotary position embedding is applied in sliced arrangement (not interleaved)
     - Uses faster GELU approximation as activation function

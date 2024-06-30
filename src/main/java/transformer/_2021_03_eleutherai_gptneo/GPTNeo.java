@@ -19,7 +19,7 @@ import static config.ParameterType.*;
     - Sparse decoders: Every second decoder uses local attention, using only the previous 256 tokens
     - No biases for the attention query/key/value matrices
     - The query/key/value matrices are stored separately
-    - No attention dividend, so the score isn't divided by a fixed value
+    - No attention scale, so the score isn't multiplied by a fixed value
     - The weights are stored in vertical matrices (easier to execute the vector-matrix multiplication)
 
   @author Hunor Szegi

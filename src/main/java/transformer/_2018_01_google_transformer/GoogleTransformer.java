@@ -18,10 +18,11 @@ import static config.ParameterType.*;
 
   Features:
     - Sinusoid position embedding added to the input at the beginning
+      (But they created a variant of the original encoder-decoder architecture using learned position embedding as well.)
     - Normalization is used at the end of the attention and feed-forward blocks
     - Residual connections at the attention and feed-forward blocks
     - Multi-head attention
-    - Score dividend in the attention, which is calculated as sqrt(headSize)
+    - Scale the attention score by 1 / sqrt(headSize)
     - Single layer projection at the end of the attention blocks
     - Feed-forward block has two layers (layer1: 4 * hiddenSize neurons, layer2: hiddenSize neurons)
     - ReLU activation function (used only at the first feed-forward layer)
@@ -43,7 +44,7 @@ public class GoogleTransformer extends BaseTransformer
     {
         tokenEmbeddings = loadMatrix(EMBEDDING, "tokens_embed.weight", tokenCount, hiddenSize);
 
-        position.init(config, hiddenSize);
+        position.initInterleaved(config, hiddenSize);
     }
 
     public Vector preProcessToken(int pos, int tokenId)
@@ -52,7 +53,7 @@ public class GoogleTransformer extends BaseTransformer
         Vector hiddenState = matrix(tokenEmbeddings).row(tokenId);
 
         // Position embedding
-        position.apply(hiddenState, pos);
+        hiddenState = position.apply(hiddenState, pos);
 
         return hiddenState;
     }

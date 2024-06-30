@@ -1,0 +1,9 @@
+{
+  "name": "XGLM dense 6.7B",
+  "transformerType": "META_FAIRSEQ",
+  "repo": "https://huggingface.co/KoboldAI/fairseq-dense-6.7B",
+  "branch": "NO SAFETENSORS FILE IS UPLOADED",
+  "files": ["config.json", "model.safetensors"],
+  "decoderParameterNaming": "model.layers.{decoderId}.{name}",
+  "memorySize": 1024
+}

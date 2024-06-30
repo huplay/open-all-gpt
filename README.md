@@ -125,45 +125,49 @@ The following transformer architectures are implemented:
 - `BIG_SCIENCE_BLOOM`: Created by an open community organised by Hugging Face to create a similar model to GPT-3. Released in March-July 2022. The main difference to GPT-2/GPT-3 is the Alibi position embedding.
 - `META_OPT`: Created by Meta (Facebook), released in May 2022.
 - `META_LLAMA`: Created by Meta (Facebook), released in Feb 2023. Currently only the original architecture is supported, but the latest models use Grouped Query Attention. Changes to GPT-2: Rotary position embedding, 3 layered MLP block, Swiglu activation function, RSM normalization.
-- `GOOGLE_GEMMA`: Create by Google, released in Feb 2024. Almost identical to the Llama architecture.
+- `MISTRALAI_MISTRAL`: Created by MistralAI, released in Sep 2023. Almost identical to Llama, but uses different position embedding.
+- `GOOGLE_GEMMA`: Created by Google, released in Feb 2024. Almost identical to the Llama architecture.
 
 ## Comparison of the models ##
 
-| Name        |   Pos.   |  Att.   | Bias | V | D | G |   Act    | P | Norm  | +N | Type | UE |    | 
-|:------------|:--------:|:-------:|------|---|---|---|:--------:|---|-------|----|-----:|----|----|
-| Transformer | Sinusoid |   MHA   | XXX  |   | X |   |   ReLU   |   | Std.  |    |  F32 |    |    |  
-| GPT-1       | Learned  |   MHA   | XXX  |   | X |   |   GELU   |   | Std.  |    |  F32 |    |    |
-| GPT-2       | Learned  |   MHA   | XXX  |   | X |   |   GELU   | X | Std.  |    |  F32 |    |    |
-| GPT-3       | Learned  | MHA sp. | XXX  | * | X |   |   GELU   | X | Std.  |    |  F32 |    |    |
-| GPT-NEO     | Learned  | MHA sp. | -XX  | X |   |   |   GELU   | X | Std.  |    |  F32 |    |    |
-| GPT-J       | RoPE i.  |   MHA   | --X  | X |   |   |   GELU   | X | Std.  |    |  F32 | X  | *1 |
-| GPT-NEOX    | RoPE s.  |   MHA   | XXX  | X |   |   |   GELU   | X | Std.  |    |  F16 |    |    |
-| OPT-350     | Learned  |   MHA   | XXX  | X | Q |   |   ReLU   |   | Std.  |    |  F16 |    | *2 |
-| OPT         | Learned  |   MHA   | XXX  | X | Q |   |   ReLU   | X | Std.  |    |  F16 |    |    |
-| BLOOM       |  ALiBi   |   MHA   | XXX  | X | X |   |   GELU   | X | Std.  | X  |  F16 |    |    |
-| BLOOM-176B  |  ALiBi   |   MHA   | XXX  | X | X |   |   GELU   | X | Std.  | X  | BF16 |    |    |
-| Llama 1     | RoPE i.  |   MHA   | ---  | X |   | X |  SwiGLU  | X | RMS   |    | BF16 |    |    |
-| Llama 2     | RoPE i.  | MHA/GQA | ---  | X |   | X |  SwiGLU  | X | RMS   |    | BF16 |    |    |
-| Llama 3     | RoPE i.  |   GQA   | ---  | X |   | X |  SwiGLU  | X | RMS   |    | BF16 |    |    |
-| Gemma       | RoPE s.  |   MQA   | ---  | X |   | X |   GELU   | X | RMS+1 | X  | BF16 |    |    |
-| Mistral     |  ALiBi   |   GQA   | ---  | X |   | X |  SwiGLU  | X | RMS   |    | BF16 | X  |    |
+| Name        |  Pos.   |   Att.   | Bias | V | Q | S | G | Act  | P | Norm | E |      Type | U |    | 
+|:------------|:-------:|:--------:|------|---|---|---|---|:----:|---|------|---|----------:|---|----|
+| Transformer |  Sinus  |   MHA    | XXX  |   | ? | X |   | ReLU |   | Std. |   |       F32 |   |    |  
+| GPT-1       | Learned |   MHA    | XXX  |   | X | X |   | GELU |   | Std. |   |       F32 |   |    |
+| Fairseq     |  Sinus  |   MHA    | XXX  | X | * |   |   |  *   | X | Std. |   |       F32 | X |    |
+| GPT-2       | Learned |   MHA    | XXX  |   | X | X |   | GELU | X | Std. |   |       F32 |   |    |
+| GPT-3       | Learned | MHA sp.  | XXX  | * | ? | X |   | GELU | X | Std. |   |       F32 |   |    |
+| GPT-Neo     | Learned | MHA sp.  | -XX  | X |   |   |   | GELU | X | Std. |   |       F32 |   |    |
+| GPT-J       | RoPE i. |   MHA    | --X  | X |   |   |   | GELU | X | Std. |   |       F32 | X | *1 |
+| GPT-NeoX    | RoPE s. |   MHA    | XXX  | X | X | X |   | GELU | X | Std. |   |       F16 | X |    |
+| OPT-350     | Learned |   MHA    | XXX  | X |   | Q |   | ReLU |   | Std. |   |       F16 |   | *2 |
+| OPT         | Learned |   MHA    | XXX  | X |   | Q |   | ReLU | X | Std. |   |       F16 |   |    |
+| Bloom       |  ALiBi  |   MHA    | XXX  | X | X | X |   | GELU | X | Std. | X | F16, BF16 |   |    |
+| Llama 1     | RoPE i. |   MHA    | ---  | X |   | X | X | SiLU | X | RMS  |   |       F16 |   |    |
+| Llama 2     | RoPE i. | MHA, GQA | ---  | X |   | X | X | SiLU | X | RMS  |   |       F16 |   |    |
+| Llama 3     | RoPE i. |   GQA    | ---  | X |   | X | X | SiLU | X | RMS  |   |      BF16 |   |    |
+| Falcon      | RoPE ?  | MQA, GQA | ---  | X | ? | ? |   | GELU | X | Std. |   |      BF16 |   | *1 |
+| Mistral     | RoPE i. |  GQA sp  | ---  | X |   | X | X | SiLU | X | RMS  |   |      BF16 | X |    |
+| Gemma       | RoPE s. | MQA, MHA | ---  | X |   | X | X | GELU | X | RMS* | X |      BF16 |   |    |
 
 Legend:
 - `Pos.` : Position embedding type. (Sinusoid / Learned/ RoPE (interleaved or sliced) / ALiBi)
 - `Att`: Attention organisation type (MHA: Multi-Head / GQA: Grouped Query /MQA: Multi-Query) (sp. = Sparse)
-- `D`: Score division (X: division by sqrt(head size) / Q: same, but applied on query)
-- `G`: Uses gated neural net block (not the standard 2 layered)
 - `Bias`: Whether bias is used, or only weight (Query-key-value/attention projection/neural net layer)
-- `V`: Weight are organised vertically (not horizontally) 
-  - (* GPT-3 is most likely vertical (more efficient to calculate), but not released, and my implementation is horizontal to make it compatible with GPT-2)
-- `Act`: Activation function (GELU, ReLU, SwiGLU)
+- `V`: Weights are organised vertically (not horizontally) 
+  - (`*` GPT-3 is most likely vertical (more efficient to calculate), but not released, and my implementation is horizontal to make it compatible with GPT-2)
+- `Q`: Query, key and value matrices are stored in a single matrix
+  - (`?`: Not known, but I implemented as a single matrix to make it compatible with GPT-2; `*`: Single and split also supported)
+- `S`: Attention scaling (X: multiplication by 1 / sqrt(head size) / Q: same, but applied on query)
+- `G`: Uses gated neural net block (not the standard 2 layered)
+- `Act`: Activation function (`ReLU`, `GELU`, `SiLU` (= SwiGLU), `*`: ReLU and GELU also supported)
 - `P`: Pre-normalization (with final normalization) (Not post-normalization)
-- `Norm`: Normalization type (Std. = Standard layernorm / RMS ("+1": 1 as offset)
-- `+N`: Extra input normalization
+- `Norm`: Normalization type (Std. = Standard layernorm / RMS ("*": +1 offset)
+- `E`: Extra input normalization
 - `Type`: Data type. (F32: Float 32, F16: Float 16, BF16: Brain Float 16)
-- `UE`: Untied embedding. There are separate matrices for input embedding and to generate the logits.
+- `U`: Untied embedding. There are separate matrices for input embedding and to generate the logits.
 - Comments
-  - *1 (GPT-J): Attention and neural net layer is organised parallel
+  - *1 (GPT-J, Falcon): Attention and neural net layer is organised parallel
   - *2 (OPT-350): Extra embedding projection
 
 ## Transformer implementation ##
@@ -364,8 +368,9 @@ Supported tokenizers:
 | Llama 1     | SentencePiece |     32,000 |
 | Llama 2     | SentencePiece |     32,000 |
 | Llama 3     | TikToken      |    128,256 |
-| Gemma       | SentencePiece |    256,000 |
 | Mistral     | SentencePiece |     32,000 |
+| Gemma       | SentencePiece |    256,000 |
+
 
 ## Some comments about the implementation ##
 

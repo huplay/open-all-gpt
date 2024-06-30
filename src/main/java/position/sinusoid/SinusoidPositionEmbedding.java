@@ -5,7 +5,7 @@ import math.dataType.DataType;
 import math.dataType.matrix.Matrix;
 import math.dataType.vector.Vector;
 
-import static math.BasicMathUtility.exp;
+import static math.BasicMathUtility.*;
 import static math.dataType.matrix.Matrix.emptyMatrix;
 import static math.dataType.vector.Vector.emptyVector;
 
@@ -13,42 +13,69 @@ public class SinusoidPositionEmbedding
 {
     private Matrix positionMatrix;
 
-    public void init(Config config, int vectorSize)
+    public void initInterleaved(Config config, int vectorSize)
     {
-        var contextSize = config.getContextSize();
+        init(config, vectorSize, true);
+    }
 
-        positionMatrix = emptyMatrix(DataType.FLOAT_32, contextSize, vectorSize);
+    public void initSliced(Config config, int vectorSize)
+    {
+        init(config, vectorSize, false);
+    }
 
-        Vector positions = emptyVector(contextSize);
-        for (int i = 0; i < contextSize; i++)
+    private void init(Config config, int vectorSize, boolean isInterleaved)
+    {
+        var positionCount = config.getContextSize() + 2;
+
+        positionMatrix = emptyMatrix(DataType.FLOAT_32, positionCount, vectorSize);
+
+        // Range between 0 and (contextSize + 2)
+        Vector positions = emptyVector(positionCount);
+        for (int i = 0; i < positionCount; i++)
         {
             positions.set(i, i);
         }
 
-        Vector progression = emptyVector(contextSize / 2);
-        for (int i = 0; i < contextSize / 2; i++)
+        // Exponential progression for a range of vectorSize / 2
+        int halfSize = vectorSize / 2;
+        double emb = Math.log(10000) / (halfSize - 1);
+
+        Vector progression = emptyVector(halfSize);
+        for (int i = 0; i < halfSize; i++)
         {
-            progression.set(i, exp(-i * Math.log(10000) / contextSize));
+            progression.set(i, exp(i * -emb));
         }
 
-        for (int pos = 0; pos < contextSize; pos++)
+        // Make a matrix of the two ranges
+        for (int pos = 0; pos < positionCount; pos++)
         {
-            for (int k = 0; k < vectorSize / 2; k++)
+            for (int i = 0; i < halfSize; i++)
             {
-                int i = 2 * k;
-                positionMatrix.setValue(pos, i, (float) Math.sin(positions.get(i) * progression.get(k)));
-                positionMatrix.setValue(pos, i + 1, (float) Math.sin(positions.get(i + 1) * progression.get(k)));
+                var value = positions.get(pos) * progression.get(i);
+
+                if (isInterleaved)
+                {
+                    positionMatrix.setValue(pos, 2 * i,     sin(value));
+                    positionMatrix.setValue(pos, 2 * i + 1, cos(value));
+                }
+                else
+                {
+                    positionMatrix.setValue(pos, i,            sin(value));
+                    positionMatrix.setValue(pos, i + halfSize, cos(value));
+                }
             }
         }
     }
 
     public Vector apply(Vector vector, int pos)
     {
+        Vector result = emptyVector(vector.getFloatType(), vector.size());
+
         for (int i = 0; i < vector.size(); i++)
         {
-            vector.set(i, vector.get(i) * positionMatrix.getValue(pos, i));
+            result.set(i, vector.get(i) + positionMatrix.getValue(pos, i));
         }
 
-        return vector;
+        return result;
     }
 }

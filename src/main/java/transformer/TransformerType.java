@@ -7,6 +7,9 @@ import transformer._2018_01_google_transformer.GoogleTransformerNeuralNetLayer;
 import transformer._2018_06_openai_gpt1.GPT1;
 import transformer._2018_06_openai_gpt1.GPT1AttentionLayer;
 import transformer._2018_06_openai_gpt1.GPT1NeuralNetLayer;
+import transformer._2018_09_facebook_fairseq.Fairseq;
+import transformer._2018_09_facebook_fairseq.FairseqAttentionLayer;
+import transformer._2018_09_facebook_fairseq.FairseqNeuralNetLayer;
 import transformer._2019_02_openai_gpt2.GPT2;
 import transformer._2019_02_openai_gpt2.GPT2AttentionLayer;
 import transformer._2019_02_openai_gpt2.GPT2NeuralNetLayer;
@@ -51,6 +54,7 @@ public enum TransformerType
     ELEUTHERAI_GPT_J,
     ELEUTHERAI_GPT_NEOX,
     BIG_SCIENCE_BLOOM,
+    META_FAIRSEQ,
     META_OPT,
     META_OPT_350,
     META_LLAMA,
@@ -81,6 +85,7 @@ public enum TransformerType
             case ELEUTHERAI_GPT_J       -> new GPTJ();
             case ELEUTHERAI_GPT_NEOX    -> new GPTNeoX();
             case BIG_SCIENCE_BLOOM      -> new Bloom();
+            case META_FAIRSEQ           -> new Fairseq();
             case META_OPT               -> new OPT();
             case META_OPT_350           -> new OPT350();
             case META_LLAMA             -> new Llama();
@@ -102,6 +107,7 @@ public enum TransformerType
             case ELEUTHERAI_GPT_NEO     -> new GPTNeoAttentionLayer();
             case ELEUTHERAI_GPT_J       -> new GPTJAttentionLayer();
             case ELEUTHERAI_GPT_NEOX    -> new GPTNeoXAttentionLayer();
+            case META_FAIRSEQ           -> new FairseqAttentionLayer();
             case META_OPT               -> new OPTAttentionLayer();
             case META_OPT_350           -> new OPT350AttentionLayer();
             case META_LLAMA             -> new LlamaAttentionLayer();
@@ -123,6 +129,7 @@ public enum TransformerType
             case ELEUTHERAI_GPT_NEO     -> new GPTNeoNeuralNetLayer();
             case ELEUTHERAI_GPT_J       -> new GPTJNeuralNetLayer();
             case ELEUTHERAI_GPT_NEOX    -> new GPTNeoXNeuralNetLayer();
+            case META_FAIRSEQ           -> new FairseqNeuralNetLayer();
             case META_OPT               -> new OPTNeuralNetLayer();
             case META_OPT_350           -> new OPT350NeuralNetLayer();
             case META_LLAMA             -> new LlamaNeuralNetLayer();

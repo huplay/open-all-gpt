@@ -1,0 +1,8 @@
+{
+  "name": "XGLM 4.5B",
+  "transformerType": "META_FAIRSEQ",
+  "repo": "https://huggingface.co/facebook/xglm-4.5B",
+  "files": ["config.json", "model.safetensors"],
+  "decoderParameterNaming": "model.layers.{decoderId}.{name}",
+  "memorySize": 1024
+}

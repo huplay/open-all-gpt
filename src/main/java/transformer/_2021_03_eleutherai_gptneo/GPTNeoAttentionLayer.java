@@ -5,6 +5,8 @@ import math.dataType.matrix.Matrix;
 import transformer.BaseAttentionLayer;
 import math.dataType.vector.Vector;
 
+import java.util.List;
+
 import static math.MathUtil.MATH;
 import static config.ParameterType.*;
 
@@ -17,7 +19,8 @@ public class GPTNeoAttentionLayer extends BaseAttentionLayer
 {
     Parameter normWeight, normBias, queryWeight, keyWeight, valueWeight, projectionWeight, projectionBias;
 
-    int maxAttentionSize;
+    boolean isLocalAttention;
+    int maxLocalAttentionSize = 256;
 
     public void loadParameters()
     {
@@ -29,7 +32,9 @@ public class GPTNeoAttentionLayer extends BaseAttentionLayer
         projectionWeight = loadMatrix(VERTICAL_WEIGHT, "attn.attention.out_proj.weight", hiddenSize, hiddenSize);
         projectionBias   = loadVector(BIAS,            "attn.attention.out_proj.bias",  hiddenSize);
 
-        maxAttentionSize = 256; // TODO: Move sparse attention to logic, not as config
+        // Every second decoder has local attention (if the decoderId is an odd number),
+        // which means the attention size is capped. (It is called "sparse attention".)
+        isLocalAttention = (decoderId % 2 != 0);
     }
 
     public Vector process(Vector inputHiddenState, boolean isInputOnly)
@@ -62,43 +67,33 @@ public class GPTNeoAttentionLayer extends BaseAttentionLayer
         Matrix keyByHead = key.split(headCount);
         Matrix valueByHead = value.split(headCount);
 
-        // Store the keys and values (these will be available while the following tokens will be processed)
-        storedKeys.add(keyByHead);
-        storedValues.add(valueByHead);
-        int storedSize = storedKeys.size();
+        // At local attention we can forget the stored keys/values for the too distant tokens (above limit)
+        if (isLocalAttention && storedSize() > maxLocalAttentionSize)
+        {
+            removeFirstStoredKey();
+            removeFirstStoredValue();
+        }
 
-        // Matrix for collecting the attention results for all heads
+        // Collector of the attention results for all heads
         Matrix valueAggregate = emptyMatrix(headCount, headSize);
 
         // Score the previous tokens (including the actual), separately for all heads
         for (int head = 0; head < headCount; head++)
         {
-            // Calculate the scores
-            Vector actualQuery = queryByHead.row(head);
-            Vector scores = Vector.emptyVector(actualQuery.getFloatType(), storedSize);
+            // Store the keys and values (these will be available while the following tokens will be processed)
+            store(head, keyByHead, valueByHead);
 
-            for (int pos = 0; pos < storedSize; pos++)
-            {
-                // The score is calculated multiplying the "actual" query vector and the "related" key vector
-                Vector relatedKey = storedKeys.get(pos).row(head);
-                scores.set(pos, actualQuery.dotProduct(relatedKey));
-            }
+            // Process the core of the attention mechanism (dot product attention)
+            Vector attentionResult = dotProductAttention(
+                                            queryByHead.row(head),
+                                            getStoredKeys(head),
+                                            getStoredValues(head));
 
-            // Scale the scores to values between 0 and 1
-            scores = MATH.softmax(scores);
-
-            // Multiply the value matrices with the scores, and sum up
-            for (int pos = 0; pos < storedSize; pos++)
-            {
-                Vector relatedValue = storedValues.get(pos).row(head);
-                Vector multipliedValue = relatedValue.multiply(scores.get(pos));
-
-                Vector actualValue = valueAggregate.row(head);
-                valueAggregate.setRow(head, actualValue.add(multipliedValue));
-            }
+            // Add the result to the collector for the actual head
+            valueAggregate.setRow(head, attentionResult);
         }
 
-        // Concatenate the results for all heads
+        // Concatenate the results of all heads
         hiddenState = valueAggregate.flatten();
 
         // Projection neural layer
@@ -106,5 +101,38 @@ public class GPTNeoAttentionLayer extends BaseAttentionLayer
         hiddenState = hiddenState.add(vector(projectionBias));
 
         return hiddenState;
+    }
+
+    private Vector dotProductAttention(Vector query, List<Vector> keys, List<Vector> values)
+    {
+        int tokenCount = keys.size();
+
+        // Score all tokens using the actual query and the keys
+        Vector scores = emptyVector(tokenCount);
+        for (int pos = 0; pos < tokenCount; pos++)
+        {
+            Vector relatedKey = keys.get(pos);
+
+            // The core of the dot product attention
+            float score = query.dotProduct(relatedKey);
+            scores.set(pos, score);
+        }
+
+        // Normalize the scores into a range between 0 and 1
+        scores = MATH.softmax(scores);
+
+        // Apply the score on the values vectors
+        Vector result = Vector.emptyVector(query.getFloatType(), query.size());
+        for (int pos = 0; pos < tokenCount; pos++)
+        {
+            Vector relatedValue = values.get(pos);
+            float score = scores.get(pos);
+
+            // Multiply the values by the score and sum up
+            Vector scoredValue = relatedValue.multiply(score);
+            result = result.add(scoredValue);
+        }
+
+        return result;
     }
 }

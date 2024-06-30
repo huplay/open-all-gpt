@@ -1,0 +1,9 @@
+{
+  "name": "XGLM 564M",
+  "transformerType": "META_FAIRSEQ",
+  "repo": "https://huggingface.co/facebook/xglm-564M",
+  "branch": "refs/pr/4",
+  "files": ["config.json", "model.safetensors"],
+  "decoderParameterNaming": "model.layers.{decoderId}.{name}",
+  "memorySize": 1024
+}

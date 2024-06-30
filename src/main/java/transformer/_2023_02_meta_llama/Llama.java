@@ -25,11 +25,15 @@ import static config.ParameterType.*;
 
   Llama 2 was announced and released on 18 July 2023. Publication: https://arxiv.org/abs/2307.09288
 
-  Changes in Llama2:
+  Changes in Llama 2:
     - Grouped Query Attention (GQA) (Only at certain models)
     - The context lenght was increased from 2048 to 4096
 
   Llama 3 was announced and released on 18 April 2024. (Publication is expected in few months.)
+
+  Changes in Llama 3:
+    - Both models uses Grouped Query Attention (GQA)
+    - Brain Float 16 data type (not Float 16)
 
   @author Hunor Szegi
  */

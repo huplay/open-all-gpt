@@ -1,0 +1,5 @@
+{
+  "tokenizerType": "OPENAI_GPT_2",
+  "repo": "https://huggingface.co/KoboldAI/fairseq-dense-125M",
+  "files": ["vocab.json", "merges.txt"]
+}

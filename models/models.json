@@ -65,7 +65,22 @@
   },
   "Meta": {"order": 5,
     "folders": {
-      "OPT": {"order": 1,
+	  "Fairseq": {"order": 1,
+		"folders":{
+		  "XGLM 564M": {"order": 1},
+		  "XGLM 1.7B": {"order": 2},
+		  "XGLM 2.9B": {"order": 3},
+		  "XGLM 4.5B": {"order": 4},
+		  "XGLM 7.5B": {"order": 5},
+		  "XGLM dense 125M": {"order": 6},
+		  "XGLM dense 355M": {"order": 7},
+		  "XGLM dense 1.3B": {"order": 8},
+		  "XGLM dense 2.7B": {"order": 9},
+		  "XGLM dense 6.7B": {"order": 10},
+		  "XGLM dense 13B": {"order": 11}
+        }
+      },
+      "OPT": {"order": 2,
         "folders":{
           "OPT 125M": {"order": 1},
           "OPT 350M": {"order": 2},
@@ -78,7 +93,7 @@
           "OPT 175B": {"order": 9}
         }
       },
-      "Llama 1": {"order": 2,
+      "Llama 1": {"order": 3,
         "folders": {
           "Llama 7B": {"order": 1},
           "Llama 13B": {"order": 2},
@@ -86,7 +101,7 @@
           "Llama 65B": {"order": 4}
         }
       },
-      "Llama 2": {"order": 3,
+      "Llama 2": {"order": 4,
         "folders": {
           "Llama 2 - 7B": {"order": 1},
           "Llama 2 - 7B-chat": {"order": 2},
@@ -96,16 +111,15 @@
           "Llama 2 - 70B-chat": {"order": 6}
         }
       },
-      "Llama 3": {"order": 4,
+      "Llama 3": {"order": 5,
         "folders": {
           "Llama 3 - 8B": {"order": 1},
           "Llama 3 - 8B-Instruct": {"order": 2},
           "Llama 3 - 70B": {"order": 3},
           "Llama 3 - 70B-Instruct": {"order": 4}
         }
-      }
-    ,
-      "OpenLlama": {"order": 5,
+      },
+      "OpenLlama": {"order": 6,
         "folders": {
           "OpenLlama 3B": {"order": 1},
           "OpenLlama 3B v2": {"order": 2},
@@ -114,14 +128,14 @@
           "OpenLlama 65B": {"order": 5}
         }
       },
-      "TinyLlamas (llama.cpp - Karpathy)": {"order": 6,
+      "TinyLlamas (llama.cpp - Karpathy)": {"order": 7,
         "folders": {
           "TinyLlama 15M": {"order": 1},
           "TinyLlama 42M": {"order": 2},
           "TinyLlama 110M": {"order": 3}
         }
       },
-      "TinyLlama (Zhang)": {"order": 7,
+      "TinyLlama (Zhang)": {"order": 8,
         "folders": {
           "TinyLlama 1.1B": {"order": 1},
           "TinyLlama 1.1B Chat1.0": {"order": 2}

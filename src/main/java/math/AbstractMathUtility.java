@@ -159,21 +159,20 @@ public abstract class AbstractMathUtility
         var max = max(vector);
 
         double total = 0;
+        var exponents = new float[vector.size()];
         for (var i = 0; i < vector.size(); i++)
         {
-            var value = vector.get(i);
-            var exp = BasicMathUtility.exp(value - max);
+            var exponent = BasicMathUtility.exp(vector.get(i) - max);
+            exponents[i] = exponent;
 
-            total = total + exp;
+            total = total + exponent;
         }
 
         Vector ret = emptyVector(vector.getFloatType(), vector.size());
 
         for (var i = 0; i < vector.size(); i++)
         {
-            double exp = BasicMathUtility.exp(vector.get(i) - max);
-
-            ret.set(i, (float) (exp / total));
+            ret.set(i, (float) (exponents[i] / total));
         }
 
         return ret;
@@ -187,16 +186,20 @@ public abstract class AbstractMathUtility
         var max = max(values);
 
         double total = 0;
-        for (var value : values)
+        var exponents = new float[values.size()];
+        for (var i = 0; i < values.size(); i++)
         {
-            total = total + BasicMathUtility.exp(value.value() - max);
+            var exponent = BasicMathUtility.exp(values.get(i).value() - max);
+            exponents[i] = exponent;
+
+            total = total + exponent;
         }
 
         var ret = new float[values.size()];
 
         for (var i = 0; i < values.size(); i++)
         {
-            ret[i] = (float) (BasicMathUtility.exp(values.get(i).value() - max) / total);
+            ret[i] = (float) (exponents[i] / total);
         }
 
         return ret;

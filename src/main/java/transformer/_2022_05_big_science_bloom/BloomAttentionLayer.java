@@ -6,7 +6,6 @@ import position.alibi.AlibiPositionEmbedding;
 import transformer.BaseAttentionLayer;
 import math.dataType.vector.Vector;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static math.MathUtil.MATH;
@@ -20,9 +19,6 @@ import static math.BasicMathUtility.sqrt;
  */
 public class BloomAttentionLayer extends BaseAttentionLayer
 {
-    protected final List<List<Vector>> storedKeys = new ArrayList<>(headCount);
-    protected final List<List<Vector>> storedValues = new ArrayList<>(headCount);
-
     Parameter normWeight, normBias, queryKeyValueWeight, queryKeyValueBias, projectionWeight, projectionBias;
 
     AlibiPositionEmbedding position = new AlibiPositionEmbedding();
@@ -37,14 +33,8 @@ public class BloomAttentionLayer extends BaseAttentionLayer
         projectionWeight    = loadMatrix(VERTICAL_WEIGHT, "self_attention.dense.weight",           hiddenSize, hiddenSize);
         projectionBias      = loadVector(BIAS,            "self_attention.dense.bias",             hiddenSize);
 
-        for (int i = 0; i < headCount; i++)
-        {
-            storedKeys.add(new ArrayList<>());
-            storedValues.add(new ArrayList<>());
-        }
-
-        // Calculate the attention dividend
-        attentionDividend = sqrt(headSize);
+        // Calculate the attention scale
+        attentionScale = 1 / sqrt(headSize);
 
         // Initialize the position embedder
         position.init(headCount);
@@ -77,7 +67,7 @@ public class BloomAttentionLayer extends BaseAttentionLayer
         // Split the query, key and value vectors into pieces for all heads
         Matrix queryKeyValuesByHead = queryKeyValue.split(headCount);
 
-        // Matrix for collecting the attention results for all heads
+        // Collector of the attention results for all heads
         Matrix valueAggregate = emptyMatrix(headCount, headSize);
 
         // Score the previous tokens (including the actual), separately for all heads
@@ -91,43 +81,21 @@ public class BloomAttentionLayer extends BaseAttentionLayer
             Vector keyByHead = split.row(1);
             Vector valueByHead = split.row(2);
 
-            storedKeys.get(head).add(keyByHead);
-            storedValues.get(head).add(valueByHead);
-
             // Store the keys and values (these will be available while the following tokens will be processed)
-            int storedSize = storedKeys.get(head).size();
+            store(head, keyByHead, valueByHead);
 
-            // Calculate the scores
-            Vector scores = Vector.emptyVector(hiddenState.getFloatType(), storedSize);
+            // Process the core of the attention mechanism (dot product attention)
+            Vector attentionResult = dotProductAttention(
+                                            head,
+                                            queryByHead,
+                                            getStoredKeys(head),
+                                            getStoredValues(head));
 
-            for (int pos = 0; pos < storedSize; pos++)
-            {
-                // The score is calculated multiplying the "actual" query vector and the "related" key vector
-                Vector relatedKey = storedKeys.get(head).get(pos);
-                float score = queryByHead.dotProduct(relatedKey);
-
-                // Position embedding at score
-                score = position.apply(score, head, storedSize - pos);
-
-                // Divide the score by the attention dividend
-                scores.set(pos, score / attentionDividend);
-            }
-
-            // Scale the scores to values between 0 and 1
-            scores = MATH.softmax(scores);
-
-            // Multiply the value matrices with the scores, and sum up
-            for (int pos = 0; pos < storedSize; pos++)
-            {
-                Vector relatedValue = storedValues.get(head).get(pos);
-                Vector multipliedValue = relatedValue.multiply(scores.get(pos));
-
-                Vector actualValue = valueAggregate.row(head);
-                valueAggregate.setRow(head, actualValue.add(multipliedValue));
-            }
+            // Add the result to the collector for the actual head
+            valueAggregate.setRow(head, attentionResult);
         }
 
-        // Concatenate the results for all heads
+        // Concatenate the results of all heads
         hiddenState = valueAggregate.flatten();
 
         // Projection neural layer
@@ -135,5 +103,42 @@ public class BloomAttentionLayer extends BaseAttentionLayer
         hiddenState = hiddenState.add(vector(projectionBias));
 
         return hiddenState;
+    }
+
+    private Vector dotProductAttention(int head, Vector query, List<Vector> keys, List<Vector> values)
+    {
+        int tokenCount = keys.size();
+
+        // Score all tokens using the actual query and the keys
+        Vector scores = emptyVector(tokenCount);
+        for (int pos = 0; pos < tokenCount; pos++)
+        {
+            Vector relatedKey = keys.get(pos);
+
+            // The core of the dot product attention (the scaling is applied only after the position embedding)
+            float score = query.dotProduct(relatedKey);
+
+            // Position embedding at score
+            score = position.apply(score, head, tokenCount - pos);
+
+            scores.set(pos, score * attentionScale);
+        }
+
+        // Normalize the scores into a range between 0 and 1
+        scores = MATH.softmax(scores);
+
+        // Apply the score on the values vectors
+        Vector result = Vector.emptyVector(query.getFloatType(), query.size());
+        for (int pos = 0; pos < tokenCount; pos++)
+        {
+            Vector relatedValue = values.get(pos);
+            float score = scores.get(pos);
+
+            // Multiply the values by the score and sum up
+            Vector scoredValue = relatedValue.multiply(score);
+            result = result.add(scoredValue);
+        }
+
+        return result;
     }
 }
