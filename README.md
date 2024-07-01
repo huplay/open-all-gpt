@@ -123,6 +123,7 @@ The following transformer architectures are implemented:
 - `ELEUTHERAI_GPT_J`: Second GPT implementation by EleutherAI, released in June 2021. First model with Rotary Position Embedding (RoPE), and other details also diverged from the previous models.
 - `ELEUTHERAI_GPT_NEOX`: Third GPT implementation by EleutherAI, released in Feb 2022. More similar to the original transformers than GPT-J, but it is also uses rotary position embedding.
 - `BIG_SCIENCE_BLOOM`: Created by an open community organised by Hugging Face to create a similar model to GPT-3. Released in March-July 2022. The main difference to GPT-2/GPT-3 is the Alibi position embedding.
+- `META_FAIRSEQ`: Fairseq toolkit created by FAIR (Meta AI), used for research projects, first one was published in Sep 2018. (Before GPT-2)
 - `META_OPT`: Created by Meta (Facebook), released in May 2022.
 - `META_LLAMA`: Created by Meta (Facebook), released in Feb 2023. Currently only the original architecture is supported, but the latest models use Grouped Query Attention. Changes to GPT-2: Rotary position embedding, 3 layered MLP block, Swiglu activation function, RSM normalization.
 - `MISTRALAI_MISTRAL`: Created by MistralAI, released in Sep 2023. Almost identical to Llama, but uses different position embedding.
@@ -134,7 +135,7 @@ The following transformer architectures are implemented:
 |:------------|:-------:|:--------:|------|---|---|---|---|:----:|---|------|---|----------:|---|----|
 | Transformer |  Sinus  |   MHA    | XXX  |   | ? | X |   | ReLU |   | Std. |   |       F32 |   |    |  
 | GPT-1       | Learned |   MHA    | XXX  |   | X | X |   | GELU |   | Std. |   |       F32 |   |    |
-| Fairseq     |  Sinus  |   MHA    | XXX  | X | * |   |   |  *   | X | Std. |   |       F32 | X |    |
+| Fairseq     |  Sinus  |   MHA    | XXX  | X | * |   |   |  *   | X | Std. |   |  F32, F16 | X |    |
 | GPT-2       | Learned |   MHA    | XXX  |   | X | X |   | GELU | X | Std. |   |       F32 |   |    |
 | GPT-3       | Learned | MHA sp.  | XXX  | * | ? | X |   | GELU | X | Std. |   |       F32 |   |    |
 | GPT-Neo     | Learned | MHA sp.  | -XX  | X |   |   |   | GELU | X | Std. |   |       F32 |   |    |
@@ -147,8 +148,9 @@ The following transformer architectures are implemented:
 | Llama 2     | RoPE i. | MHA, GQA | ---  | X |   | X | X | SiLU | X | RMS  |   |       F16 |   |    |
 | Llama 3     | RoPE i. |   GQA    | ---  | X |   | X | X | SiLU | X | RMS  |   |      BF16 |   |    |
 | Falcon      | RoPE ?  | MQA, GQA | ---  | X | ? | ? |   | GELU | X | Std. |   |      BF16 |   | *1 |
-| Mistral     | RoPE i. |  GQA sp  | ---  | X |   | X | X | SiLU | X | RMS  |   |      BF16 | X |    |
+| Mistral     | RoPE i. | GQA sp.  | ---  | X |   | X | X | SiLU | X | RMS  |   |      BF16 | X |    |
 | Gemma       | RoPE s. | MQA, MHA | ---  | X |   | X | X | GELU | X | RMS* | X |      BF16 |   |    |
+| Gemma 2     | RoPE s. | GQA sp.  | ---  | X |   | X | X | GELU | X | RMS* | X |      BF16 |   |    |
 
 Legend:
 - `Pos.` : Position embedding type. (Sinusoid / Learned/ RoPE (interleaved or sliced) / ALiBi)

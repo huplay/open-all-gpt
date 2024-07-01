@@ -116,6 +116,18 @@ public class Config
         return getValue(key).equals("true");
     }
 
+    public boolean getBooleanValue(String key, boolean defaultValue)
+    {
+        try
+        {
+            return getValue(key).equals("true");
+        }
+        catch (Exception e)
+        {
+            return defaultValue;
+        }
+    }
+
     public int getInt(String key)
     {
         try

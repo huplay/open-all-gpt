@@ -10,16 +10,22 @@ import static math.MathUtil.MATH;
 /**
   Mistral transformer
 
-  Mistral 7B was released on 27 Sep 2023 by MistralAI.
+  Mistral 7B v0.1 was released on 27 Sep 2023 by MistralAI.
   Publication: https://arxiv.org/abs/2310.06825
 
  The architecture is almost identical to the Llama models, even the parameter names are the same.
 
   Differences to Llama:
     - Untied embedding / un-embedding matrices (Separate parameters for token embeddings and generating logits.)
-    - Sparse attention
+    - Sparse attention (only at v.0.1)
 
-  @author Hunor Szegi
+  Later they created an instruct variant (fine-trained answering to instructions),
+  and there are v.02 and v.03 versions as well. (At the newer versions the sparse attention was dropped.)
+
+  TODO: Sparse attention to be configurable "sliding_window": null
+  TODO: Rope theta configurable
+
+ @author Hunor Szegi
  */
 public class Mistral extends BaseTransformer
 {

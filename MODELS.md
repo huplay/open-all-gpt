@@ -26,7 +26,9 @@ OpenAI was the first to recreate the decoder-only Transformer architecture, and 
 |-------|------------:|---------:|---------:|------------:|---------------:|
 | GPT-1 |         768 |       12 |       12 |        1024 |          124 M |
 
-### Sep 2018 - Adaptive input models (Baevski - Auli, Facebook AI Research)
+### Sep 2018 - Fairseq (FAIR, Meta AI) ###
+
+Fairseq toolkit was created by FAIR (later Meta AI). Transformer support was added in June 2018, first published decoder-only usage by Baevski-Auli. (Adaptive input)
 
 | Name                        | Hidden size | Dec. no. | Head no. | Max. length | Size of params |
 |-----------------------------|------------:|---------:|---------:|------------:|---------------:|
@@ -60,22 +62,74 @@ The GPT-3 algorithm is known (almost identical to GPT-2), this application has i
 | GPT-3 DAVINCI v2 / GPT-3.5 |       12288 |       96 |       96 |        4000 |        174,591 M |
 | GPT-3 DAVINCI v3 / ChatGPT |       12288 |       96 |       96 |        4000 |        174,591 M |
 
-### March 2021 - GPT-NEO/J/NEOX (EleutherAI) ###
+### March 2021 - GPT-Neo (EleutherAI) ###
 
-`EleutherAI` is attempting to recreate all the GPT-3 variants, training them on their own dataset (`Pile`). (https://www.eleuther.ai)
+`EleutherAI` attempted to recreate the GPT-3 models to make it accessible for everyone. Initially it resulted the GPT-Neo series.
 
-I converted the parameters for the smaller models into my standard format, but optionally you can use the original Pytorch files as well. Here you can find the links for the converted parameters.
+| Name         | Hidden size | Dec. no. | Head no. | Max. length | Size of params |
+|--------------|------------:|---------:|---------:|------------:|---------------:|
+| GPT-Neo 125M |         768 |       12 |       12 |        2048 |          124 M |
+| GPT-Neo 350M |        1024 |       24 |       16 |        2048 |          355 M |
+| GPT-Neo 1.3B |        2048 |       24 |       16 |        2048 |        1,314 M |
+| GPT-Neo 2.7B |        2560 |       32 |       20 |        2048 |        2,649 M |
 
-EleutherAI created the following models so far:
+### June 2021 - GPT-J (EleutherAI) ###
 
-| Name                               | Hidden size | Dec. no. | Head no. | Max. length | Size of params |
-|------------------------------------|------------:|---------:|---------:|------------:|---------------:|
-| GPT-NEO-SMALL <br /> GPT-NEO-125M  |         768 |       12 |       12 |        2048 |          124 M |
-| GPT-NEO-MEDIUM <br /> GPT-NEO-350M |        1024 |       24 |       16 |        2048 |          355 M |
-| GPT-NEO-XL <br /> GPT-NEO-1.3B     |        2048 |       24 |       16 |        2048 |        1,314 M |
-| GPT-NEO-ADA <br /> GPT-NEO-2.7B    |        2560 |       32 |       20 |        2048 |        2,649 M |
-| GPT-J-6B                           |        4096 |       28 |       16 |        2048 |        5,849 M |
-| GPT-NEOX-20B                       |        6144 |       44 |       64 |        2048 |       20,250 M |
+GPT-J was the second step towards a GPT-3 size open model by `EleutherAI` and Ben Wang (Mesh-Transformer-JAX).
+It was the largest open model at that time (6B), but far from the size of GPT-3 (175B).
+It was the first model using the RoPE position embedding.
+
+| Name         | Hidden size | Dec. no. | Head no. | Max. length | Size of params |
+|--------------|------------:|---------:|---------:|------------:|---------------:|
+| GPT-J-6B     |        4096 |       28 |       16 |        2048 |        5,849 M |
+
+### XGLM (FAIR, Meta AI)
+
+XGML (Presumably Cross-lingual Generative Language Model) was published in Dec 2021. These are models trained on multi-language corpus.
+
+| Name      | Hidden size | Dec. no. | Head no. | Max. length | Comment     |
+|-----------|------------:|---------:|---------:|------------:|-------------|
+| XGLM 564M |        1024 |       24 |       16 |        2048 |             |
+| XGLM 1.7B |        2048 |       24 |       16 |        2048 |             |
+| XGLM 2.9B |        2048 |       48 |       16 |        2048 |             |
+| XGLM 4.5B |        2048 |       48 |       16 |        2048 | Added later |
+| XGLM 7.5B |        4096 |       32 |       32 |        2048 |             |
+
+On the same day the same team published another research, comparing vanilla to mixture of experts models,
+where they trained 6 vanilla and 4 mixture of experts models. (In this context the "dense" is a vanilla transformer, and "sparse" is a mixture of experts model.)
+
+(This app supports only the vanilla transformer architectures, not the mixture of experts.)
+
+| Name            | Hidden size | Dec. no. | Head no. | Max. length |
+|-----------------|------------:|---------:|---------:|------------:|
+| XGLM dense 125M |         768 |       12 |       12 |        2048 |
+| XGLM dense 355M |        1024 |       24 |       16 |        2048 |
+| XGLM dense 1.3B |        2048 |       24 |       32 |        2048 |
+| XGLM dense 2.7B |        2560 |       32 |       32 |        2048 |
+| XGLM dense 6.7B |        4096 |       32 |       32 |        2048 |
+| XGLM dense 13B  |        5120 |       40 |       40 |        2048 |
+
+### Feb 2022 - GPT-NeoX (EleutherAI) ###
+
+GPT-NeoX is the third step towards a GPT-3 size open model by `EleutherAI`.
+It was the largest open model at the time of its release, but far from the size of GPT-3 (175B).
+
+| Name         | Hidden size | Dec. no. | Head no. | Max. length | Size of params |
+|--------------|------------:|---------:|---------:|------------:|---------------:|
+| GPT-NeoX-20B |        6144 |       44 |       64 |        2048 |       20,250 M |
+
+### May 2022 - BLOOM ###
+
+BLOOM (BigScience Large Open-science Open-access Multilingual Language Model) was created by over a thousand AI developers, organized by Hugging Face, published in May 2022.
+
+| Name       | Hidden size | Dec. no. | Head no. | Max. length | Size of params |
+|------------|------------:|---------:|---------:|------------:|---------------:|
+| BLOOM-560M |        1024 |       24 |       16 |        2048 |          559 M | 
+| BLOOM-1.1B |        1536 |       24 |       16 |        2048 |        1,065 M |
+| BLOOM-1.7B |        2048 |       24 |       16 |        2048 |        1,722 M |
+| BLOOM-3B   |        2560 |       30 |       32 |        2048 |        3,003 M |
+| BLOOM-7.1B |        4096 |       30 |       32 |        2048 |        7,069 M |
+| BLOOM-176B |       14336 |       70 |      112 |        2048 |      176,247 M |
 
 ### May 2022 - Meta (Facebook) OPT ###
 
@@ -94,22 +148,9 @@ The largest model has an equivalent size to GPT-3. (It was the largest available
 | OPT 66B  |        9216 |       64 |       72 |        2048 |              ? |
 | OPT 175B |       12288 |       96 |       96 |        2048 |              ? |
 
-### May 2022 - BLOOM ###
-
-BLOOM (BigScience Large Open-science Open-access Multilingual Language Model) was created by over a thousand AI developers, organized by Hugging Face, published in May 2022.
-
-| Name       | Hidden size | Dec. no. | Head no. | Max. length | Size of params |
-|------------|------------:|---------:|---------:|------------:|---------------:|
-| BLOOM-560M |        1024 |       24 |       16 |        2048 |          559 M | 
-| BLOOM-1.1B |        1536 |       24 |       16 |        2048 |        1,065 M |
-| BLOOM-1.7B |        2048 |       24 |       16 |        2048 |        1,722 M |
-| BLOOM-3B   |        2560 |       30 |       32 |        2048 |        3,003 M |
-| BLOOM-7.1B |        4096 |       30 |       32 |        2048 |        7,069 M |
-| BLOOM-176B |       14336 |       70 |      112 |        2048 |      176,247 M |
-
 ### Feb 2023 - LLaMA (Meta AI) ###
 
-LLaMA (Large Language Model Meta AI) is a large language model announced by Meta (Facebook) in 23 Feb 2023. The trained parameters were shared only to academic researchers, but on 2 March it was leaked to the public.
+LLaMA (Large Language Model Meta AI) is a large language model announced by Meta (Facebook) on 23 Feb 2023. The trained parameters were shared only to academic researchers, but on 2 March it was leaked to the public.
 
 Llama 2 was published in 18 July 2023 in three sizes. Llama 3 was published in 18 Apr 2024 in two sizes. (The training of a 400B version is in progress.)
 
@@ -119,28 +160,28 @@ The weights and the code are completely public for Llama 2 and 3, free to use ev
 
 Vocabulary size is 32,000 for Llama 1, 2; and 128,000 for Llama 3. 
 
-| Name      | Hidden size | Dec. no. | Head no. | Max. length | Size of params |
-|-----------|------------:|---------:|---------:|------------:|---------------:|
-| LLaMA-7B  |        4096 |       32 |       32 |        2048 |        6,583 M |
-| LLaMA-13B |        5120 |       40 |       40 |        2048 |       12,759 M |
-| LLaMA-33B |        6656 |       60 |       52 |        2048 |       32,129 M |
-| LLaMA-65B |        8192 |       80 |       64 |        2048 |       64,711 M |
+| Name      | Hidden size | Dec. no. | Head no. | Kv Head no. | Max. length | Size of params |
+|-----------|------------:|---------:|---------:|------------:|------------:|---------------:|
+| LLaMA-7B  |        4096 |       32 |       32 |          32 |        2048 |        6,583 M |
+| LLaMA-13B |        5120 |       40 |       40 |          40 |        2048 |       12,759 M |
+| LLaMA-33B |        6656 |       60 |       52 |          52 |        2048 |       32,129 M |
+| LLaMA-65B |        8192 |       80 |       64 |          64 |        2048 |       64,711 M |
 
 Llama 2 uses an additional gate projection network in the MLP block, and the 70B model has Grouped Query Attention (GQA).
 
-| Name        | Hidden size | Dec. no. | Head no. | Max. length | Size of params |
-|-------------|------------:|---------:|---------:|------------:|---------------:|
-| Llama 2-7B  |        4096 |       32 |       32 |        4096 |       ~7,000 M |
-| Llama 2-13B |        5120 |       40 |       40 |        4096 |       13,016 M |
-| Llama 2-70B |        8192 |       80 |       64 |        4096 |      ~70,000 M |
+| Name        | Hidden size | Dec. no. | Head no. | Kv Head no. | Max. length | Size of params |
+|-------------|------------:|---------:|---------:|------------:|------------:|---------------:|
+| Llama 2-7B  |        4096 |       32 |       32 |          32 |        4096 |       ~7,000 M |
+| Llama 2-13B |        5120 |       40 |       40 |          40 |        4096 |       13,016 M |
+| Llama 2-70B |        8192 |       80 |       64 |           8 |        4096 |      ~70,000 M |
 
 Llama 3 architecturally the same as Llama 2-70B, all models use GQA (even the smallest).
 
-| Name         | Hidden size | Dec. no. | Head no. | Max. length | Size of params |
-|--------------|------------:|---------:|---------:|------------:|---------------:|
-| Llama 3-8B   |        4096 |       32 |       32 |        8192 |       ~8,000 M |
-| Llama 3-70B  |        8192 |       80 |       64 |        8192 |      ~70,000 M |
-| Llama 3-400B |        ???? |       ?? |       ?? |        ???? |     ~400,000 M |
+| Name         | Hidden size | Dec. no. | Head no. | Kv Head no. | Max. length | Size of params |
+|--------------|------------:|---------:|---------:|------------:|------------:|---------------:|
+| Llama 3-8B   |        4096 |       32 |       32 |           8 |        8192 |       ~8,000 M |
+| Llama 3-70B  |        8192 |       80 |       64 |           8 |        8192 |      ~70,000 M |
+| Llama 3-400B |        ???? |       ?? |       ?? |           ? |        ???? |     ~400,000 M |
 
 ### March 2023 - GPT-4 (OpenAI) ###
 
@@ -157,8 +198,6 @@ GPT-4 was released in 14 March 2023, but almost all technical details are kept s
 
 These are very similar models to the GPT-2/GTP-3 series, using the same tokenizer, same learned position embedding, etc. Unlike GPT-3, using always global attention.
 
-All of these are ported to this app:
-
 | Name          | Hidden size | Dec. no. | Head no. | Max. length | Size of params |
 |---------------|------------:|---------:|---------:|------------:|---------------:|
 | Cerebras-111M |         768 |       10 |       12 |        2048 |          111 M |
@@ -168,3 +207,25 @@ All of these are ported to this app:
 | Cerebras-2.7B |        2560 |       32 |       32 |        2048 |         2652 M |
 | Cerebras-6.7B |        4096 |       32 |       32 |        2048 |         6658 M |
 | Cerebras-13B  |        5120 |       40 |       40 |        2048 |        12853 M |
+
+### Sep 2023 - Mistral ###
+
+Mistral was released on 27 Sep 2023 by MistralAI. Later they created an instruct variant (fine-trained answering to instructions), and there are v.02 and v.03 versions as well. (At the newer versions the sparse attention was dropped.)
+
+| Name            | Hidden size | Dec. no. | Head no. | Kv Head no. |Max. length |
+|-----------------|------------:|---------:|---------:|------------:|-----------:|
+| Mistral 7B v0.1 |        4096 |       32 |       32 |           1 |      32768 |
+
+### Feb 2024 - Google Gemma ###
+
+Gemma was announced and released on 21 Feb 2024. Gemma-2 was released on 27 June 2024.
+
+| Name          | Hidden size | Dec. no. | Head no. | Kv Head no. | Max. length |
+|---------------|------------:|---------:|---------:|------------:|------------:|
+| Gemma 2B      |        2048 |       18 |        8 |           1 |        8192 |
+| Gemma 7B      |        3072 |       28 |       16 |          16 |        8192 |
+| Gemma 2B v1.1 |        2048 |       18 |        8 |           1 |        8192 |
+| Gemma 7B v1.1 |        3072 |       28 |       16 |          16 |        8192 |
+| Gemma-2 2.6B  |        2304 |       26 |        8 |           4 |        8192 |
+| Gemma-2 9B    |        3584 |       42 |       16 |           8 |        8192 |
+| Gemma-2 27B   |        4608 |       46 |       32 |          16 |        8192 |

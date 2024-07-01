@@ -24,7 +24,7 @@ import static math.MathUtil.MATH;
   The first published decoder-only model using Fairseq: Baevski and Auli, 28 Sep 2018: https://arxiv.org/abs/1809.10853
   Models (in pytorch format): https://github.com/facebookresearch/fairseq/blob/main/examples/language_model/README.md
 
-  Other notable use case was the XGML (Presumably Cross-lingual Generative Language Model) published in Dec 2021.
+  Other notable use case was the XGML (Presumably Cross-lingual Generative Language Model), published in Dec 2021.
   Publication: https://arxiv.org/abs/2112.10668
   Code and parameters (GitHub): https://github.com/facebookresearch/fairseq/tree/main/examples/xglm
   Parameters (Hugging Face, in safetensors format as well): https://huggingface.co/facebook
@@ -52,6 +52,8 @@ import static math.MathUtil.MATH;
   Differences to GPT-2:
     - Sinusoidal position embedding
     - The attention scale is applied on the query, not on the score
+    - Untied embedding / un-embedding matrices (Separate parameters for token embeddings and generating logits.)
+      (But at most of the models the two matrices are the same.)
     - The weights are stored in vertical matrices (easier to execute the vector-matrix multiplication)
     - The position embedding matrix contains 2 extra rows (not used at inference, but the position index should be adjusted)
     - The query/key/value matrices are stored separately (in later versions, like XGML)

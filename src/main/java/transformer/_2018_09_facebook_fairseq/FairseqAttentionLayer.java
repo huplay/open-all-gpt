@@ -25,7 +25,7 @@ public class FairseqAttentionLayer extends BaseAttentionLayer
 
     public void loadParameters()
     {
-        splitQueryKeyValue = config.getBooleanValue("splitQueryKeyValue");
+        splitQueryKeyValue = config.getBooleanValue("splitQueryKeyValue", false);
 
         if (splitQueryKeyValue)
         {

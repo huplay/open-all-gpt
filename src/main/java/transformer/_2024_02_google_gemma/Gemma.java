@@ -23,6 +23,9 @@ import static math.BasicMathUtility.sqrt;
     - GELU activation function (same as at GPT-2 and most of the models)
     - The rotary position embedding is applied in sliced arrangement (not interleaved) (same as at EleutherAI GPT-NeoX)
     - TODO: Be careful: https://github.com/huggingface/transformers/pull/29402
+
+  // TODO: Add Gemma 2
+
   @author Hunor Szegi
  */
 public class Gemma extends BaseTransformer
