@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
+import static math.MathUtil.MATH;
+import static math.dataType.matrix.Matrix.emptyMatrix;
 import static math.dataType.vector.Vector.emptyVector;
 
 public abstract class AbstractMathUtility
@@ -108,6 +110,43 @@ public abstract class AbstractMathUtility
     public abstract Vector flattenMatrix(Matrix matrix);
 
     /**
+     * Merge multiple matrices into a single matrix
+     */
+    public Matrix joinMatrices(List<Matrix> matrices)
+    {
+        int size = 0;
+        for (Matrix matrix : matrices) size += matrix.getColCount();
+
+        var first = matrices.getFirst();
+        Matrix result = emptyMatrix(first.getInternalFloatType(), first.getRowCount(), first.getColCount());
+
+        for (var i = 0; i < first.getRowCount(); i++)
+        {
+            result.setRow(i, joinMatrixRows(matrices, size, i));
+        }
+
+        return result;
+    }
+
+    private Vector joinMatrixRows(List<Matrix> matrices, int size, int index)
+    {
+        var result = emptyVector(size);
+
+        var pos = 0;
+        for (var matrix : matrices)
+        {
+            for (var i = 0; i < matrix.getColCount(); i++)
+            {
+                result.set(pos + i, matrix.getValue(index, i));
+            }
+
+            pos += matrix.getColCount();
+        }
+
+        return result;
+    }
+
+    /**
      * Transpose a matrix
      */
     public abstract Matrix transposeMatrix(Matrix matrix);
@@ -128,6 +167,23 @@ public abstract class AbstractMathUtility
         }
 
         return transposedMatrix;
+    }
+
+    /**
+     * Apply causal max on a matrix
+     */
+    public void applyCausalMask(Matrix matrix)
+    {
+        for (var row = 0; row < matrix.getRowCount(); row++)
+        {
+            for (var col = 0; col < matrix.getColCount(); col++)
+            {
+                if (col > row)
+                {
+                    matrix.setValue(row, col, Float.NEGATIVE_INFINITY);
+                }
+            }
+        }
     }
 
     /**
@@ -235,6 +291,21 @@ public abstract class AbstractMathUtility
         }
 
         return ret;
+    }
+
+    /**
+     * Calculate softmax on a matrix - rescale the values into a range between 0 and 1
+     */
+    public Matrix softmax(Matrix matrix)
+    {
+        var result = Matrix.emptyMatrix(matrix.getInternalFloatType(), matrix.getRowCount(), matrix.getColCount());
+
+        for (var i = 0; i < matrix.getRowCount(); i++)
+        {
+            result.setRow(i, MATH.softmax(matrix.getVectorArray()[i]));
+        }
+
+        return result;
     }
 
     /**

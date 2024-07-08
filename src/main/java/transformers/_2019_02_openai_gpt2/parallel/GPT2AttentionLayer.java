@@ -83,8 +83,8 @@ public class GPT2AttentionLayer extends ParallelBaseAttentionLayer
             valueAggregate.add(attentionResult);
         }
 
-        // Concatenate the results of all heads
-        hiddenState = flatten(valueAggregate);
+        // Join the results of all heads
+        hiddenState = MATH.joinMatrices(valueAggregate);
 
         // Projection neural layer
         hiddenState = hiddenState.multiply(matrix(projectionWeight));
@@ -93,73 +93,13 @@ public class GPT2AttentionLayer extends ParallelBaseAttentionLayer
         return hiddenState;
     }
 
-    private Matrix flatten(List<Matrix> matrices)
-    {
-        int size = 0;
-        for (Matrix matrix : matrices) size += matrix.getColCount();
-
-        var first = matrices.getFirst();
-        Matrix result = Matrix.emptyMatrix(first.getInternalFloatType(), first.getRowCount(), first.getColCount());
-
-        for (var i = 0; i < first.getRowCount(); i++)
-        {
-            result.setRow(i, flattenRow(matrices, size, i));
-        }
-
-        return result;
-    }
-
-    private Vector flattenRow(List<Matrix> matrices, int size, int index)
-    {
-        var result = emptyVector(size);
-
-        var pos = 0;
-        for (var matrix : matrices)
-        {
-            for (var i = 0; i < matrix.getColCount(); i++)
-            {
-                result.set(pos + i, matrix.getValue(index, i));
-            }
-
-            pos += matrix.getColCount();
-        }
-
-        return result;
-    }
-
     private Matrix scaledDotProductAttentionParallel(Matrix queries, Matrix keys, Matrix values)
     {
         Matrix att = queries.multiplyByTransposed(keys);
         att = att.multiply(attentionScale);
-        applyCausalMask(att);
-        att = softmax(att);
+        MATH.applyCausalMask(att);
+        att = MATH.softmax(att);
         return att.multiply(values);
-    }
-
-    private Matrix softmax(Matrix matrix)
-    {
-        var result = emptyMatrix(matrix.getRowCount(), matrix.getColCount());
-
-        for (var i = 0; i < matrix.getRowCount(); i++)
-        {
-            result.setRow(i, MATH.softmax(matrix.getVectorArray()[i]));
-        }
-
-        return result;
-    }
-
-    private void applyCausalMask(Matrix matrix)
-    {
-        for (var row = 0; row < matrix.getRowCount(); row++)
-        {
-            for (var col = 0; col < matrix.getColCount(); col++)
-            {
-                if (col > row)
-                {
-                    matrix.setValue(row, col, Float.NEGATIVE_INFINITY);
-                }
-            }
-        }
     }
 
     public Vector process(Vector inputHiddenState)
