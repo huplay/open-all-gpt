@@ -148,7 +148,9 @@
       "Gemma": {"order": 1,
         "folders": {
           "Gemma 2B": {"order": 1},
-          "Gemma 7B": {"order": 2}
+          "Gemma 7B": {"order": 2},
+	      "Gemma-2 9B": {"order": 3},
+		  "Gemma-2 27B": {"order": 4}
         }
       }
     }

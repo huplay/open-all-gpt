@@ -27,6 +27,8 @@ public interface Vector
 
     Matrix split(int rows);
 
+    Vector part(int slices, int index);
+
     static Vector emptyVector(int size)
     {
         return emptyVector(DataType.FLOAT_32, size);

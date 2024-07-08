@@ -1,6 +1,6 @@
 package network.worker.state;
 
-import transformer.BaseTransformer;
+import transformer.serial.BaseTransformer;
 
 import java.io.File;
 import java.util.HashMap;

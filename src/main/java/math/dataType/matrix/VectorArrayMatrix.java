@@ -5,7 +5,7 @@ import math.dataType.vector.Vector;
 
 public class VectorArrayMatrix extends AbstractMatrix
 {
-    private final Vector[] vectorArray;
+    private Vector[] vectorArray;
     private final DataType internalFloatType;
 
     public VectorArrayMatrix(DataType floatType, int rows, int cols)
@@ -47,6 +47,18 @@ public class VectorArrayMatrix extends AbstractMatrix
     public Vector[] getVectorArray()
     {
         return vectorArray;
+    }
+
+    @Override
+    public void addRow(Vector vector)
+    {
+        var index = vectorArray.length;
+        Vector[] newVectorArray = new Vector[index + 1];
+
+        System.arraycopy(vectorArray, 0, newVectorArray, 0, vectorArray.length);
+        newVectorArray[index] = vector;
+
+        this.vectorArray = newVectorArray;
     }
 
     @Override

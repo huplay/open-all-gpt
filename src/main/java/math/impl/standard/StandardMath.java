@@ -2,6 +2,7 @@ package math.impl.standard;
 
 import app.IdentifiedException;
 import math.dataType.matrix.Matrix;
+import math.dataType.matrix.VectorArrayMatrix;
 import math.dataType.vector.Vector;
 import math.AbstractMathUtility;
 
@@ -32,6 +33,34 @@ public class StandardMath extends AbstractMathUtility
     }
 
     @Override
+    public Matrix addMatrices(Matrix matrix1, Matrix matrix2)
+    {
+        var rows = matrix1.getRowCount();
+        var ret = new VectorArrayMatrix(matrix1.getInternalFloatType(), rows, matrix1.getColCount());
+
+        for (var i = 0; i < rows; i++)
+        {
+            ret.setRow(i, addVectors(matrix1.row(i), matrix2.row(i)));
+        }
+
+        return ret;
+    }
+
+    @Override
+    public Matrix addBroadcastVector(Matrix matrix, Vector vector)
+    {
+        var rows = matrix.getRowCount();
+        var ret = new VectorArrayMatrix(matrix.getInternalFloatType(), rows, matrix.getColCount());
+
+        for (var i = 0; i < rows; i++)
+        {
+            ret.setRow(i, addVectors(matrix.row(i), vector));
+        }
+
+        return ret;
+    }
+
+    @Override
     public float dotProduct(Vector vector1, Vector vector2)
     {
         var sum = 0f;
@@ -55,6 +84,20 @@ public class StandardMath extends AbstractMathUtility
         }
 
         return result;
+    }
+
+    @Override
+    public Matrix mulMatrixByScalar(Matrix matrix, float scalar)
+    {
+        var rows = matrix.getRowCount();
+        var ret = new VectorArrayMatrix(matrix.getInternalFloatType(), rows, matrix.getColCount());
+
+        for (var i = 0; i < rows; i++)
+        {
+            ret.setRow(i, mulVectorByScalar(matrix.row(i), scalar));
+        }
+
+        return ret;
     }
 
     @Override
@@ -107,6 +150,32 @@ public class StandardMath extends AbstractMathUtility
     }
 
     @Override
+    public Matrix mulMatrixByMatrix(Matrix matrix1, Matrix matrix2)
+    {
+        var result = emptyMatrix(matrix1.getInternalFloatType(), matrix1.getRowCount(), matrix2.getColCount());
+
+        for (var i = 0; i < matrix1.getRowCount(); i++)
+        {
+            result.setRow(i, mulVectorByMatrix(matrix1.row(i), matrix2));
+        }
+
+        return result;
+    }
+
+    @Override
+    public Matrix mulMatrixByTransposedMatrix(Matrix matrix1, Matrix matrix2)
+    {
+        var result = emptyMatrix(matrix1.getInternalFloatType(), matrix1.getRowCount(), matrix2.getColCount());
+
+        for (var i = 0; i < matrix1.getRowCount(); i++)
+        {
+            result.setRow(i, mulVectorByTransposedMatrix(matrix1.row(i), matrix2));
+        }
+
+        return result;
+    }
+
+    @Override
     public Matrix splitVector(Vector vector, int rows)
     {
         var cols = vector.size() / rows;
@@ -128,6 +197,38 @@ public class StandardMath extends AbstractMathUtility
         }
 
         return matrix;
+    }
+
+    @Override
+    public Vector partitionVector(Vector vector, int parts, int index)
+    {
+        var size = vector.size() / parts;
+        var result = emptyVector(vector.getFloatType(), size);
+
+        for (var i = 0; i < size; i++)
+        {
+            var value = vector.get(i + size * index);
+            result.set(i, value);
+        }
+
+        return result;
+    }
+
+    @Override
+    public Matrix partitionMatrix(Matrix matrix, int parts, int index)
+    {
+        var width = matrix.getColCount() / parts;
+        var result = new VectorArrayMatrix(matrix.getInternalFloatType(), matrix.getRowCount(), width);
+
+        for (var row = 0; row < matrix.getRowCount(); row++)
+        {
+            for (var i = 0; i < width; i++)
+            {
+                result.setValue(row, i, matrix.getValue(row, i + width * index));
+            }
+        }
+
+        return result;
     }
 
     @Override

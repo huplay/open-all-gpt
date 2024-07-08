@@ -40,4 +40,10 @@ public abstract class AbstractVector implements Vector
     {
         return MATH.splitVector(this, rows);
     }
+
+    @Override
+    public Vector part(int slices, int index)
+    {
+        return MATH.partitionVector(this, slices, index);
+    }
 }

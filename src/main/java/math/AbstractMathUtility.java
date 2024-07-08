@@ -1,6 +1,7 @@
 package math;
 
 import math.dataType.matrix.Matrix;
+import math.dataType.matrix.VectorArrayMatrix;
 import math.dataType.vector.Vector;
 
 import java.util.ArrayList;
@@ -22,6 +23,16 @@ public abstract class AbstractMathUtility
     public abstract Vector addVectors(Vector vector1, Vector vector2);
 
     /**
+     * Matrix to matrix addition
+     */
+    public abstract Matrix addMatrices(Matrix matrix1, Matrix matrix2);
+
+    /**
+     * Add broadcasted vector to matrix (same vector is added to all rows of the matrix)
+     */
+    public abstract Matrix addBroadcastVector(Matrix matrix, Vector vector);
+
+    /**
      * Dot product calculation (multiplying vector by vector)
      */
     public abstract float dotProduct(Vector vector1, Vector vector2);
@@ -30,6 +41,11 @@ public abstract class AbstractMathUtility
      * Multiply vector by a scalar
      */
     public abstract Vector mulVectorByScalar(Vector vector, float scalar);
+
+    /**
+     * Multiply matrix by scalar
+     */
+    public abstract Matrix mulMatrixByScalar(Matrix matrix, float scalar);
 
     /**
      * Multiply vector by matrix
@@ -42,9 +58,29 @@ public abstract class AbstractMathUtility
     public abstract Vector mulVectorByTransposedMatrix(Vector vector, Matrix matrix);
 
     /**
+     * Multiply matrix by matrix
+     */
+    public abstract Matrix mulMatrixByMatrix(Matrix matrix1, Matrix matrix2);
+
+    /**
+     * Multiply matrix by transposed matrix
+     */
+    public abstract Matrix mulMatrixByTransposedMatrix(Matrix matrix1, Matrix matrix2);
+
+    /**
      * Split a vector to a matrix
      */
     public abstract Matrix splitVector(Vector vector, int rows);
+
+    /**
+     * Split a vector and return the part specified by the index
+     */
+    public abstract Vector partitionVector(Vector vector, int parts, int index);
+
+    /**
+     * Split a matrix into multiple matrices
+     */
+    public abstract Matrix partitionMatrix(Matrix vector, int parts, int index);
 
     public Vector joinVectors(Vector vector1, Vector vector2)
     {
@@ -99,8 +135,17 @@ public abstract class AbstractMathUtility
      */
     public abstract float average(Vector vector);
 
+    public void applyWeightAndBias(Vector vector, Vector weight, Vector bias)
+    {
+        // Applying the trained weights and biases
+        for (var i = 0; i < vector.size(); i++)
+        {
+            vector.set(i, vector.get(i) * weight.get(i) + bias.get(i));
+        }
+    }
+
     /**
-     * Standard normalization with applying normalization weights and biases
+     * Standard normalization on a vector with applying normalization weights and biases
      */
     public Vector layerNorm(Vector vector, Vector weight, Vector bias, float epsilon)
     {
@@ -108,9 +153,23 @@ public abstract class AbstractMathUtility
         Vector result = normalize(vector, epsilon);
 
         // Applying the trained weights and biases
-        for (var i = 0; i < vector.size(); i++)
+        applyWeightAndBias(result, weight, bias);
+
+        return result;
+    }
+
+    /**
+     * Standard normalization on a matrix with applying normalization weights and biases
+     */
+    public Matrix layerNorm(Matrix matrix, Vector weight, Vector bias, float epsilon)
+    {
+        // Standard normalization
+        Matrix result = normalize(matrix, epsilon);
+
+        // Applying the trained weights and biases
+        for (var i = 0; i < matrix.getRowCount(); i++)
         {
-            result.set(i, result.get(i) * weight.get(i) + bias.get(i));
+            applyWeightAndBias(result.row(i), weight, bias);
         }
 
         return result;
@@ -263,6 +322,9 @@ public abstract class AbstractMathUtility
         return max;
     }
 
+    /**
+     * Normalization on a vector
+     */
     public Vector normalize(Vector vector, float epsilon)
     {
         var average = average(vector);
@@ -276,6 +338,22 @@ public abstract class AbstractMathUtility
         }
 
         return norm;
+    }
+
+    /**
+     * Normalization on a matrix
+     */
+    public Matrix normalize(Matrix matrix, float epsilon)
+    {
+        var rows = matrix.getRowCount();
+        var result = new VectorArrayMatrix(matrix.getInternalFloatType(), rows, matrix.getColCount());
+
+        for (var i = 0; i < rows; i++)
+        {
+            result.setRow(i, normalize(matrix.row(i), epsilon));
+        }
+
+        return result;
     }
 
     public float averageDiff(Vector values, float average, float epsilon)

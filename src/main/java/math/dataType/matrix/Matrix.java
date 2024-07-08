@@ -18,6 +18,8 @@ public interface Matrix
 
     Vector[] getVectorArray();
 
+    void addRow(Vector vector);
+
     int getRowCount();
 
     int getColCount();
@@ -25,6 +27,18 @@ public interface Matrix
     DataType getInternalFloatType();
 
     Vector flatten();
+
+    Matrix add(Matrix matrix);
+
+    Matrix addBroadcast(Vector vector);
+
+    Matrix multiply(float scalar);
+
+    Matrix multiply(Matrix matrix);
+
+    Matrix multiplyByTransposed(Matrix matrix);
+
+    Matrix part(int parts, int index);
 
     static MatrixType getInternalMatrixType(DataType floatType)
     {

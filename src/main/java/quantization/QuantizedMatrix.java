@@ -65,6 +65,12 @@ public abstract class QuantizedMatrix extends AbstractMatrix
     }
 
     @Override
+    public void addRow(Vector vector)
+    {
+        throw new IdentifiedException("addRow isn't supported for quantized matrix.");
+    }
+
+    @Override
     public DataType getInternalFloatType()
     {
         return outputFloatType;

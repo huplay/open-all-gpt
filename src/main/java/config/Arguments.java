@@ -14,6 +14,7 @@ public class Arguments
     private static final String ARG_MAX = "-max";
     private static final String ARG_TOP_K = "-topK";
     private static final String ARG_MEM = "-mem";
+    private static final String ARG_PARALLEL = "-parallel";
 
     // The root folder of the model configurations
     // The default is the "models", but it can be overridden by the OPEN_ALL_GPT_MODELS_ROOT environment variable
@@ -30,12 +31,13 @@ public class Arguments
     private final int topK;
     private boolean isCalculationOnly;
     private final Integer requestedMemorySize;
+    private final boolean isParallel;
     private final String serverAddress;
     private final Integer port;
 
     public Arguments(String configRoot, String downloadRoot, String modelId,
                      int lengthLimit, int topK, boolean isCalculationOnly, int requestedMemorySize,
-                     String serverAddress, Integer port)
+                     boolean isParallel, String serverAddress, Integer port)
     {
         this.configRoot = configRoot;
         this.downloadRoot = downloadRoot;
@@ -44,6 +46,7 @@ public class Arguments
         this.topK = topK;
         this.isCalculationOnly = isCalculationOnly;
         this.requestedMemorySize = requestedMemorySize;
+        this.isParallel = isParallel;
         this.serverAddress = serverAddress;
         this.port = port;
     }
@@ -65,6 +68,7 @@ public class Arguments
         var topK = 40;
         var requestedMemorySize = 0;
         var isCalculationOnly = false;
+        var isParallel = false;
         String serverAddress = null;
         Integer port = null;
 
@@ -76,6 +80,7 @@ public class Arguments
                 if (arg.charAt(0) == '-')
                 {
                     if (equalsIgnoreCase(arg, ARG_CALC)) isCalculationOnly = true;
+                    if (equalsIgnoreCase(arg, ARG_PARALLEL)) isParallel = true;
                     else
                     {
                         var parts = arg.split("=");
@@ -105,8 +110,8 @@ public class Arguments
             }
         }
 
-        return new Arguments(configRoot, downloadRoot, modelPath, maxLength, topK, isCalculationOnly, requestedMemorySize,
-                serverAddress, port);
+        return new Arguments(configRoot, downloadRoot, modelPath, maxLength, topK, isCalculationOnly,
+                requestedMemorySize, isParallel, serverAddress, port);
     }
 
     // Getters, setters
@@ -117,6 +122,7 @@ public class Arguments
     public int getTopK() {return topK;}
     public boolean isCalculationOnly() {return isCalculationOnly;}
     public Integer getRequestedMemorySize() {return requestedMemorySize;}
+    public boolean isParallel() {return isParallel;}
     public String getServerAddress() {return serverAddress;}
     public Integer getPort() {return port;}
 

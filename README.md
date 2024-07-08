@@ -2,13 +2,13 @@
 
 This is a demo application which implements different large language models in Java for learning purposes.
 
-The main goal is to demonstrate the different decoder-only transformer architectures (without training), not to create an optimized application.
+The main goal is to demonstrate the different decoder-only transformers architectures (without training), not to create an optimized application.
 
 The second goal was to be able to execute as many models as possible. But it is limited by the operative memory, so I created a network framework which can split the task for multiple computers.
 
 There's no parallel execution, so it is only a demonstration (and test) whether the used algorithm is correct for larger models.
 
-The core transformer architecture is implemented multiple times for different models. The differences are mostly small, so it would be possible to make a single, more general implementation, but then handling the differences would occupy most of the code, so the separate implementations are more clear. Additionally, you can easily compare these, and at the beginning of the code I listed the differences in comments. 
+The core transformers architecture is implemented multiple times for different models. The differences are mostly small, so it would be possible to make a single, more general implementation, but then handling the differences would occupy most of the code, so the separate implementations are more clear. Additionally, you can easily compare these, and at the beginning of the code I listed the differences in comments. 
 
 The core mathematical utility is implemented in three versions. There's a `standard` variant, which calculates everything using the simplest way. But I added an `ND4J` and a `Vector-API` implementation also, which can help a little bit to make the inference faster.
 
@@ -85,12 +85,12 @@ Every model should have two files to configure the model itself and the tokenize
 `model.json` format:
 - `name`: The name of the model
 - `date`: The release date of the model
-- `transformerType`: The type of the transformer as it is listed in TransformerType.java
+- `transformerType`: The type of the transformers as it is listed in TransformerType.java
 - `repo`: The url of the repo to download the model files (GitHub or Hugging Face repo name, or a url which should work appending the fileName)
 - `branch`: The branch name of the repo (at GitHub (default "master") or Hugging Face (default "main"))
 - `files`: list of necessary files. If some of these are missing it will be downloaded from the repo
-- `parameterNaming`: The format of the transformer parameters (outside of decoders). The `{name}` will be replaced by the name used in the code
-- `decoderParameterNaming`: The format of the transformer parameter at decoders. The `{decoderId}` will be replaced by the index of the decoder, the `{name}" by the name used in the code
+- `parameterNaming`: The format of the transformers parameters (outside of decoders). The `{name}` will be replaced by the name used in the code
+- `decoderParameterNaming`: The format of the transformers parameter at decoders. The `{decoderId}` will be replaced by the index of the decoder, the `{name}" by the name used in the code
 - `memorySize`: The recommended minimum memory size to load the model
 - `configOverride`: In the rare cases there's no `config.json` provided in the repo it is possible to give the parameters here
 - `quantization`: Quantization config, see later at quantization
@@ -107,15 +107,15 @@ It is possible to provide a `folders.json` file in the parent folders tell the r
 
 ## Supported Transformer types ##
 
-The Transformer implementations can be found in the `transformer` package. Path: `app/src/main/java/huplay/transformer`.
+The Transformer implementations can be found in the `transformers` package. Path: `app/src/main/java/huplay/transformers`.
 
-Every transformer is implemented via three classes. The main is a subclass of the `BaseTransformer`, the attention block implementation is a subclass of `BaseAttentionLayer` and the neural net block is a `BaseNeuralNetLayer`.
+Every transformers is implemented via three classes. The main is a subclass of the `BaseTransformer`, the attention block implementation is a subclass of `BaseAttentionLayer` and the neural net block is a `BaseNeuralNetLayer`.
 
 There is no logic in the base classes, these are just helpers to store and access the configuration, the parameters and so on.
 
-The following transformer architectures are implemented:
+The following transformers architectures are implemented:
 
-- `ORIGINAL_TRANSFORMER`: The first transformer, created by Google Brain in 2017. Described in the `Attention Is All You Need` paper. (The trained parameters are not published.)
+- `ORIGINAL_TRANSFORMER`: The first transformers, created by Google Brain in 2017. Described in the `Attention Is All You Need` paper. (The trained parameters are not published.)
 - `OPENAI_GPT_1`: The first GPT created by OpenAI, released in June 2018. (Based on the Google's unpublished model, described in the `Attention Is All You Need` paper)
 - `OPENAI_GPT_2`: The second GPT created by OpenAI, limited release in Feb 2019, full access in Nov 2019. Minor differences to GPT-1, only related to the normalization.
 - `OPENAI_GPT_3`: The third GPT created by OpenAI, announced in May 2020, without public access. Minor difference to GPT-2 is the sparse attention.
@@ -174,9 +174,9 @@ Legend:
 
 ## Transformer implementation ##
 
-My main goal was to demonstrate the exact steps of the transformer architecture, so I wanted to create the most readable code, without any complex structures. At least at the core part. It's not only for Java developers, not only for developers!
+My main goal was to demonstrate the exact steps of the transformers architecture, so I wanted to create the most readable code, without any complex structures. At least at the core part. It's not only for Java developers, not only for developers!
 
-The transformer architecture is implemented multiple times. All variant placed in a separate package within the `transformer` package as you can see highlighted in the image below:
+The transformers architecture is implemented multiple times. All variant placed in a separate package within the `transformers` package as you can see highlighted in the image below:
 
 <p align="center"><img src="static/transformer-packages.png" height="300"/></p>
 
@@ -190,7 +190,7 @@ All of these are very similar, containing three Java classes:
 - Attention layer class (First block of a decoder, `GPT2AttentionLayer.java`)
 - Neural net layer class (Second block of a decoder, `GPT2NeuralNetLayer.java`)
 
-The transformer architecture has a frame, and within that a series of decoders. The frame is implemented in the Main class, the decoder is in two classes, because every decoder has two blocks, an attention and a neural net (MLP) block.
+The transformers architecture has a frame, and within that a series of decoders. The frame is implemented in the Main class, the decoder is in two classes, because every decoder has two blocks, an attention and a neural net (MLP) block.
 
 Methods:
 
@@ -212,7 +212,7 @@ Neural net layer:
 
 If you take a look you can see all methods are very simple, only the attention mechanism is more complicated. Although, these uses some inherited methods from the parent (base) classes, and utility methods implementing the core mathematical algorithms, but those are also very simple codes, and everything is included in this repo.
 
-The common core of the transformer implementations:
+The common core of the transformers implementations:
 
 <img src="static/java-transformer.png" height="300"/>
 
@@ -378,15 +378,15 @@ Supported tokenizers:
 
 As I mentioned earlier, my main goal was to create a clean, readable code. Especially at the core parts. I look it as a language-agnostic pseudocode, not a cutting edge Java implementation.
 
-That's why I avoided to use generics, lambda expressions or any special language features in the transformer implementations. There's no parallelism and I removed every unnecessary modifiers. I even avoided to use constructors here. It would be possible to remove some type declarations as well (using only the "var" keyword), but I found that, declaring the type is possibly against the readability, but helps to understand the code. You can see always what kind of variable you are looking. (This is one thing that makes a Python code difficult to read. You have no idea what is a particular variable. Is it a number? A list? A tensor? Or something completely different?)
+That's why I avoided to use generics, lambda expressions or any special language features in the transformers implementations. There's no parallelism and I removed every unnecessary modifiers. I even avoided to use constructors here. It would be possible to remove some type declarations as well (using only the "var" keyword), but I found that, declaring the type is possibly against the readability, but helps to understand the code. You can see always what kind of variable you are looking. (This is one thing that makes a Python code difficult to read. You have no idea what is a particular variable. Is it a number? A list? A tensor? Or something completely different?)
 
-I used the latest language features outside of the transformer package, so it's not an outdated, ugly Java code. I'm a professional Java developer. :-). But I preferred to use the least complicated implementation, which helps even an outsider to understand what is happening.
+I used the latest language features outside of the transformers package, so it's not an outdated, ugly Java code. I'm a professional Java developer. :-). But I preferred to use the least complicated implementation, which helps even an outsider to understand what is happening.
 
 The second goal was to be able to launch as many models as possible. Recently, the main bottleneck is the memory usage. We have to load billions of parameters into the memory. At the older models every parameter was stored in 4 bytes. How to load a model with tens of billions of parameters? Or hundreds? And where is the end? In theory, virtual memory could help, but it slows down the execution extremely, so in practice it isn't a good idea. (All the parameters are needed to process every token, so it's a huge amount of swapping from memory to disk and vice-versa.)
 
 To overcome on this problem, the first trick was to use 16-bit float values. At bigger models (above GPT-2) almost everybody moved to this direction. But in the recent programming languages there's no 16-bit float type, only 32 or 64 floats are available. This is a relatively new demand. (It's not only a Java issue, there's no native 16-bit floating point data type in Python or in C.) You can manage it somehow, using dedicated frameworks or little tricks, but the built-in functionality isn't enough. Instead of using the standard float arrays, I had to wrap my values into something, so I created the Vector and Matrix classes to hold 16-bit values without extra memory consumption. (In data types not designed to hold float values.) It needs some extra computation, but you won't run out of memory as quickly. And the use of wrapper classes allowed me to support the quantization. Which also helps to reduce the memory consumption. So it was a good opportunity to discover and show the different quantization methods!
 
-Not only the high-level transformer logic is implemented here, but every little step to compute a neural network, or process normalization, calculate softmax, etc. I wanted to create a mathematical utility which has no dependencies on external frameworks and as simple as possible. This is the MathUtility in the standard module. The ND4J and the Vector-API implementations are just extra alternatives, a little play with these technologies which can help to execute the calculation faster. 
+Not only the high-level transformers logic is implemented here, but every little step to compute a neural network, or process normalization, calculate softmax, etc. I wanted to create a mathematical utility which has no dependencies on external frameworks and as simple as possible. This is the MathUtility in the standard module. The ND4J and the Vector-API implementations are just extra alternatives, a little play with these technologies which can help to execute the calculation faster. 
 
-The networking is also a not-necessary plus, but it can help to launch bigger models, which would be impossible on a single computer. To be able to split the tasks and to use the most available memory on all computers, I separated the attention and neural net blocks, so a decoder is implemented in two parts. Additionally, I had to create a structure where the different kind of parameters can be loaded independently/optionally. One computer can load only the main parameters, used by the frame (head and tail of the transformer), another computer can load few decoders, and maybe for the first decoder only the neural net block, for the last only the attention block will be used. The implementation was simpler without this possibility, but it also resulted in a shorter code at those three classes, because I had to move the wiring to a different class (to the parent classes), so it's maybe not only a good compromise, but something which helps the readability of the main parts.
+The networking is also a not-necessary plus, but it can help to launch bigger models, which would be impossible on a single computer. To be able to split the tasks and to use the most available memory on all computers, I separated the attention and neural net blocks, so a decoder is implemented in two parts. Additionally, I had to create a structure where the different kind of parameters can be loaded independently/optionally. One computer can load only the main parameters, used by the frame (head and tail of the transformers), another computer can load few decoders, and maybe for the first decoder only the neural net block, for the last only the attention block will be used. The implementation was simpler without this possibility, but it also resulted in a shorter code at those three classes, because I had to move the wiring to a different class (to the parent classes), so it's maybe not only a good compromise, but something which helps the readability of the main parts.
 

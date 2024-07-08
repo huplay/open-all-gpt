@@ -96,9 +96,9 @@ XGML (Presumably Cross-lingual Generative Language Model) was published in Dec 2
 | XGLM 7.5B |        4096 |       32 |       32 |        2048 |             |
 
 On the same day the same team published another research, comparing vanilla to mixture of experts models,
-where they trained 6 vanilla and 4 mixture of experts models. (In this context the "dense" is a vanilla transformer, and "sparse" is a mixture of experts model.)
+where they trained 6 vanilla and 4 mixture of experts models. (In this context the "dense" is a vanilla transformers, and "sparse" is a mixture of experts model.)
 
-(This app supports only the vanilla transformer architectures, not the mixture of experts.)
+(This app supports only the vanilla transformers architectures, not the mixture of experts.)
 
 | Name            | Hidden size | Dec. no. | Head no. | Max. length |
 |-----------------|------------:|---------:|---------:|------------:|

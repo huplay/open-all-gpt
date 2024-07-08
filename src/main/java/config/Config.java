@@ -191,6 +191,7 @@ public class Config
     public int getLengthLimit() {return arguments.getLengthLimit();}
     public int getTopK() {return arguments.getTopK();}
     public boolean isCalculationOnly() {return isCalculationOnly;}
+    public boolean isParallel() {return arguments.isParallel();}
     public void setCalculationOnly(boolean isCalculationOnly) {this.isCalculationOnly = isCalculationOnly;}
     public Integer getRequestedMemorySize() {return arguments.getRequestedMemorySize();}
     public DataType getInternalFloatType() {return internalFloatType;}

@@ -6,8 +6,10 @@ import config.ModelConfig;
 import config.TokenizerConfig;
 import parameters.safetensors.SafetensorsReader;
 import tokenizer.TokenizerType;
-import transformer.Talk;
 import transformer.TransformerFlow;
+import transformer.parallel.ParallelTransformerFlow;
+import transformers.Talk;
+import transformer.serial.SerialTransformerFlow;
 import transformer.TransformerType;
 
 import java.io.*;
@@ -71,13 +73,16 @@ public class AppStandaloneMain
         displayConfig(config, 0);
 
         OUT.println("\nLoading parameters... ");
-        var transformer = TransformerType.getTransformer(config.getTransformerType());
 
         var tokenizer = TokenizerType.getTokenizer(tokenizerConfig);
-        var transformerFlow = new TransformerFlow(config, tokenizer, transformer);
+
+        TransformerFlow flow = config.isParallel()
+                ? new ParallelTransformerFlow(config, tokenizer)
+                : new SerialTransformerFlow(config, tokenizer);
 
         OUT.println("... Parameters are loaded.");
-        OUT.println("Parameter size:  " + Math.round((float) transformer.getParameterSize() / 1000_000) + "M");
+        OUT.println("Parameter size:  " + Math.round((float) flow.getParameterSize() / 1000_000) + "M");
+        OUT.println("Transformer flow: " + flow.getFlowType());
 
         if (!config.isCalculationOnly())
         {
@@ -107,7 +112,7 @@ public class AppStandaloneMain
                 }
             }
 
-            Talk.talk(OUT, transformerFlow);
+            Talk.talk(OUT, flow);
         }
     }
 

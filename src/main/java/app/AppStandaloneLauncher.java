@@ -16,7 +16,6 @@ import ui.ModelSelector;
 
 import java.io.*;
 import java.util.Map;
-import java.util.Objects;
 
 import static app.AppStandaloneMain.*;
 import static parameters.FileUtil.checkFiles;
@@ -105,6 +104,8 @@ public class AppStandaloneLauncher
                         ? " --add-modules=jdk.incubator.vector"
                         : "";
 
+                var parallel = config.isParallel() ? " -parallel" : "";
+
                 // Open the main app to launch the model
                 var command = "java" + incubatorVector +
                                 " -Xmx" + memorySize + "m -Xms" + memorySize + "m" +
@@ -112,7 +113,8 @@ public class AppStandaloneLauncher
                                 " app.AppStandaloneMain" +
                                 " \"" + arguments.getModelId() + "\"" +
                                 " -max=" + config.getLengthLimit() +
-                                " -topK=" + config.getTopK();
+                                " -topK=" + config.getTopK() +
+                                parallel;
 
                 OUT.println("Command:\n" + command + "\n");
                 Runtime.getRuntime().exec("cmd /k start cmd /c " + command); // TODO: Deprecated
