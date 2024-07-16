@@ -1,4 +1,4 @@
-package transformers._2018_06_openai_gpt1;
+package transformers._2018_06_openai_gpt1.serial;
 
 import config.Parameter;
 import transformer.serial.BaseNeuralNetLayer;
@@ -8,8 +8,7 @@ import static math.MathUtil.MATH;
 import static config.ParameterType.*;
 
 /**
- * OpenAI GPT-1 decoder (neural net block) implementation
- *
+ * OpenAI GPT-1 decoder (neural net block)
  * @author Hunor Szegi
  */
 public class GPT1NeuralNetLayer extends BaseNeuralNetLayer

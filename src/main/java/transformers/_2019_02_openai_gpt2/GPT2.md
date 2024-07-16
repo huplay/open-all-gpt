@@ -1,4 +1,4 @@
-## GPT-2 ##
+# GPT-2 #
 
 OpenAI's GPT-2 was announced and partly released on 14 Feb 2019, and fully released on 5 Nov 2019.
 

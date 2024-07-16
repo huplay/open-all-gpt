@@ -2,6 +2,7 @@ package transformers._2018_06_openai_gpt1;
 
 import transformers.BaseTransformerTest;
 import org.junit.Test;
+import transformers._2018_06_openai_gpt1.serial.GPT1;
 
 public class GPT1Test extends BaseTransformerTest
 {

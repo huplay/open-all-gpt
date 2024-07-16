@@ -1,17 +1,20 @@
-package transformers._2019_02_openai_gpt2.serial;
+package transformers._2019_02_openai_gpt2.parallel;
 
 import config.Parameter;
-import transformer.serial.BaseTransformer;
+import math.dataType.matrix.Matrix;
 import math.dataType.vector.Vector;
+import transformer.parallel.ParallelBaseTransformer;
 
-import static math.MathUtil.MATH;
+import java.util.List;
+
 import static config.ParameterType.*;
+import static math.MathUtil.MATH;
 
 /**
- * OpenAI GPT-2 transformer
+ * OpenAI GPT-2 transformer (Parallel implementation)
  * @author Hunor Szegi
  */
-public class GPT2 extends BaseTransformer
+public class ParallelGPT2 extends ParallelBaseTransformer
 {
     Parameter tokenEmbeddings, positionEmbeddings, normWeight, normBias;
 
@@ -23,9 +26,29 @@ public class GPT2 extends BaseTransformer
         normBias           = loadVector(NORM_BIAS,   "ln_f.bias",   hiddenSize);
     }
 
+    public Matrix preProcessInputTokens(int posOffset, List<Integer> tokenIds)
+    {
+        Matrix hiddenState = emptyMatrix(tokenIds.size(), hiddenSize);
+
+        for (var pos = 0; pos < tokenIds.size(); pos++)
+        {
+            // Find the embeddings of the token (this is the initial hidden state)
+            Vector embedding = matrix(tokenEmbeddings).row(tokenIds.get(pos));
+
+            // Find the position embedding of the position
+            // posOffset > 0 if this is a subsequent input
+            Vector positionEmbedding = matrix(positionEmbeddings).row(pos + posOffset);
+
+            // The hidden state is the sum of the token embedding and the position embedding
+            hiddenState.setRow(pos, embedding.add(positionEmbedding));
+        }
+
+        return hiddenState;
+    }
+
     public Vector preProcessToken(int pos, int tokenId)
     {
-        // Find the embeddings of the token
+        // Find the embeddings of the token (this is the initial hidden state)
         Vector hiddenState = matrix(tokenEmbeddings).row(tokenId);
 
         // Find the position embedding of the position

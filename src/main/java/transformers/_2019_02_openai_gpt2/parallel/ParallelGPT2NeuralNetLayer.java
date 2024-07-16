@@ -1,17 +1,18 @@
-package transformers._2019_02_openai_gpt2.serial;
+package transformers._2019_02_openai_gpt2.parallel;
 
 import config.Parameter;
-import transformer.serial.BaseNeuralNetLayer;
+import math.dataType.matrix.Matrix;
 import math.dataType.vector.Vector;
+import transformer.parallel.ParallelBaseNeuralNetLayer;
 
-import static math.MathUtil.MATH;
 import static config.ParameterType.*;
+import static math.MathUtil.MATH;
 
 /**
- * OpenAI GPT-2 decoder (neural net block)
+ * OpenAI GPT-2 decoder (neural net block) (Parallel implementation)
  * @author Hunor Szegi
  */
-public class GPT2NeuralNetLayer extends BaseNeuralNetLayer
+public class ParallelGPT2NeuralNetLayer extends ParallelBaseNeuralNetLayer
 {
     Parameter normWeight, normBias, layer1Weight, layer1Bias, layer2Weight, layer2Bias;
 
@@ -25,6 +26,20 @@ public class GPT2NeuralNetLayer extends BaseNeuralNetLayer
         layer2Bias   = loadVector(BIAS,              "mlp.c_proj.bias",   hiddenSize);
     }
 
+    public Matrix processParallel(Matrix inputHiddenState)
+    {
+        // Normalization
+        Matrix hiddenState = MATH.layerNorm(inputHiddenState, vector(normWeight), vector(normBias), epsilon);
+
+        // Neural layers
+        hiddenState = neuralNetParallel(hiddenState);
+
+        // Residual connection
+        hiddenState = hiddenState.add(inputHiddenState);
+
+        return hiddenState;
+    }
+
     public Vector process(Vector inputHiddenState)
     {
         // Normalization
@@ -35,6 +50,28 @@ public class GPT2NeuralNetLayer extends BaseNeuralNetLayer
 
         // Residual connection
         hiddenState = hiddenState.add(inputHiddenState);
+
+        return hiddenState;
+    }
+
+    private Matrix neuralNetParallel(Matrix hiddenState)
+    {
+        // Layer 1: <intermediateSize> neurons (usually 4 * <hiddenSize>) (using gelu activation function)
+        hiddenState = hiddenState.multiply(matrix(layer1Weight));
+        hiddenState = hiddenState.addBroadcast(vector(layer1Bias));
+
+        for (var i = 0; i < hiddenState.getRowCount(); i++)
+        {
+            for (int neuron = 0; neuron < intermediateSize; neuron++)
+            {
+                float activation = gelu(hiddenState.getValue(i, neuron));
+                hiddenState.setValue(i, neuron, activation);
+            }
+        }
+
+        // Layer 2: <hiddenSize> neurons (without activation function)
+        hiddenState = hiddenState.multiply(matrix(layer2Weight));
+        hiddenState = hiddenState.addBroadcast(vector(layer2Bias));
 
         return hiddenState;
     }

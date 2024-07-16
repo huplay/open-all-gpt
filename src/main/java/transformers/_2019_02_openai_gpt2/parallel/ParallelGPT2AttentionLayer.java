@@ -1,21 +1,22 @@
-package transformers._2019_02_openai_gpt2.serial;
+package transformers._2019_02_openai_gpt2.parallel;
 
 import config.Parameter;
 import math.dataType.matrix.Matrix;
-import transformer.serial.BaseAttentionLayer;
 import math.dataType.vector.Vector;
+import transformer.parallel.ParallelBaseAttentionLayer;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import static math.MathUtil.MATH;
 import static config.ParameterType.*;
 import static math.BasicMathUtility.sqrt;
+import static math.MathUtil.MATH;
 
 /**
- * OpenAI GPT-2 decoder (attention block)
+ * OpenAI GPT-2 decoder (attention block) (Parallel implementation)
  * @author Hunor Szegi
  */
-public class GPT2AttentionLayer extends BaseAttentionLayer
+public class ParallelGPT2AttentionLayer extends ParallelBaseAttentionLayer
 {
     Parameter normWeight, normBias, queryKeyValueWeight, queryKeyValueBias, projectionWeight, projectionBias;
 
@@ -32,7 +33,21 @@ public class GPT2AttentionLayer extends BaseAttentionLayer
         attentionScale = 1 / sqrt(headSize);
     }
 
-    public Vector process(Vector inputHiddenState, boolean isInputOnly)
+    public Matrix processParallel(Matrix inputHiddenState)
+    {
+        // Normalization
+        Matrix hiddenState = MATH.layerNorm(inputHiddenState, vector(normWeight), vector(normBias), epsilon);
+
+        // Attention
+        hiddenState = attentionParallel(hiddenState);
+
+        // Residual connection
+        hiddenState = hiddenState.add(inputHiddenState);
+
+        return hiddenState;
+    }
+
+    public Vector process(Vector inputHiddenState)
     {
         // Normalization
         Vector hiddenState = MATH.layerNorm(inputHiddenState, vector(normWeight), vector(normBias), epsilon);
@@ -40,12 +55,53 @@ public class GPT2AttentionLayer extends BaseAttentionLayer
         // Attention
         hiddenState = attention(hiddenState);
 
-        // Not necessary to do the remaining if processing an input token (except the last) and it is the last decoder
-        if ( !(isInputOnly && lastDecoder) )
+        // Residual connection
+        hiddenState = hiddenState.add(inputHiddenState);
+
+        return hiddenState;
+    }
+
+    private Matrix attentionParallel(Matrix hiddenState)
+    {
+        // Calculate the query-key-value vectors for the actual token
+        Matrix queryKeyValue = hiddenState.multiply(matrix(queryKeyValueWeight));
+        queryKeyValue = queryKeyValue.addBroadcast(vector(queryKeyValueBias));
+
+        // Split the query/key/value
+        Matrix query = queryKeyValue.part(3, 0);
+        Matrix key = queryKeyValue.part(3, 1);
+        Matrix value = queryKeyValue.part(3, 2);
+
+        // Collector of the attention results for all heads
+        List<Matrix> valueAggregate = new ArrayList<>(headCount);
+
+        // Score the previous tokens (including the actual), separately for all heads
+        for (int head = 0; head < headCount; head++)
         {
-            // Residual connection
-            hiddenState = hiddenState.add(inputHiddenState);
+            // Split the query, key and value vectors into pieces for all heads
+            Matrix queryByHead = query.part(headCount, head);
+            Matrix keyByHead = key.part(headCount, head);
+            Matrix valueByHead = value.part(headCount, head);
+
+            // Store the keys and values (these will be available while the following tokens will be processed)
+            store(head, keyByHead, valueByHead);
+
+            // Process the core of the attention mechanism (scaled dot product attention)
+            Matrix attentionResult = scaledDotProductAttentionParallel(
+                                            queryByHead,
+                                            getStoredKeys(head),
+                                            getStoredValues(head));
+
+            // Add the result to the collector for the actual head
+            valueAggregate.add(attentionResult);
         }
+
+        // Join the results of all heads
+        hiddenState = MATH.joinMatrices(valueAggregate);
+
+        // Projection neural layer
+        hiddenState = hiddenState.multiply(matrix(projectionWeight));
+        hiddenState = hiddenState.addBroadcast(vector(projectionBias));
 
         return hiddenState;
     }
@@ -56,7 +112,7 @@ public class GPT2AttentionLayer extends BaseAttentionLayer
         Vector queryKeyValue = hiddenState.multiply(matrix(queryKeyValueWeight));
         queryKeyValue = queryKeyValue.add(vector(queryKeyValueBias));
 
-        // Slice the query/key/value
+        // Split the query/key/value
         Vector queries = queryKeyValue.part(3, 0);
         Vector keys = queryKeyValue.part(3, 1);
         Vector values = queryKeyValue.part(3, 2);
@@ -67,12 +123,12 @@ public class GPT2AttentionLayer extends BaseAttentionLayer
         // Score the previous tokens (including the actual), separately for all heads
         for (int head = 0; head < headCount; head++)
         {
-            // Get the part for the actual head of the query, key and value vectors
+            // Split the query, key and value vectors into pieces for all heads
             Vector query = queries.part(headCount, head);
             Vector key = keys.part(headCount, head);
             Vector value = values.part(headCount, head);
 
-            // Store the keys and values (these will be available while the following tokens will be processed)
+            // Store the keys and values (these will be available while the following tokens will be processed)0
             store(head, key, value);
 
             // Process the core of the attention mechanism (scaled dot product attention)
@@ -95,15 +151,26 @@ public class GPT2AttentionLayer extends BaseAttentionLayer
         return hiddenState;
     }
 
-    private Vector scaledDotProductAttention(Vector query, List<Vector> keys, List<Vector> values)
+    private Matrix scaledDotProductAttentionParallel(Matrix queries, Matrix keys, Matrix values)
     {
-        int tokenCount = keys.size();
+        Matrix attention = queries.multiplyByTransposed(keys);
+        attention = attention.multiply(attentionScale);
+        MATH.applyCausalMask(attention);
+        attention = MATH.softmax(attention);
+        attention = attention.multiply(values);
+
+        return attention;
+    }
+
+    private Vector scaledDotProductAttention(Vector query, Matrix keys, Matrix values)
+    {
+        int tokenCount = keys.getRowCount();
 
         // Score all tokens using the actual query and the keys, multiplying by the scale
         Vector scores = emptyVector(tokenCount);
         for (int pos = 0; pos < tokenCount; pos++)
         {
-            Vector relatedKey = keys.get(pos);
+            Vector relatedKey = keys.row(pos);
 
             // The core of the scaled dot product attention
             float score = query.dotProduct(relatedKey) * attentionScale;
@@ -117,7 +184,7 @@ public class GPT2AttentionLayer extends BaseAttentionLayer
         Vector result = Vector.emptyVector(query.getFloatType(), query.size());
         for (int pos = 0; pos < tokenCount; pos++)
         {
-            Vector relatedValue = values.get(pos);
+            Vector relatedValue = values.row(pos);
             float score = scores.get(pos);
 
             // Multiply the values by the score and sum up

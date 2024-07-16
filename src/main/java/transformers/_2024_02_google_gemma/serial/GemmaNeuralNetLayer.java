@@ -1,4 +1,4 @@
-package transformers._2024_02_google_gemma;
+package transformers._2024_02_google_gemma.serial;
 
 import config.Parameter;
 import transformer.serial.BaseNeuralNetLayer;
@@ -8,8 +8,7 @@ import static math.MathUtil.MATH;
 import static config.ParameterType.*;
 
 /**
- * Google Gemma decoder (neural net block) implementation
- *
+ * Google Gemma decoder (neural net block)
  * @author Hunor Szegi
  */
 public class GemmaNeuralNetLayer extends BaseNeuralNetLayer

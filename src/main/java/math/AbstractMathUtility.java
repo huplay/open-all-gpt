@@ -30,7 +30,7 @@ public abstract class AbstractMathUtility
     public abstract Matrix addMatrices(Matrix matrix1, Matrix matrix2);
 
     /**
-     * Add broadcasted vector to matrix (same vector is added to all rows of the matrix)
+     * Add broadcast vector to matrix (same vector is added to all rows of the matrix)
      */
     public abstract Matrix addBroadcastVector(Matrix matrix, Vector vector);
 
@@ -261,6 +261,27 @@ public abstract class AbstractMathUtility
         for (var i = 0; i < size; i++)
         {
             result.set(i, (weight.get(i) + bias) * sum * vector.get(i));
+        }
+
+        return result;
+    }
+
+    /**
+     * Root Mean Square Layer Normalization (RMS) on a matrix
+     */
+    public Matrix RMSLayerNorm(Matrix matrix, Vector weight, float epsilon)
+    {
+        return RMSLayerNorm(matrix, weight, epsilon, 0f);
+    }
+
+    public Matrix RMSLayerNorm(Matrix matrix, Vector weight, float epsilon, float bias)
+    {
+        var result = emptyMatrix(matrix.getInternalFloatType(), matrix.getRowCount(), matrix.getColCount());
+
+        // Applying the trained weights and biases
+        for (var i = 0; i < matrix.getRowCount(); i++)
+        {
+            result.setRow(i, RMSLayerNorm(matrix.row(i), weight, epsilon, bias));
         }
 
         return result;

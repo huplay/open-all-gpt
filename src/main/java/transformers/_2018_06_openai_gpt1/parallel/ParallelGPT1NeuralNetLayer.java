@@ -1,4 +1,4 @@
-package transformers._2019_02_openai_gpt2.parallel;
+package transformers._2018_06_openai_gpt1.parallel;
 
 import config.Parameter;
 import math.dataType.matrix.Matrix;
@@ -9,11 +9,10 @@ import static config.ParameterType.*;
 import static math.MathUtil.MATH;
 
 /**
- * OpenAI GPT-2 decoder (neural net block) (Parallel implementation)
- *
+ * OpenAI GPT-1 decoder (neural net block) (Parallel implementation)
  * @author Hunor Szegi
  */
-public class GPT2NeuralNetLayer extends ParallelBaseNeuralNetLayer
+public class ParallelGPT1NeuralNetLayer extends ParallelBaseNeuralNetLayer
 {
     Parameter normWeight, normBias, layer1Weight, layer1Bias, layer2Weight, layer2Bias;
 
@@ -29,14 +28,28 @@ public class GPT2NeuralNetLayer extends ParallelBaseNeuralNetLayer
 
     public Matrix processParallel(Matrix inputHiddenState)
     {
-        // Normalization
-        Matrix hiddenState = MATH.layerNorm(inputHiddenState, vector(normWeight), vector(normBias), epsilon);
-
         // Neural layers
-        hiddenState = neuralNetParallel(hiddenState);
+        Matrix hiddenState = neuralNetParallel(inputHiddenState);
 
         // Residual connection
         hiddenState = hiddenState.add(inputHiddenState);
+
+        // Normalization
+        hiddenState = MATH.layerNorm(hiddenState, vector(normWeight), vector(normBias), epsilon);
+
+        return hiddenState;
+    }
+
+    public Vector process(Vector inputHiddenState)
+    {
+        // Neural layers
+        Vector hiddenState = neuralNet(inputHiddenState);
+
+        // Residual connection
+        hiddenState = hiddenState.add(inputHiddenState);
+
+        // Normalization
+        hiddenState = MATH.layerNorm(hiddenState, vector(normWeight), vector(normBias), epsilon);
 
         return hiddenState;
     }
@@ -59,20 +72,6 @@ public class GPT2NeuralNetLayer extends ParallelBaseNeuralNetLayer
         // Layer 2: <hiddenSize> neurons (without activation function)
         hiddenState = hiddenState.multiply(matrix(layer2Weight));
         hiddenState = hiddenState.addBroadcast(vector(layer2Bias));
-
-        return hiddenState;
-    }
-
-    public Vector process(Vector inputHiddenState)
-    {
-        // Normalization
-        Vector hiddenState = MATH.layerNorm(inputHiddenState, vector(normWeight), vector(normBias), epsilon);
-
-        // Neural layers
-        hiddenState = neuralNet(hiddenState);
-
-        // Residual connection
-        hiddenState = hiddenState.add(inputHiddenState);
 
         return hiddenState;
     }

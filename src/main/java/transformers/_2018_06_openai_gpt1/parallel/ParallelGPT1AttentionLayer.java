@@ -1,4 +1,4 @@
-package transformers._2019_02_openai_gpt2.parallel;
+package transformers._2018_06_openai_gpt1.parallel;
 
 import config.Parameter;
 import math.dataType.matrix.Matrix;
@@ -13,11 +13,10 @@ import static math.BasicMathUtility.sqrt;
 import static math.MathUtil.MATH;
 
 /**
- * OpenAI GPT-2 decoder (attention block) (Parallel implementation)
- *
+ * OpenAI GPT-1 decoder (attention block) (Parallel implementation)
  * @author Hunor Szegi
  */
-public class GPT2AttentionLayer extends ParallelBaseAttentionLayer
+public class ParallelGPT1AttentionLayer extends ParallelBaseAttentionLayer
 {
     Parameter normWeight, normBias, queryKeyValueWeight, queryKeyValueBias, projectionWeight, projectionBias;
 
@@ -36,14 +35,28 @@ public class GPT2AttentionLayer extends ParallelBaseAttentionLayer
 
     public Matrix processParallel(Matrix inputHiddenState)
     {
-        // Normalization
-        Matrix hiddenState = MATH.layerNorm(inputHiddenState, vector(normWeight), vector(normBias), epsilon);
-
         // Attention
-        hiddenState = attentionParallel(hiddenState);
+        Matrix hiddenState = attentionParallel(inputHiddenState);
 
         // Residual connection
         hiddenState = hiddenState.add(inputHiddenState);
+
+        // Normalization
+        hiddenState = MATH.layerNorm(hiddenState, vector(normWeight), vector(normBias), epsilon);
+
+        return hiddenState;
+    }
+
+    public Vector process(Vector inputHiddenState)
+    {
+        // Attention
+        Vector hiddenState = attention(inputHiddenState);
+
+        // Residual connection
+        hiddenState = hiddenState.add(inputHiddenState);
+
+        // Normalization
+        hiddenState = MATH.layerNorm(hiddenState, vector(normWeight), vector(normBias), epsilon);
 
         return hiddenState;
     }
@@ -93,29 +106,6 @@ public class GPT2AttentionLayer extends ParallelBaseAttentionLayer
         return hiddenState;
     }
 
-    private Matrix scaledDotProductAttentionParallel(Matrix queries, Matrix keys, Matrix values)
-    {
-        Matrix att = queries.multiplyByTransposed(keys);
-        att = att.multiply(attentionScale);
-        MATH.applyCausalMask(att);
-        att = MATH.softmax(att);
-        return att.multiply(values);
-    }
-
-    public Vector process(Vector inputHiddenState)
-    {
-        // Normalization
-        Vector hiddenState = MATH.layerNorm(inputHiddenState, vector(normWeight), vector(normBias), epsilon);
-
-        // Attention
-        hiddenState = attention(hiddenState);
-
-        // Residual connection
-        hiddenState = hiddenState.add(inputHiddenState);
-
-        return hiddenState;
-    }
-
     private Vector attention(Vector hiddenState)
     {
         // Calculate the query-key-value vectors for the actual token
@@ -159,6 +149,17 @@ public class GPT2AttentionLayer extends ParallelBaseAttentionLayer
         hiddenState = hiddenState.add(vector(projectionBias));
 
         return hiddenState;
+    }
+
+    private Matrix scaledDotProductAttentionParallel(Matrix queries, Matrix keys, Matrix values)
+    {
+        Matrix attention = queries.multiplyByTransposed(keys);
+        attention = attention.multiply(attentionScale);
+        MATH.applyCausalMask(attention);
+        attention = MATH.softmax(attention);
+        attention = attention.multiply(values);
+
+        return attention;
     }
 
     private Vector scaledDotProductAttention(Vector query, Matrix keys, Matrix values)

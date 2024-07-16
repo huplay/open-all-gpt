@@ -1,4 +1,4 @@
-package transformers._2024_02_google_gemma;
+package transformers._2024_02_google_gemma.serial;
 
 import app.IdentifiedException;
 import config.Parameter;
@@ -14,8 +14,7 @@ import static math.MathUtil.MATH;
 import static config.ParameterType.*;
 
 /**
- * Google Gemma decoder (attention block) implementation
- *
+ * Google Gemma decoder (attention block)
  * @author Hunor Szegi
  */
 public class GemmaAttentionLayer extends BaseAttentionLayer
@@ -82,11 +81,6 @@ public class GemmaAttentionLayer extends BaseAttentionLayer
         Vector key = hiddenState.multiplyByTransposed(matrix(keyWeight));
         Vector value = hiddenState.multiplyByTransposed(matrix(valueWeight));
 
-        // Split the query, key and value vectors into pieces for all heads
-        Matrix queryByHead = query.split(headCount);
-        Matrix keyByHead = key.split(headCount);
-        Matrix valueByHead = value.split(headCount);
-
         // Collector of the attention results for all heads
         Matrix valueAggregate = emptyMatrix(headCount, headSize);
 
@@ -96,16 +90,21 @@ public class GemmaAttentionLayer extends BaseAttentionLayer
         // Score the previous tokens (including the actual), separately for all heads
         for (int head = 0; head < headCount; head++)
         {
+            // Get the part for the actual head of the query, key and value vectors
+            Vector queryByHead = query.part(headCount, head);
+            Vector keyByHead = key.part(headCount, head);
+            Vector valueByHead = value.part(headCount, head);
+
             // Position embedding on the query and key
-            positionEmbedding.applySliced(queryByHead.row(head), pos);
-            positionEmbedding.applySliced(keyByHead.row(head), pos);
+            positionEmbedding.applySliced(queryByHead, pos);
+            positionEmbedding.applySliced(keyByHead, pos);
 
             // Store the keys and values (these will be available while the following tokens will be processed)
             store(head, keyByHead, valueByHead);
 
             // Process the core of the attention mechanism (scaled dot product attention)
             Vector attentionResult = scaledDotProductAttention(
-                                            queryByHead.row(head),
+                                            queryByHead,
                                             getStoredKeys(head),
                                             getStoredValues(head));
 
@@ -131,9 +130,6 @@ public class GemmaAttentionLayer extends BaseAttentionLayer
         Vector key = hiddenState.multiplyByTransposed(matrix(keyWeight));
         Vector value = hiddenState.multiplyByTransposed(matrix(valueWeight));
 
-        // Split the query vector into pieces for all heads
-        Matrix queryByHead = query.split(headCount);
-
         // No splitting for the key and value vectors, because at MQA the same vector is used for all heads
 
         // Position embedding on the key
@@ -149,12 +145,14 @@ public class GemmaAttentionLayer extends BaseAttentionLayer
         // Score the previous tokens (including the actual), separately for all heads
         for (int head = 0; head < headCount; head++)
         {
+            // Get the part for the actual head of the query, key and value vectors
+            Vector queryByHead = query.part(headCount, head);
+
             // Position embedding on the query (separately within a head)
-            Vector actualQuery = queryByHead.row(head);
-            positionEmbedding.applySliced(actualQuery, pos);
+            positionEmbedding.applySliced(queryByHead, pos);
 
             Vector attentionResult = scaledDotProductAttention(
-                                            actualQuery,
+                                            queryByHead,
                                             getStoredKeys(0),
                                             getStoredValues(0));
 

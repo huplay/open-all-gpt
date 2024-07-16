@@ -1,4 +1,4 @@
-package transformers._2018_06_openai_gpt1;
+package transformers._2018_06_openai_gpt1.serial;
 
 import config.Parameter;
 import transformer.serial.BaseTransformer;
@@ -8,14 +8,6 @@ import static config.ParameterType.*;
 
 /**
   OpenAI GPT-1 transformer
-
-  The first GPT was released on 11 June 2018.
-  Publication: https://paperswithcode.com/paper/improving-language-understanding-by
-
-  Difference to the original transformer:
-    - Learned position embedding (not sinusoid)
-    - GELU activation function (instead of ReLU)
-
   @author Hunor Szegi
  */
 public class GPT1 extends BaseTransformer

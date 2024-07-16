@@ -3,12 +3,15 @@ package math.impl.nd4j;
 import math.dataType.matrix.Matrix;
 import math.dataType.vector.Vector;
 import math.AbstractMathUtility;
+import math.impl.standard.StandardMath;
 import org.nd4j.linalg.factory.Nd4j;
 
 import static math.dataType.matrix.Matrix.emptyMatrix;
 
 public class ND4JMath extends AbstractMathUtility
 {
+    private static final AbstractMathUtility STANDARD_MATH = new StandardMath();
+
     @Override
     public String getMathProviderName()
     {
@@ -23,6 +26,18 @@ public class ND4JMath extends AbstractMathUtility
         {
             return Vector.of(vector1.getFloatType(), array1.add(array2).toFloatVector());
         }
+    }
+
+    @Override
+    public Matrix addMatrices(Matrix matrix1, Matrix matrix2)
+    {
+        return STANDARD_MATH.addMatrices(matrix1, matrix2);
+    }
+
+    @Override
+    public Matrix addBroadcastVector(Matrix matrix, Vector vector)
+    {
+        return STANDARD_MATH.addBroadcastVector(matrix, vector);
     }
 
     @Override
@@ -42,6 +57,12 @@ public class ND4JMath extends AbstractMathUtility
         {
             return Vector.of(vector.getFloatType(), array.mul(scalar).toFloatVector());
         }
+    }
+
+    @Override
+    public Matrix mulMatrixByScalar(Matrix matrix, float scalar)
+    {
+        return STANDARD_MATH.mulMatrixByScalar(matrix, scalar);
     }
 
     // TODO: It seems not too effective. We convert the vector to matrix and do a matrix-matrix multiplication
@@ -82,6 +103,18 @@ public class ND4JMath extends AbstractMathUtility
     }
 
     @Override
+    public Matrix mulMatrixByMatrix(Matrix matrix1, Matrix matrix2)
+    {
+        return STANDARD_MATH.mulMatrixByMatrix(matrix1, matrix2);
+    }
+
+    @Override
+    public Matrix mulMatrixByTransposedMatrix(Matrix matrix1, Matrix matrix2)
+    {
+        return STANDARD_MATH.mulMatrixByTransposedMatrix(matrix1, matrix2);
+    }
+
+    @Override
     public Matrix splitVector(Vector vector, int count)
     {
         var cols = vector.size() / count;
@@ -97,6 +130,18 @@ public class ND4JMath extends AbstractMathUtility
 
             return result;
         }
+    }
+
+    @Override
+    public Vector partitionVector(Vector vector, int parts, int index)
+    {
+        return STANDARD_MATH.partitionVector(vector, parts, index);
+    }
+
+    @Override
+    public Matrix partitionMatrix(Matrix vector, int parts, int index)
+    {
+        return STANDARD_MATH.partitionMatrix(vector, parts, index);
     }
 
     @Override
@@ -117,23 +162,9 @@ public class ND4JMath extends AbstractMathUtility
     }
 
     @Override
-    // TODO: Nd4j isn't used
     public Matrix transposeMatrix(Matrix matrix)
     {
-        int rows = matrix.getRowCount();
-        int cols = matrix.getColCount();
-
-        var transposedMatrix = emptyMatrix(matrix.getInternalFloatType(), cols, rows);
-
-        for (int i = 0; i < cols; i++)
-        {
-            for (int j = 0; j < rows; j++)
-            {
-                transposedMatrix.setValue(i, j, matrix.getValue(j, i));
-            }
-        }
-
-        return transposedMatrix;
+        return STANDARD_MATH.transposeMatrix(matrix);
     }
 
     @Override

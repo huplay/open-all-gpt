@@ -1,21 +1,18 @@
 package math.impl.vectorApi;
 
-import app.IdentifiedException;
 import math.AbstractMathUtility;
 import math.dataType.matrix.Matrix;
 import math.dataType.vector.Vector;
 import jdk.incubator.vector.FloatVector;
 import jdk.incubator.vector.VectorOperators;
 import jdk.incubator.vector.VectorSpecies;
-
-import java.util.Arrays;
-
-import static math.dataType.matrix.Matrix.emptyMatrix;
-import static math.dataType.vector.Vector.emptyVector;
+import math.impl.standard.StandardMath;
 
 public class VectorApiMath extends AbstractMathUtility
 {
     static final VectorSpecies<Float> PROCESSOR_BLOCK = FloatVector.SPECIES_MAX;
+
+    private static final AbstractMathUtility STANDARD_MATH = new StandardMath();
 
     @Override
     public String getMathProviderName()
@@ -37,6 +34,18 @@ public class VectorApiMath extends AbstractMathUtility
         }
 
         return Vector.of(vector1.getFloatType(), result);
+    }
+
+    @Override
+    public Matrix addMatrices(Matrix matrix1, Matrix matrix2)
+    {
+        return STANDARD_MATH.addMatrices(matrix1, matrix2);
+    }
+
+    @Override
+    public Matrix addBroadcastVector(Matrix matrix, Vector vector)
+    {
+        return STANDARD_MATH.addBroadcastVector(matrix, vector);
     }
 
     @Override
@@ -86,133 +95,68 @@ public class VectorApiMath extends AbstractMathUtility
     }
 
     @Override
-    // TODO: Vector-api isn't used
+    public Matrix mulMatrixByScalar(Matrix matrix, float scalar)
+    {
+        return STANDARD_MATH.mulMatrixByScalar(matrix, scalar);
+    }
+
+    @Override
     public Vector mulVectorByMatrix(Vector vector, Matrix matrix)
     {
-        if (vector.size() != matrix.getRowCount())
-        {
-            throw new IdentifiedException("Vector and matrix shape is incompatible at multiplication. " +
-                    "Vector size: " + vector.size() + ", matrix shape: " + matrix.getRowCount() + ", " + matrix.getRowCount());
-        }
-
-        var ret = emptyVector(vector.getFloatType(), matrix.getColCount());
-
-        for (var col = 0; col < matrix.getColCount(); col++)
-        {
-            var sum = 0f;
-
-            for (var i = 0; i < vector.size(); i++)
-            {
-                sum = sum + vector.get(i) * matrix.getValue(i, col);
-            }
-
-            ret.set(col, sum);
-        }
-
-        return ret;
+        return STANDARD_MATH.mulVectorByMatrix(vector, matrix);
     }
 
     @Override
     public Vector mulVectorByTransposedMatrix(Vector vector, Matrix matrix)
     {
-        if (vector.size() != matrix.getColCount())
-        {
-            var thread = Thread.currentThread();
-            var stackTrace = thread.getStackTrace();
-
-            throw new IdentifiedException("Vector and matrix shape is incompatible at multiplication (transposed). " +
-                    "Vector size: " + vector.size() + ", matrix shape: " + matrix.getRowCount() + ", " + matrix.getColCount() +
-                    " Stack trace: " + Arrays.toString(stackTrace));
-        }
-
-        var ret = emptyVector(vector.getFloatType(), matrix.getRowCount());
-
-        for (var col = 0; col < matrix.getRowCount(); col++)
-        {
-            ret.set(col, dotProduct(vector, matrix.row(col)));
-        }
-
-        return ret;
+        return STANDARD_MATH.mulVectorByTransposedMatrix(vector, matrix);
     }
 
     @Override
-    // TODO: Vector-api isn't used
+    public Matrix mulMatrixByMatrix(Matrix matrix1, Matrix matrix2)
+    {
+        return STANDARD_MATH.mulMatrixByMatrix(matrix1, matrix2);
+    }
+
+    @Override
+    public Matrix mulMatrixByTransposedMatrix(Matrix matrix1, Matrix matrix2)
+    {
+        return STANDARD_MATH.mulMatrixByTransposedMatrix(matrix1, matrix2);
+    }
+
+    @Override
     public Matrix splitVector(Vector vector, int rows)
     {
-        var cols = vector.size() / rows;
-        var matrix = emptyMatrix(vector.getFloatType(), rows, cols);
-
-        var segment = 0;
-        var col = 0;
-        for (var i = 0; i < vector.size(); i++)
-        {
-            var value = vector.get(i);
-            matrix.setValue(segment, col, value);
-
-            if (col == cols - 1)
-            {
-                col = 0;
-                segment++;
-            }
-            else col++;
-        }
-
-        return matrix;
+        return STANDARD_MATH.splitVector(vector, rows);
     }
 
     @Override
-    // TODO: Vector-api isn't used
+    public Vector partitionVector(Vector vector, int parts, int index)
+    {
+        return STANDARD_MATH.partitionVector(vector, parts, index);
+    }
+
+    @Override
+    public Matrix partitionMatrix(Matrix vector, int parts, int index)
+    {
+        return STANDARD_MATH.partitionMatrix(vector, parts, index);
+    }
+
+    @Override
     public Vector flattenMatrix(Matrix matrix)
     {
-        var ret = emptyVector(matrix.getInternalFloatType(), matrix.getRowCount() * matrix.getColCount());
-
-        var i = 0;
-
-        for (var row : matrix.getVectorArray())
-        {
-            for (var j = 0; j < row.size(); j++)
-            {
-                var value = row.get(j);
-                ret.set(i, value);
-                i++;
-            }
-        }
-
-        return ret;
+        return STANDARD_MATH.flattenMatrix(matrix);
     }
 
     @Override
-    // TODO: Vector-api isn't used
     public Matrix transposeMatrix(Matrix matrix)
     {
-        int rows = matrix.getRowCount();
-        int cols = matrix.getColCount();
-
-        var transposedMatrix = emptyMatrix(matrix.getInternalFloatType(), cols, rows);
-
-        for (int i = 0; i < cols; i++)
-        {
-            for (int j = 0; j < rows; j++)
-            {
-                transposedMatrix.setValue(i, j, matrix.getValue(j, i));
-            }
-        }
-
-        return transposedMatrix;
+        return STANDARD_MATH.transposeMatrix(matrix);
     }
 
     @Override
-    // TODO: Vector-api isn't used
     public float average(Vector vector)
     {
-        var sum = 0f;
-
-        for (var i = 0; i < vector.size(); i++)
-        {
-            var value = vector.get(i);
-            sum = sum + value;
-        }
-
-        return sum / vector.size();
+        return STANDARD_MATH.average(vector);
     }
 }

@@ -1,4 +1,4 @@
-package transformers._2019_02_openai_gpt2.parallel;
+package transformers._2018_06_openai_gpt1.parallel;
 
 import config.Parameter;
 import math.dataType.matrix.Matrix;
@@ -8,23 +8,19 @@ import transformer.parallel.ParallelBaseTransformer;
 import java.util.List;
 
 import static config.ParameterType.*;
-import static math.MathUtil.MATH;
 
 /**
- * OpenAI GPT-2 transformer (Parallel implementation)
- *
+ * OpenAI GPT-1 transformer (Parallel implementation)
  * @author Hunor Szegi
  */
-public class GPT2 extends ParallelBaseTransformer
+public class ParallelGPT1 extends ParallelBaseTransformer
 {
-    Parameter tokenEmbeddings, positionEmbeddings, normWeight, normBias;
+    Parameter tokenEmbeddings, positionEmbeddings;
 
     public void loadParameters()
     {
         tokenEmbeddings    = loadMatrix(EMBEDDING,   "wte.weight",  tokenCount, hiddenSize);
         positionEmbeddings = loadMatrix(EMBEDDING,   "wpe.weight",  contextSize, hiddenSize);
-        normWeight         = loadVector(NORM_WEIGHT, "ln_f.weight", hiddenSize);
-        normBias           = loadVector(NORM_BIAS,   "ln_f.bias",   hiddenSize);
     }
 
     public Matrix preProcessInputTokens(int posOffset, List<Integer> tokenIds)
@@ -61,9 +57,6 @@ public class GPT2 extends ParallelBaseTransformer
 
     public int generateToken(Vector hiddenState, int topK)
     {
-        // Final normalization
-        hiddenState = MATH.layerNorm(hiddenState, vector(normWeight), vector(normBias), epsilon);
-
         // Multiply (dot product) the output with all token embeddings.
         // It will give a higher value if the output is more similar to the token embedding
         Vector logits = hiddenState.multiplyByTransposed(matrix(tokenEmbeddings));

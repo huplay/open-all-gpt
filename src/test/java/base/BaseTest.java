@@ -4,6 +4,7 @@ import math.dataType.DataType;
 import math.dataType.matrix.Matrix;
 import math.dataType.vector.Vector;
 
+import static math.dataType.matrix.Matrix.emptyMatrix;
 import static math.dataType.vector.Vector.emptyVector;
 import static org.junit.Assert.*;
 
@@ -19,6 +20,20 @@ public class BaseTest
         }
 
         return vector;
+    }
+
+    protected Matrix createMatrix(float[][] values)
+    {
+        var rows = values.length;
+        var cols = values[0].length;
+        var matrix = emptyMatrix(DataType.FLOAT_32, rows, cols);
+
+        for (var row = 0; row < rows; row ++)
+        {
+            matrix.setRow(row, createVector(values[row]));
+        }
+
+        return matrix;
     }
 
     protected void assertVectorEquals(float[] expected, Vector actual, float delta)

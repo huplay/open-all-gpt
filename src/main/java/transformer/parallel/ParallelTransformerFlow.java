@@ -54,9 +54,16 @@ public class ParallelTransformerFlow implements TransformerFlow
             intputSize = 1;
         }
 
-        // Process the input tokens - parallel process
+        // Printing dots to show there is a progress
+        OUT.print(". . . ");
+
+        // Process the input tokens - parallel
+        // The return value is based on the process for the last position
         Integer token = transformer.processInputTokens(posOffset, inputTokens, config.getTopK());
         result.add(token);
+
+        // Print the first generated token
+        OUT.print(tokenizer.decode(Collections.singletonList(token)));
 
         // Use the transformer again and again to generate new tokens
         for (var pos = intputSize; pos < config.getLengthLimit() + intputSize; pos++)

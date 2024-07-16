@@ -131,9 +131,7 @@ public class StandardMath extends AbstractMathUtility
     {
         if (vector.size() != matrix.getColCount())
         {
-            var thread = Thread.currentThread();
-            var stackTrace = thread.getStackTrace();
-
+            var stackTrace = Thread.currentThread().getStackTrace();
             throw new IdentifiedException("Vector and matrix shape is incompatible at multiplication (transposed). " +
                     "Vector size: " + vector.size() + ", matrix shape: " + matrix.getRowCount() + ", " + matrix.getColCount() +
                     " Stack trace: " + Arrays.toString(stackTrace));

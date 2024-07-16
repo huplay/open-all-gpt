@@ -1,6 +1,7 @@
 package position.rotary;
 
 import config.Config;
+import math.dataType.matrix.Matrix;
 import math.dataType.vector.Vector;
 
 import java.util.HashMap;
@@ -105,7 +106,37 @@ public class RotaryPositionEmbedding
 
             // Apply the rotation
             vector.set(n    , a * cos[pos][i] - b * sin[pos][i]);
-            vector.set(n + 1, b * cos[pos][i] - a * sin[pos][i]);
+            vector.set(n + 1, b * cos[pos][i] + a * sin[pos][i]);
+        }
+    }
+
+    public void applyInterleavedParallel(Matrix matrix, int posOffset)
+    {
+        // Read the initialized cos and sin matrices
+        RotaryEmbeddingCache cachedRotaryEmbeddings = ROTARY_EMBEDDING_CACHE.get(cacheKey);
+        var cos = cachedRotaryEmbeddings.cos();
+        var sin = cachedRotaryEmbeddings.sin();
+
+        int halfSize = matrix.getColCount() / 2;
+
+        for (var pos = 0; pos < matrix.getRowCount(); pos++)
+        {
+            var position = pos + posOffset;
+            var row = matrix.row(pos);
+
+            // Apply the rotation on every value (iterating over on the vector, stepping by 2)
+            for (int i = 0; i < halfSize; i++)
+            {
+                var n = 2 * i;
+
+                // Get the value of the two
+                float a = row.get(n);
+                float b = row.get(n + 1);
+
+                // Apply the rotation
+                matrix.setValue(pos, n    , a * cos[position][i] - b * sin[position][i]);
+                matrix.setValue(pos, n + 1, b * cos[position][i] + a * sin[position][i]);
+            }
         }
     }
 
@@ -132,7 +163,35 @@ public class RotaryPositionEmbedding
 
             // Apply the rotation
             vector.set(i           , a * cos[pos][i] - b * sin[pos][i]);
-            vector.set(i + halfSize, b * cos[pos][i] - a * sin[pos][i]);
+            vector.set(i + halfSize, b * cos[pos][i] + a * sin[pos][i]);
+        }
+    }
+
+    public void applySlicedParallel(Matrix matrix, int posOffset)
+    {
+        // Read the initialized cos and sin matrices
+        RotaryEmbeddingCache cachedRotaryEmbeddings = ROTARY_EMBEDDING_CACHE.get(cacheKey);
+        var cos = cachedRotaryEmbeddings.cos();
+        var sin = cachedRotaryEmbeddings.sin();
+
+        int halfSize = matrix.getColCount() / 2;
+
+        for (var pos = 0; pos < matrix.getRowCount(); pos++)
+        {
+            var position = pos + posOffset;
+            var row = matrix.row(pos);
+
+            // Apply the rotation on every value (iterating over on the vector, stepping by 2)
+            for (int i = 0; i < halfSize; i++)
+            {
+                // Get the value of the two
+                float a = row.get(i);
+                float b = row.get(i + halfSize);
+
+                // Apply the rotation
+                matrix.setValue(pos, i           , a * cos[position][i] - b * sin[position][i]);
+                matrix.setValue(pos, i + halfSize, b * cos[position][i] + a * sin[position][i]);
+            }
         }
     }
 }
