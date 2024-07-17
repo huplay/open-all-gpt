@@ -28,10 +28,9 @@ public class GPTJNeuralNetLayer extends BaseNeuralNetLayer
     public Vector process(Vector hiddenStateCompound)
     {
         // Split the input hidden states
-        Matrix input = hiddenStateCompound.split(3);
-        Vector inputHiddenState = input.row(0);
-        Vector hiddenState = input.row(1);
-        Vector attentionOutputHiddenState = input.row(2);
+        Vector inputHiddenState = hiddenStateCompound.part(3, 0);
+        Vector hiddenState = hiddenStateCompound.part(3, 1);
+        Vector attentionOutputHiddenState = hiddenStateCompound.part(3, 2);
 
         // Layer 1: <intermediateSize> neurons (usually 4 * <hiddenSize>) (using gelu activation function)
         hiddenState = hiddenState.multiplyByTransposed(matrix(layer1Weight));

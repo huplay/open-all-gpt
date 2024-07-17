@@ -59,22 +59,17 @@ public class OPTAttentionLayer extends BaseAttentionLayer
     public Vector attention(Vector hiddenState)
     {
         // Calculate the query, key and value vectors for the actual token
-        Vector query = hiddenState.multiplyByTransposed(matrix(queryWeight));
-        query = query.add(vector(queryBias));
+        Vector queries = hiddenState.multiplyByTransposed(matrix(queryWeight));
+        queries = queries.add(vector(queryBias));
 
         // Attention scale applied on query
-        query = query.multiply(attentionScale);
+        queries = queries.multiply(attentionScale);
 
-        Vector key = hiddenState.multiplyByTransposed(matrix(keyWeight));
-        key = key.add(vector(keyBias));
+        Vector keys = hiddenState.multiplyByTransposed(matrix(keyWeight));
+        keys = keys.add(vector(keyBias));
 
-        Vector value = hiddenState.multiplyByTransposed(matrix(valueWeight));
-        value = value.add(vector(valueBias));
-
-        // Split the query, key and value vectors into pieces for all heads
-        Matrix queryByHead = query.split(headCount);
-        Matrix keyByHead = key.split(headCount);
-        Matrix valueByHead = value.split(headCount);
+        Vector values = hiddenState.multiplyByTransposed(matrix(valueWeight));
+        values = values.add(vector(valueBias));
 
         // Collector of the attention results for all heads
         Matrix valueAggregate = emptyMatrix(headCount, headSize);
@@ -82,12 +77,17 @@ public class OPTAttentionLayer extends BaseAttentionLayer
         // Score the previous tokens (including the actual), separately for all heads
         for (int head = 0; head < headCount; head++)
         {
+            // Get the part for the actual head of the query, key and value vectors
+            Vector query = queries.part(headCount, head);
+            Vector key = keys.part(headCount, head);
+            Vector value = values.part(headCount, head);
+
             // Store the keys and values (these will be available while the following tokens will be processed)
-            store(head, keyByHead, valueByHead);
+            store(head, key, value);
 
             // Process the core of the attention mechanism (dot product attention)
             Vector attentionResult = dotProductAttention(
-                                            queryByHead.row(head),
+                                            query,
                                             getStoredKeys(head),
                                             getStoredValues(head));
 

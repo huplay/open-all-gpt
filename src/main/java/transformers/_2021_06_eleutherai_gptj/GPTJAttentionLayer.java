@@ -57,18 +57,13 @@ public class GPTJAttentionLayer extends BaseAttentionLayer
     private Vector attention(Vector hiddenState)
     {
         // Calculate the query, key and value vectors for the actual token
-        Vector query = hiddenState.multiplyByTransposed(matrix(queryWeight));
-        Vector key = hiddenState.multiplyByTransposed(matrix(keyWeight));
-        Vector value = hiddenState.multiplyByTransposed(matrix(valueWeight));
-
-        // Split the query, key and value vectors into pieces for all heads
-        Matrix queryByHead = query.split(headCount);
-        Matrix keyByHead = key.split(headCount);
-        Matrix valueByHead = value.split(headCount);
+        Vector queries = hiddenState.multiplyByTransposed(matrix(queryWeight));
+        Vector keys = hiddenState.multiplyByTransposed(matrix(keyWeight));
+        Vector values = hiddenState.multiplyByTransposed(matrix(valueWeight));
 
         // Position embedding (RoPE)
-        positionEmbedding.applyInterleaved(query, storedSize());
-        positionEmbedding.applyInterleaved(key, storedSize());
+        positionEmbedding.applyInterleaved(queries, storedSize());
+        positionEmbedding.applyInterleaved(keys, storedSize());
 
         // Collector of the attention results for all heads
         Matrix valueAggregate = emptyMatrix(headCount, headSize);
@@ -76,12 +71,17 @@ public class GPTJAttentionLayer extends BaseAttentionLayer
         // Score the previous tokens (including the actual), separately for all heads
         for (int head = 0; head < headCount; head++)
         {
+            // Get the part for the actual head of the query, key and value vectors
+            Vector query = queries.part(headCount, head);
+            Vector key = keys.part(headCount, head);
+            Vector value = values.part(headCount, head);
+
             // Store the keys and values (these will be available while the following tokens will be processed)
-            store(head, keyByHead, valueByHead);
+            store(head, key, value);
 
             // Process the core of the attention mechanism (dot product attention)
             Vector attentionResult = dotProductAttention(
-                                            queryByHead.row(head),
+                                            query,
                                             getStoredKeys(head),
                                             getStoredValues(head));
 

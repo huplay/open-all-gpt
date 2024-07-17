@@ -71,7 +71,7 @@ public class FairseqAttentionLayer extends BaseAttentionLayer
 
     private Vector attention(Vector hiddenState)
     {
-        Vector query, key, value;
+        Vector queries, keys, values;
 
         if (splitQueryKeyValue)
         {
@@ -79,32 +79,26 @@ public class FairseqAttentionLayer extends BaseAttentionLayer
             Vector queryKeyValue = hiddenState.multiplyByTransposed(matrix(queryKeyValueWeight));
             queryKeyValue = queryKeyValue.add(vector(queryKeyValueBias));
 
-            // Split the query/key/value
-            Matrix split = queryKeyValue.split(3);
-            query = split.row(0);
-            key = split.row(1);
-            value = split.row(2);
+            // Slice the query/key/value
+            queries = queryKeyValue.part(3, 0);
+            keys = queryKeyValue.part(3, 1);
+            values = queryKeyValue.part(3, 2);
         }
         else
         {
             // Calculate the query-key-value vectors for the actual token
-            query = hiddenState.multiplyByTransposed(matrix(queryWeight));
-            query = query.add(vector(queryBias));
+            queries = hiddenState.multiplyByTransposed(matrix(queryWeight));
+            queries = queries.add(vector(queryBias));
 
-            key = hiddenState.multiplyByTransposed(matrix(keyWeight));
-            key = key.add(vector(keyBias));
+            keys = hiddenState.multiplyByTransposed(matrix(keyWeight));
+            keys = keys.add(vector(keyBias));
 
-            value = hiddenState.multiplyByTransposed(matrix(valueWeight));
-            value = value.add(vector(valueBias));
+            values = hiddenState.multiplyByTransposed(matrix(valueWeight));
+            values = values.add(vector(valueBias));
         }
 
         // Apply the attention scale
-        query = query.multiply(attentionScale);
-
-        // Split the query, key and value vectors into pieces for all heads
-        Matrix queryByHead = query.split(headCount);
-        Matrix keyByHead = key.split(headCount);
-        Matrix valueByHead = value.split(headCount);
+        queries = queries.multiply(attentionScale);
 
         // Collector of the attention results for all heads
         Matrix valueAggregate = emptyMatrix(headCount, headSize);
@@ -112,12 +106,17 @@ public class FairseqAttentionLayer extends BaseAttentionLayer
         // Score the previous tokens (including the actual), separately for all heads
         for (int head = 0; head < headCount; head++)
         {
+            // Get the part for the actual head of the query, key and value vectors
+            Vector query = queries.part(headCount, head);
+            Vector key = keys.part(headCount, head);
+            Vector value = values.part(headCount, head);
+
             // Store the keys and values (these will be available while the following tokens will be processed)
-            store(head, keyByHead, valueByHead);
+            store(head, key, value);
 
             // Process the core of the attention mechanism (scaled dot product attention)
             Vector attentionResult = dotProductAttention(
-                                            queryByHead.row(head),
+                                            query,
                                             getStoredKeys(head),
                                             getStoredValues(head));
 

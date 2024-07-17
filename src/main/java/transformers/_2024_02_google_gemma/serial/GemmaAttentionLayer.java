@@ -130,8 +130,6 @@ public class GemmaAttentionLayer extends BaseAttentionLayer
         Vector key = hiddenState.multiplyByTransposed(matrix(keyWeight));
         Vector value = hiddenState.multiplyByTransposed(matrix(valueWeight));
 
-        // No splitting for the key and value vectors, because at MQA the same vector is used for all heads
-
         // Position embedding on the key
         int pos = storedSize();
         positionEmbedding.applySliced(key, pos);

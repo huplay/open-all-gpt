@@ -1,6 +1,6 @@
 package transformer.serial;
 
-import config.Config;import math.dataType.matrix.Matrix;
+import config.Config;
 import math.dataType.vector.Vector;
 
 import java.util.ArrayList;
@@ -40,31 +40,14 @@ public abstract class BaseAttentionLayer extends BaseDecoderLayer
         storedValues.get(head).add(value);
     }
 
-    @Deprecated
-    protected void store(int head, Matrix keys, Matrix values)
-    {
-        storedKeys.get(head).add(keys.row(head));
-        storedValues.get(head).add(values.row(head));
-    }
-
     protected List<Vector> getStoredKeys(int head)
     {
         return storedKeys.get(head);
     }
 
-    protected Vector getStoredKey(int head, int pos)
-    {
-        return storedKeys.get(head).get(pos);
-    }
-
     protected List<Vector> getStoredValues(int head)
     {
         return storedValues.get(head);
-    }
-
-    protected Vector getStoredValue(int head, int pos)
-    {
-        return storedValues.get(head).get(pos);
     }
 
     protected int storedSize()

@@ -13,7 +13,6 @@ import static config.ParameterType.*;
 
 /**
  * EleutherAI GPT-NeoX decoder (attention block) implementation
- *
  * @author Hunor Szegi
  */
 public class GPTNeoXAttentionLayer extends BaseAttentionLayer
@@ -60,20 +59,14 @@ public class GPTNeoXAttentionLayer extends BaseAttentionLayer
         Vector queryKeyValue = hiddenState.multiply(matrix(queryKeyValueWeight));
         queryKeyValue = queryKeyValue.add(vector(queryKeyValueBias));
 
-        // Split the query/key/value
-        Matrix split = queryKeyValue.split(3);
-        Vector query = split.row(0);
-        Vector key = split.row(1);
-        Vector value = split.row(2);
-
-        // Split the query, key and value vectors into pieces for all heads
-        Matrix queryByHead = query.split(headCount);
-        Matrix keyByHead = key.split(headCount);
-        Matrix valueByHead = value.split(headCount);
+        // Slice the query/key/value
+        Vector queries = queryKeyValue.part(3, 0);
+        Vector keys = queryKeyValue.part(3, 1);
+        Vector values = queryKeyValue.part(3, 2);
 
         // Position embedding (RoPE)
-        positionEmbedding.applySliced(query, storedSize());
-        positionEmbedding.applySliced(key, storedSize());
+        positionEmbedding.applySliced(queries, storedSize());
+        positionEmbedding.applySliced(keys, storedSize());
 
         // Collector of the attention results for all heads
         Matrix valueAggregate = emptyMatrix(headCount, headSize);
@@ -81,12 +74,17 @@ public class GPTNeoXAttentionLayer extends BaseAttentionLayer
         // Score the previous tokens (including the actual), separately for all heads
         for (int head = 0; head < headCount; head++)
         {
+            // Get the part for the actual head of the query, key and value vectors
+            Vector query = queries.part(headCount, head);
+            Vector key = keys.part(headCount, head);
+            Vector value = values.part(headCount, head);
+
             // Store the keys and values (these will be available while the following tokens will be processed)
-            store(head, keyByHead, valueByHead);
+            store(head, key, value);
 
             // Process the core of the attention mechanism (dot product attention)
             Vector attentionResult = dotProductAttention(
-                                            queryByHead.row(head),
+                                            query,
                                             getStoredKeys(head),
                                             getStoredValues(head));
 

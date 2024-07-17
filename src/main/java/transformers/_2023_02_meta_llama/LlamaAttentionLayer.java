@@ -60,16 +60,9 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
     protected Vector attentionGQA(Vector hiddenState)
     {
         // Calculate the query, key and value vectors for the actual token
-        Vector query = hiddenState.multiplyByTransposed(matrix(queryWeight));
-        Vector key = hiddenState.multiplyByTransposed(matrix(keyWeight));
-        Vector value = hiddenState.multiplyByTransposed(matrix(valueWeight));
-
-        // Split the query vector into pieces for all heads
-        Matrix queryByHead = query.split(headCount);
-
-        // Split the key and value vectors into pieces for all key-value heads
-        Matrix keyByKvHead = key.split(kvHeadCount);
-        Matrix valueByKvHead = value.split(kvHeadCount);
+        Vector queries = hiddenState.multiplyByTransposed(matrix(queryWeight));
+        Vector keys = hiddenState.multiplyByTransposed(matrix(keyWeight));
+        Vector values = hiddenState.multiplyByTransposed(matrix(valueWeight));
 
         // Collector of the attention results for all heads
         Matrix valueAggregate = emptyMatrix(headCount, headSize);
@@ -81,19 +74,24 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
         int head = 0;
         for (int kvHead = 0; kvHead < kvHeadCount; kvHead++)
         {
-            // Position embedding on the key
-            positionEmbedding.applyInterleaved(keyByKvHead.row(kvHead), pos);
-
-            // Store the keys and values (these will be available while the following tokens will be processed)
-            store(kvHead, keyByKvHead, valueByKvHead);
+            // Get the query vector for the actual head
+            Vector query = queries.part(headCount, head);
 
             for (int i = 0; i < headPerKvHead; i++)
             {
-                // Position embedding on the query
-                positionEmbedding.applyInterleaved(queryByHead.row(head), pos);
+                // Get the key and value vectors for the actual key-value head
+                Vector key = keys.part(kvHeadCount, i);
+                Vector value = values.part(kvHeadCount, i);
+
+                // Position embedding on the query and key
+                positionEmbedding.applyInterleaved(query, pos);
+                positionEmbedding.applyInterleaved(key, pos);
+
+                // Store the keys and values (these will be available while the following tokens will be processed)
+                store(kvHead, key, value);
 
                 Vector attentionResult = scaledDotProductAttention(
-                                                queryByHead.row(head),
+                                                query,
                                                 getStoredKeys(kvHead),
                                                 getStoredValues(kvHead));
 

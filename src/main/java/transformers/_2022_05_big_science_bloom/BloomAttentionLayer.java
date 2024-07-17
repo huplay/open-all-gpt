@@ -61,11 +61,8 @@ public class BloomAttentionLayer extends BaseAttentionLayer
     private Vector attention(Vector hiddenState)
     {
         // Calculate the query-key-value vectors for the actual token
-        Vector queryKeyValue = hiddenState.multiplyByTransposed(matrix(queryKeyValueWeight));
-        queryKeyValue = queryKeyValue.add(vector(queryKeyValueBias));
-
-        // Split the query, key and value vectors into pieces for all heads
-        Matrix queryKeyValuesByHead = queryKeyValue.split(headCount);
+        Vector queryKeyValues = hiddenState.multiplyByTransposed(matrix(queryKeyValueWeight));
+        queryKeyValues = queryKeyValues.add(vector(queryKeyValueBias));
 
         // Collector of the attention results for all heads
         Matrix valueAggregate = emptyMatrix(headCount, headSize);
@@ -73,21 +70,20 @@ public class BloomAttentionLayer extends BaseAttentionLayer
         // Score the previous tokens (including the actual), separately for all heads
         for (int head = 0; head < headCount; head++)
         {
-            Vector queryKeyValueByHead = queryKeyValuesByHead.row(head);
+            Vector queryKeyValue = queryKeyValues.part(headCount, head);
 
-            // Split the query/key/value
-            Matrix split = queryKeyValueByHead.split(3);
-            Vector queryByHead = split.row(0);
-            Vector keyByHead = split.row(1);
-            Vector valueByHead = split.row(2);
+            // Get the part for the actual head of the query, key and value vectors
+            Vector query = queryKeyValue.part(headCount, head);
+            Vector key = queryKeyValue.part(headCount, head);
+            Vector value = queryKeyValue.part(headCount, head);
 
             // Store the keys and values (these will be available while the following tokens will be processed)
-            store(head, keyByHead, valueByHead);
+            store(head, key, value);
 
             // Process the core of the attention mechanism (dot product attention)
             Vector attentionResult = dotProductAttention(
                                             head,
-                                            queryByHead,
+                                            query,
                                             getStoredKeys(head),
                                             getStoredValues(head));
 
