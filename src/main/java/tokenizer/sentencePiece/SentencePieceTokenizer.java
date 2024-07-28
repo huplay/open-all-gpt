@@ -25,7 +25,7 @@ import static ui.TextUtil.equalsIgnoreCase;
  */
 public class SentencePieceTokenizer implements Tokenizer
 {
-    private static final int START_OF_TEXT = 1;
+    private static final int START_OF_TEXT = 2;
     private static final String HEX_TOKEN_PREFIX = "<0x";
     private static final String HEX_TOKEN_SUFFIX = ">";
 
@@ -65,7 +65,7 @@ public class SentencePieceTokenizer implements Tokenizer
 
             It needs a .proto file to describe the structure of the data. For SentencePiece you can found it here:
             https://github.com/google/sentencepiece/blob/master/src/sentencepiece_model.proto
-            (It is stored in this repo at the "resources" folder as well, but it needed only once.)
+            (It is stored in the open-all-gpt repo at the "resources" folder as well, but it needed only once.)
 
             Based on the .proto file you can generate source code (in different languages)
             to store and read/write data using the protobuf app (protoc.exe). Download protobuf:
@@ -73,7 +73,7 @@ public class SentencePieceTokenizer implements Tokenizer
 
             The SentencePieceModel.java was generated using this prompt:
             protoc.exe -I=. --java_out=. sentencepiece_model.proto
-            (It is slightly modified to put into the correct package and renamed to camelcase.)
+            (I modified it manually using the correct package name and to avoid a huge amount of warning.)
          */
         try
         {
@@ -147,11 +147,7 @@ public class SentencePieceTokenizer implements Tokenizer
     @Override
     public List<Integer> encode(String text)
     {
-        if (text == null)
-        {
-            return Collections.singletonList(0);
-        }
-        else if (text.isEmpty())
+        if (text == null || text.isEmpty())
         {
             return Collections.singletonList(START_OF_TEXT);
         }
@@ -167,7 +163,7 @@ public class SentencePieceTokenizer implements Tokenizer
             codePoint = text.codePointAt(i);
             var character = Character.toString(codePoint);
 
-            var id = getId(character);
+            var id = character.equals(" ") ? getId("\u2581") : getId(character);
 
             if (id != -1)
             {
@@ -263,6 +259,10 @@ public class SentencePieceTokenizer implements Tokenizer
         {
             // If the token is the first one with leading space, remove the space
             text = text.substring(1);
+        }
+        else if (text.charAt(0) == '▁')
+        {
+            text = " " + text.substring(1);
         }
 
         return text;

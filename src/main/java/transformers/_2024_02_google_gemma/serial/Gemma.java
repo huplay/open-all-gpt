@@ -10,7 +10,6 @@ import static math.MathUtil.MATH;
 import static config.ParameterType.*;
 import static math.BasicMathUtility.sqrt;
 
-// TODO: Be careful: https://github.com/huggingface/transformers/pull/29402
 /**
  * Google Gemma transformer
  * @author Hunor Szegi

@@ -152,9 +152,13 @@ The largest model has an equivalent size to GPT-3. (It was the largest available
 
 LLaMA (Large Language Model Meta AI) is a large language model announced by Meta (Facebook) on 23 Feb 2023. The trained parameters were shared only to academic researchers, but on 2 March it was leaked to the public.
 
-Llama 2 was published in 18 July 2023 in three sizes. Llama 3 was published in 18 Apr 2024 in two sizes. (The training of a 400B version is in progress.)
+Release dates: 
+- Llama 1: 23 Feb 2023
+- Llama 2: 18 July 2023
+- Llama 3: 18 Apr 2024
+- Llama 3.1: 23 July 2024
 
-All Llama 2 and 3 models has a base version, and a fine-tuned version for chat (instruct).
+All Llama 2 and 3 models has a base version, and a fine-tuned version for chat (instruct). 
 
 The weights and the code are completely public for Llama 2 and 3, free to use even in commercial products. (Companies over 700 million monthly users has to request the licence.) 
 
@@ -162,26 +166,33 @@ Vocabulary size is 32,000 for Llama 1, 2; and 128,000 for Llama 3.
 
 | Name      | Hidden size | Dec. no. | Head no. | Kv Head no. | Max. length | Size of params |
 |-----------|------------:|---------:|---------:|------------:|------------:|---------------:|
-| LLaMA-7B  |        4096 |       32 |       32 |          32 |        2048 |        6,583 M |
-| LLaMA-13B |        5120 |       40 |       40 |          40 |        2048 |       12,759 M |
-| LLaMA-33B |        6656 |       60 |       52 |          52 |        2048 |       32,129 M |
-| LLaMA-65B |        8192 |       80 |       64 |          64 |        2048 |       64,711 M |
+| LLaMA 7B  |        4096 |       32 |       32 |          32 |        2048 |        6,583 M |
+| LLaMA 13B |        5120 |       40 |       40 |          40 |        2048 |       12,759 M |
+| LLaMA 33B |        6656 |       60 |       52 |          52 |        2048 |       32,129 M |
+| LLaMA 65B |        8192 |       80 |       64 |          64 |        2048 |       64,711 M |
 
 Llama 2 uses an additional gate projection network in the MLP block, and the 70B model has Grouped Query Attention (GQA).
 
-| Name        | Hidden size | Dec. no. | Head no. | Kv Head no. | Max. length | Size of params |
-|-------------|------------:|---------:|---------:|------------:|------------:|---------------:|
-| Llama 2-7B  |        4096 |       32 |       32 |          32 |        4096 |       ~7,000 M |
-| Llama 2-13B |        5120 |       40 |       40 |          40 |        4096 |       13,016 M |
-| Llama 2-70B |        8192 |       80 |       64 |           8 |        4096 |      ~70,000 M |
+| Name        | Hidden size | Dec. no. | Head no. | Kv Head no. | Max. length |
+|-------------|------------:|---------:|---------:|------------:|------------:|
+| Llama 2 7B  |        4096 |       32 |       32 |          32 |        4096 |
+| Llama 2 13B |        5120 |       40 |       40 |          40 |        4096 |
+| Llama 2 70B |        8192 |       80 |       64 |           8 |        4096 |
 
 Llama 3 architecturally the same as Llama 2-70B, all models use GQA (even the smallest).
 
-| Name         | Hidden size | Dec. no. | Head no. | Kv Head no. | Max. length | Size of params |
-|--------------|------------:|---------:|---------:|------------:|------------:|---------------:|
-| Llama 3-8B   |        4096 |       32 |       32 |           8 |        8192 |       ~8,000 M |
-| Llama 3-70B  |        8192 |       80 |       64 |           8 |        8192 |      ~70,000 M |
-| Llama 3-400B |        ???? |       ?? |       ?? |           ? |        ???? |     ~400,000 M |
+| Name        | Hidden size | Dec. no. | Head no. | Kv Head no. | Max. length |
+|-------------|------------:|---------:|---------:|------------:|------------:|
+| Llama 3 8B  |        4096 |       32 |       32 |           8 |        8192 |
+| Llama 3 70B |        8192 |       80 |       64 |           8 |        8192 |
+
+Llama 3.1 is architecturally the same as Llama 3. The 405B is the largest open model. (Largest by far among the standard (non mixture-of-experts) models.)
+
+| Name           | Hidden size | Dec. no. | Head no. | Kv Head no. | Max. length |
+|----------------|------------:|---------:|---------:|------------:|------------:|
+| Llama 3.1 8B   |        4096 |       32 |       32 |           8 |     128,000 |
+| Llama 3.1 70B  |        8192 |       80 |       64 |           8 |     128,000 |
+| Llama 3.1 405B |       16384 |      126 |      128 |          16 |     128,000 |
 
 ### March 2023 - GPT-4 (OpenAI) ###
 
@@ -189,7 +200,7 @@ GPT-4 was released in 14 March 2023, but almost all technical details are kept s
 
 | Name      | Hidden size | Dec. no. | Head no. | Max. length | Size of params |
 |-----------|------------:|---------:|---------:|------------:|---------------:|
-| GPT-4-8k  |          ?? |       ?? |       ?? |        8096 |           ?? M | 
+| GPT-4-8k  |          ?? |       ?? |       ?? |        8096 |           ?? M |
 | GPT-4-32k |          ?? |       ?? |       ?? |       32768 |           ?? M |
 
 ### March 2023 - Cerebras ###
@@ -229,3 +240,7 @@ Gemma was announced and released on 21 Feb 2024. Gemma-2 was released on 27 June
 | Gemma-2 2.6B  |        2304 |       26 |        8 |           4 |        8192 |
 | Gemma-2 9B    |        3584 |       42 |       16 |           8 |        8192 |
 | Gemma-2 27B   |        4608 |       46 |       32 |          16 |        8192 |
+
+### Grok ###
+
+These are mixture of experts models, so this app cannot support these.
