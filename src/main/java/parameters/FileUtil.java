@@ -79,7 +79,7 @@ public class FileUtil
             var file = new File(path);
             if (!file.exists())
             {
-                missingFiles.add(path);
+                missingFiles.add(fileName);
             }
         }
 
