@@ -119,7 +119,15 @@
           "Llama 3 - 70B-Instruct": {"order": 4}
         }
       },
-      "OpenLlama": {"order": 6,
+      "Llama 3_2": {"order": 6,
+        "folders": {
+          "Llama 3.2 - 1B": {"order": 1},
+          "Llama 3.2 - 1B-Instruct": {"order": 2},
+          "Llama 3.2 - 3B": {"order": 3},
+          "Llama 3.2 - 3B-Instruct": {"order": 4}
+        }
+      },
+      "OpenLlama": {"order": 7,
         "folders": {
           "OpenLlama 3B": {"order": 1},
           "OpenLlama 3B v2": {"order": 2},
@@ -128,14 +136,14 @@
           "OpenLlama 65B": {"order": 5}
         }
       },
-      "TinyLlamas (llama.cpp - Karpathy)": {"order": 7,
+      "TinyLlamas (llama.cpp - Karpathy)": {"order": 8,
         "folders": {
           "TinyLlama 15M": {"order": 1},
           "TinyLlama 42M": {"order": 2},
           "TinyLlama 110M": {"order": 3}
         }
       },
-      "TinyLlama (Zhang)": {"order": 8,
+      "TinyLlama (Zhang)": {"order": 9,
         "folders": {
           "TinyLlama 1.1B": {"order": 1},
           "TinyLlama 1.1B Chat1.0": {"order": 2}

@@ -2,7 +2,7 @@
 
 This is a demo application which implements different large language models in Java for learning purposes.
 
-The main goal is to demonstrate the different decoder-only transformers architectures (without training), not to create an optimized application.
+The main goal is to demonstrate the different decoder-only transformer architectures (without training), not to create an optimized application.
 
 The second goal was to be able to execute as many models as possible. But it is limited by the operative memory, so I created a network framework which can split the task for multiple computers.
 

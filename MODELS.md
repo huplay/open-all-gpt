@@ -157,6 +157,7 @@ Release dates:
 - Llama 2: 18 July 2023
 - Llama 3: 18 Apr 2024
 - Llama 3.1: 23 July 2024
+- Llama 3.2: 25 Sept 2024
 
 All Llama 2 and 3 models has a base version, and a fine-tuned version for chat (instruct). 
 
@@ -193,6 +194,13 @@ Llama 3.1 is architecturally the same as Llama 3. The 405B is the largest open m
 | Llama 3.1 8B   |        4096 |       32 |       32 |           8 |     128,000 |
 | Llama 3.1 70B  |        8192 |       80 |       64 |           8 |     128,000 |
 | Llama 3.1 405B |       16384 |      126 |      128 |          16 |     128,000 |
+
+Llama 3.2 has text only and multimodal (image + text) variants as well. The latter is an encoder-decoder architecture, so that is different to that what is implemented here. The text-only models are the smallest Llama variants, architecturally the same as the 3.1 models. Text-only models:
+
+| Name           | Hidden size | Dec. no. | Head no. | Kv Head no. | Max. length |
+|----------------|------------:|---------:|---------:|------------:|------------:|
+| Llama 3.2 1B   |        2048 |       16 |       32 |           8 |     128,000 |
+| Llama 3.2 3B   |        3072 |       28 |       24 |           8 |     128,000 |
 
 ### March 2023 - GPT-4 (OpenAI) ###
 

@@ -35,7 +35,7 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
         // Calculate the attention scale
         this.attentionScale = 1 / sqrt(kvSize);
 
-        // Initialize the position embedder
+        // Initialize the position embedding
         positionEmbedding = new RotaryPositionEmbedding(config, kvSize);
     }
 
@@ -80,8 +80,8 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
             for (int i = 0; i < headPerKvHead; i++)
             {
                 // Get the key and value vectors for the actual key-value head
-                Vector key = keys.part(kvHeadCount, i);
-                Vector value = values.part(kvHeadCount, i);
+                Vector key = keys.part(kvHeadCount, kvHead);
+                Vector value = values.part(kvHeadCount, kvHead);
 
                 // Position embedding on the query and key
                 positionEmbedding.applyInterleaved(query, pos);
@@ -103,7 +103,7 @@ public class LlamaAttentionLayer extends BaseAttentionLayer
 
         // Concatenate the results of all heads
         hiddenState = valueAggregate.flatten();
-
+// First 128 values are matching, not matching after that
         // Projection neural layer
         hiddenState = hiddenState.multiplyByTransposed(matrix(projectionWeight));
 
